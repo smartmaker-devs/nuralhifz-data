@@ -3,10 +3,10 @@
  * Output → data/timings/kouchi/{NNN}.json (clipboard / share / download).
  */
 
-const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 'https://github.com/ELAHMADI/ma-mushaf-muhammadi-data/releases/download/audio-kouchi-v1/' }
+const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/' }
 const SCHEMA_VERSION = 1
-const DATA_BASE = 'https://cdn.jsdelivr.net/gh/ELAHMADI/ma-mushaf-muhammadi-data@v1.0.0/data/'
-const TIMINGS_BASE = 'https://cdn.jsdelivr.net/gh/ELAHMADI/ma-mushaf-muhammadi-data@main/data/timings/kouchi/'
+const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1.0.0/data/'
+const TIMINGS_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@main/data/timings/kouchi/'
 
 // ── State ────────────────────────────────────────────────────────────────────
 const state = {
