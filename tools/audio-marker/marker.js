@@ -149,12 +149,6 @@ function renderVerses() {
     if (done) li.classList.add('done')
     if (active) li.classList.add('active')
     li.dataset.idx = i
-    const adjustHtml = done
-      ? `<span class="adj-cell">
-           <button class="adj" data-act="adj" data-i="${i}" data-d="-100" aria-label="−100ms">−</button>
-           <button class="adj" data-act="adj" data-i="${i}" data-d="100" aria-label="+100ms">+</button>
-         </span>`
-      : `<span class="adj-cell"></span>`
     li.innerHTML = `
       <span class="num">﴿${v.aya}﴾</span>
       <span class="text">${escapeHtml(v.text)}</span>
@@ -162,7 +156,6 @@ function renderVerses() {
         <span class="t-start">${start != null ? fmt(start) : '—'}</span>
         <span class="t-end">${end != null ? fmt(end) : '—'}</span>
       </span>
-      ${adjustHtml}
     `
     li.addEventListener('click', () => {
       if (start != null) audio.currentTime = start
@@ -177,16 +170,23 @@ function renderVerses() {
       updateCursor()
       renderVerses()
     })
-    li.querySelectorAll('button[data-act="adj"]').forEach(b => {
-      b.addEventListener('click', (e) => {
-        e.stopPropagation()
-        adjustMark(parseInt(b.dataset.i, 10), parseInt(b.dataset.d, 10))
-      })
-    })
     list.appendChild(li)
   })
   const el = list.querySelector('li.active')
   el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  updateAdjustPanel()
+}
+
+// Show/hide & populate the contextual adjuster for the active verse
+function updateAdjustPanel() {
+  const panel = $('verseAdjust')
+  if (!panel) return
+  const i = state.cursor
+  const isMarked = i >= 0 && i < state.marks.length && state.marks[i] != null
+  if (!isMarked) { panel.hidden = true; return }
+  panel.hidden = false
+  $('vaVerseNum').textContent = String(i + 1)
+  $('vaEndDisplay').textContent = fmt(state.marks[i])
 }
 const escapeHtml = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
 
@@ -375,6 +375,11 @@ document.querySelectorAll('.rates button').forEach(b => {
     b.classList.add('active')
     audio.playbackRate = parseFloat(b.dataset.rate)
   })
+})
+$('verseAdjust').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-act="va"]')
+  if (!btn) return
+  adjustMark(state.cursor, parseInt(btn.dataset.d, 10))
 })
 document.querySelectorAll('.nudges button').forEach(b => {
   b.addEventListener('click', () => {

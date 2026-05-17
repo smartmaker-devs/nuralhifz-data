@@ -60,9 +60,9 @@ main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:col
 .verses-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.3rem;max-height:50vh;overflow:auto;
   -webkit-overflow-scrolling:touch}
 .verses-list li{
-  display:grid;grid-template-columns:auto 1fr auto auto;gap:.5rem;align-items:center;
+  display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:center;
   padding:.5rem .55rem;border-radius:8px;border:1px solid transparent;cursor:pointer;
-  min-height:56px;
+  min-height:48px;
 }
 .verses-list li:active{background:#1c2029}
 .verses-list li.active{border-color:var(--accent-2);background:#1a2030}
@@ -73,13 +73,27 @@ main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:col
   display:flex;flex-direction:column;gap:.15rem;align-items:flex-start}
 .verses-list li.done .range{color:var(--green)}
 .verses-list li .range .t-start{opacity:.55}
-.verses-list li .adj-cell{display:flex;flex-direction:column;gap:.2rem;min-width:34px}
-.verses-list li .adj-cell:empty{min-width:0}
-.verses-list li .adj{
-  min-width:34px;min-height:30px;padding:0;line-height:1;font-size:1rem;font-weight:700;
-  background:#2a2f3a;border-color:var(--line);border-radius:8px;color:var(--text);
+
+/* ── Contextual verse-end adjuster ──────────────────────────────────── */
+.verse-adjust{
+  background:linear-gradient(180deg,#1a2030,#171a21);
+  border:1px solid var(--accent-2);border-radius:var(--radius);
+  padding:.7rem .8rem;display:flex;flex-direction:column;gap:.6rem;
+  box-shadow:0 0 0 3px rgba(59,130,246,.08);
 }
-.verses-list li .adj:active{background:var(--accent-2);color:#fff}
+.va-head{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap;font-size:.95rem}
+.va-head strong{color:var(--accent);font-size:1.1rem}
+.va-end-display{font-family:ui-monospace,monospace;font-size:.85rem;margin-inline-start:auto}
+.va-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+.va-buttons button{
+  min-height:52px;font-weight:700;font-size:1rem;border-radius:12px;
+  background:#222632;border:1px solid var(--line);transition:transform .08s;
+}
+.va-buttons button small{display:block;font-size:.65rem;font-weight:500;opacity:.7;margin-top:.1rem}
+.va-buttons button[data-d^="-"]{color:#fca5a5}
+.va-buttons button[data-d^="-"]:active{background:rgba(239,68,68,.25);border-color:var(--red)}
+.va-buttons button:not([data-d^="-"]){color:#86efac}
+.va-buttons button:not([data-d^="-"]):active{background:rgba(34,197,94,.25);border-color:var(--green)}
 
 .export-bar{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
 .export-bar button{font-size:.92rem}
