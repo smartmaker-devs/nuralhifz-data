@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "surah": 110,
+  "surah_name_ar": "النصر",
+  "verse_count": 3,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/110.mp3",
+  "audio_duration": 22.125689,
+  "marked_at": "2026-05-17T16:24:27.099Z",
+  "marks": [
+    8.655769000000001,
+    14.832267,
+    22.044995
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 8.655769000000001
+    },
+    {
+      "verse": 2,
+      "start": 8.655769000000001,
+      "end": 14.832267
+    },
+    {
+      "verse": 3,
+      "start": 14.832267,
+      "end": 22.044995
+    }
+  ],
+  "complete": true
+}
