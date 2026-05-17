@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "surah": 111,
+  "surah_name_ar": "المسد",
+  "verse_count": 5,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/111.mp3",
+  "audio_duration": 26.435878,
+  "marked_at": "2026-05-17T16:51:54.904Z",
+  "marks": [
+    8.043260000000002,
+    13.829959,
+    17.821685,
+    21.67830199999999,
+    26.403291
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 8.043260000000002
+    },
+    {
+      "verse": 2,
+      "start": 8.043260000000002,
+      "end": 13.829959
+    },
+    {
+      "verse": 3,
+      "start": 13.829959,
+      "end": 17.821685
+    },
+    {
+      "verse": 4,
+      "start": 17.821685,
+      "end": 21.67830199999999
+    },
+    {
+      "verse": 5,
+      "start": 21.67830199999999,
+      "end": 26.403291
+    }
+  ],
+  "complete": true
+}
