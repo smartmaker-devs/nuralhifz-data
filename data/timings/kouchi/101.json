@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "surah": 101,
+  "surah_name_ar": "القارعة",
+  "verse_count": 10,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/101.mp3",
+  "audio_duration": 41.665256,
+  "marked_at": "2026-05-17T20:32:32.610Z",
+  "marks": [
+    5.3935390000000005,
+    9.944272000000002,
+    15.507417,
+    20.304472999999998,
+    24.973229999999994,
+    27.888844,
+    31.715984999999996,
+    34.839307,
+    39.090704,
+    41.481663
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 5.3935390000000005
+    },
+    {
+      "verse": 2,
+      "start": 5.3935390000000005,
+      "end": 9.944272000000002
+    },
+    {
+      "verse": 3,
+      "start": 9.944272000000002,
+      "end": 15.507417
+    },
+    {
+      "verse": 4,
+      "start": 15.507417,
+      "end": 20.304472999999998
+    },
+    {
+      "verse": 5,
+      "start": 20.304472999999998,
+      "end": 24.973229999999994
+    },
+    {
+      "verse": 6,
+      "start": 24.973229999999994,
+      "end": 27.888844
+    },
+    {
+      "verse": 7,
+      "start": 27.888844,
+      "end": 31.715984999999996
+    },
+    {
+      "verse": 8,
+      "start": 31.715984999999996,
+      "end": 34.839307
+    },
+    {
+      "verse": 9,
+      "start": 34.839307,
+      "end": 39.090704
+    },
+    {
+      "verse": 10,
+      "start": 39.090704,
+      "end": 41.481663
+    }
+  ],
+  "complete": true
+}
