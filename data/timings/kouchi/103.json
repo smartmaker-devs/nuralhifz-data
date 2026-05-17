@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "surah": 103,
+  "surah_name_ar": "العصر",
+  "verse_count": 3,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/103.mp3",
+  "audio_duration": 18.442438,
+  "marked_at": "2026-05-17T17:02:08.057Z",
+  "marks": [
+    9.140616000000001,
+    16.048972999999997,
+    18.165989
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 9.140616000000001
+    },
+    {
+      "verse": 2,
+      "start": 9.140616000000001,
+      "end": 16.048972999999997
+    },
+    {
+      "verse": 3,
+      "start": 16.048972999999997,
+      "end": 18.165989
+    }
+  ],
+  "complete": true
+}
