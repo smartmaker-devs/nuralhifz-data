@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "surah": 97,
+  "surah_name_ar": "القدر",
+  "verse_count": 5,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/097.mp3",
+  "audio_duration": 33.227756,
+  "marked_at": "2026-05-17T20:46:58.030Z",
+  "marks": [
+    10.752441,
+    15.711482,
+    19.56645,
+    29.089385,
+    33.004263
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 10.752441
+    },
+    {
+      "verse": 2,
+      "start": 10.752441,
+      "end": 15.711482
+    },
+    {
+      "verse": 3,
+      "start": 15.711482,
+      "end": 19.56645
+    },
+    {
+      "verse": 4,
+      "start": 19.56645,
+      "end": 29.089385
+    },
+    {
+      "verse": 5,
+      "start": 29.089385,
+      "end": 33.004263
+    }
+  ],
+  "complete": true
+}
