@@ -7,44 +7,44 @@
   "reciter_name": "El-Ayoun El-Kouchi",
   "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/114.mp3",
   "audio_duration": 26.200813,
-  "marked_at": "2026-05-15T17:13:12.825Z",
+  "marked_at": "2026-05-17T11:01:26.364Z",
   "marks": [
-    6.707819,
-    9.680955,
-    11.958153,
+    6.437819,
+    9.180955000000003,
+    11.758153,
     16.433132,
-    21.019872,
+    20.719871999999995,
     26.200813
   ],
   "timings": [
     {
       "verse": 1,
       "start": 0,
-      "end": 6.707819
+      "end": 6.437819
     },
     {
       "verse": 2,
-      "start": 6.707819,
-      "end": 9.680955
+      "start": 6.437819,
+      "end": 9.180955000000003
     },
     {
       "verse": 3,
-      "start": 9.680955,
-      "end": 11.958153
+      "start": 9.180955000000003,
+      "end": 11.758153
     },
     {
       "verse": 4,
-      "start": 11.958153,
+      "start": 11.758153,
       "end": 16.433132
     },
     {
       "verse": 5,
       "start": 16.433132,
-      "end": 21.019872
+      "end": 20.719871999999995
     },
     {
       "verse": 6,
-      "start": 21.019872,
+      "start": 20.719871999999995,
       "end": 26.200813
     }
   ],
