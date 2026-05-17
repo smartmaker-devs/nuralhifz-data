@@ -150,19 +150,19 @@ function renderVerses() {
     if (active) li.classList.add('active')
     li.dataset.idx = i
     const adjustHtml = done
-      ? `<span class="adj-row">
+      ? `<span class="adj-cell">
            <button class="adj" data-act="adj" data-i="${i}" data-d="-100" aria-label="−100ms">−</button>
            <button class="adj" data-act="adj" data-i="${i}" data-d="100" aria-label="+100ms">+</button>
          </span>`
-      : ''
+      : `<span class="adj-cell"></span>`
     li.innerHTML = `
       <span class="num">﴿${v.aya}﴾</span>
       <span class="text">${escapeHtml(v.text)}</span>
       <span class="range">
         <span class="t-start">${start != null ? fmt(start) : '—'}</span>
         <span class="t-end">${end != null ? fmt(end) : '—'}</span>
-        ${adjustHtml}
       </span>
+      ${adjustHtml}
     `
     li.addEventListener('click', () => {
       if (start != null) audio.currentTime = start

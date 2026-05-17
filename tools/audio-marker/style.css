@@ -60,9 +60,9 @@ main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:col
 .verses-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.3rem;max-height:50vh;overflow:auto;
   -webkit-overflow-scrolling:touch}
 .verses-list li{
-  display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:center;
+  display:grid;grid-template-columns:auto 1fr auto auto;gap:.5rem;align-items:center;
   padding:.5rem .55rem;border-radius:8px;border:1px solid transparent;cursor:pointer;
-  min-height:48px;
+  min-height:56px;
 }
 .verses-list li:active{background:#1c2029}
 .verses-list li.active{border-color:var(--accent-2);background:#1a2030}
@@ -72,10 +72,11 @@ main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:col
 .verses-list li .range{font-family:ui-monospace,monospace;font-size:.78rem;color:var(--muted);white-space:nowrap;text-align:start;
   display:flex;flex-direction:column;gap:.15rem;align-items:flex-start}
 .verses-list li.done .range{color:var(--green)}
-.verses-list li .range .t-start{opacity:.6}
-.verses-list li .adj-row{display:flex;gap:.25rem;margin-top:.15rem}
+.verses-list li .range .t-start{opacity:.55}
+.verses-list li .adj-cell{display:flex;flex-direction:column;gap:.2rem;min-width:34px}
+.verses-list li .adj-cell:empty{min-width:0}
 .verses-list li .adj{
-  min-width:34px;min-height:34px;padding:0;line-height:1;font-size:1rem;font-weight:700;
+  min-width:34px;min-height:30px;padding:0;line-height:1;font-size:1rem;font-weight:700;
   background:#2a2f3a;border-color:var(--line);border-radius:8px;color:var(--text);
 }
 .verses-list li .adj:active{background:var(--accent-2);color:#fff}
