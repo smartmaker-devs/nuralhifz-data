@@ -75,6 +75,7 @@
     </section>
 
     <section class="export-bar" id="exportBar" hidden>
+      <button id="btnPushGh" class="primary">⬆ GitHub</button>
       <button id="btnCopy">📋 نسخ JSON</button>
       <button id="btnShare" hidden>📤 مشاركة</button>
       <button id="btnDownload">⬇ تنزيل</button>
@@ -82,6 +83,20 @@
       <input id="fileImport" type="file" accept="application/json" hidden />
     </section>
   </main>
+
+  <dialog id="patDialog" class="pat-dialog">
+    <div class="pat-card">
+      <h3>GitHub Token</h3>
+      <p class="muted">Personal Access Token avec <code>Contents: write</code> sur <code>smartmaker-devs/nuralhifz-data</code>.</p>
+      <p class="muted"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">إنشاء token جديد ↗</a></p>
+      <input id="patInput" type="password" placeholder="github_pat_..." autocomplete="off" spellcheck="false" />
+      <div class="pat-actions">
+        <button type="button" id="patCancel">إلغاء</button>
+        <button type="button" id="patSave" class="primary">حفظ ومتابعة</button>
+      </div>
+      <p class="muted pat-hint">Stocké localement (localStorage) sur cet appareil.</p>
+    </div>
+  </dialog>
 
   <!-- Action bar fixed at bottom for thumb reach -->
   <div class="actionbar" id="actionBar" hidden>

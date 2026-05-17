@@ -7,6 +7,35 @@ const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 
 const SCHEMA_VERSION = 1
 const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1.0.0/data/'
 const TIMINGS_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@main/data/timings/kouchi/'
+const GH = {
+  owner: 'smartmaker-devs', repo: 'nuralhifz-data', branch: 'main',
+  patKey: 'marker:gh:pat',
+  getPat() { return localStorage.getItem(this.patKey) || '' },
+  setPat(v) { v ? localStorage.setItem(this.patKey, v) : localStorage.removeItem(this.patKey) },
+  _hdr() {
+    return {
+      'Authorization': `Bearer ${this.getPat()}`,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    }
+  },
+  async getFileSha(path) {
+    const url = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${this.branch}`
+    const r = await fetch(url, { headers: this._hdr(), cache: 'no-store' })
+    if (r.status === 404) return null
+    if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(`${r.status}: ${e.message || 'GET contents failed'}`) }
+    return (await r.json()).sha
+  },
+  async putFile(path, content, message) {
+    const sha = await this.getFileSha(path)
+    const body = { message, content: btoa(unescape(encodeURIComponent(content))), branch: this.branch }
+    if (sha) body.sha = sha
+    const url = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`
+    const r = await fetch(url, { method: 'PUT', headers: { ...this._hdr(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(`${r.status}: ${e.message || 'PUT failed'}`) }
+    return r.json()
+  },
+}
 
 // ── State ────────────────────────────────────────────────────────────────────
 const state = {
@@ -18,6 +47,7 @@ const state = {
   audioUrl: '',
   duration: 0,
   stopAt: null,
+  pendingPush: false,
 }
 
 // ── DOM ──────────────────────────────────────────────────────────────────────
@@ -301,6 +331,72 @@ async function shareJson() {
     if (e.name !== 'AbortError') setStatus('échec share — utilise copy', true)
   }
 }
+// Strict validation before pushing to GitHub
+function validatePayload(p) {
+  if (p.schema_version !== 1) return 'schema_version doit être 1'
+  if (!Number.isInteger(p.surah) || p.surah < 1 || p.surah > 114) return `surah invalide (${p.surah})`
+  if (p.complete !== true) return 'سورة non terminée (complete=false) — ne pas pousser'
+  if (!Array.isArray(p.marks) || p.marks.length !== p.verse_count) return `marks.length (${p.marks?.length}) ≠ verse_count (${p.verse_count})`
+  if (!Array.isArray(p.timings) || p.timings.length !== p.verse_count) return `timings.length ≠ verse_count`
+  if (p.timings[0]?.start !== 0) return 'start[0] doit être 0'
+  for (let i = 0; i < p.marks.length; i++) {
+    const m = p.marks[i]
+    if (typeof m !== 'number' || !isFinite(m)) return `marks[${i}] invalide`
+    if (i > 0 && m <= p.marks[i-1] + 0.001) return `marks[${i+1}] ≤ marks[${i}] (non strictement croissant)`
+  }
+  for (let i = 0; i < p.timings.length - 1; i++) {
+    if (Math.abs(p.timings[i].end - p.timings[i+1].start) > 0.0001) {
+      return `gap/overlap entre آية ${i+1} et ${i+2}`
+    }
+  }
+  if (p.audio_duration && Math.abs(p.marks[p.marks.length-1] - p.audio_duration) > 0.5) {
+    return `end[last] (${p.marks.at(-1).toFixed(3)}s) ≠ audio_duration (${p.audio_duration.toFixed(3)}s) à plus de 0.5s`
+  }
+  return null
+}
+
+async function pushToGitHub() {
+  const payload = buildPayload()
+  const err = validatePayload(payload)
+  if (err) { setStatus(`✗ ${err}`, true); return }
+
+  if (!GH.getPat()) {
+    state.pendingPush = true
+    openPatDialog()
+    return
+  }
+
+  const fileName = `${pad3(state.surahNo)}.json`
+  const path = `data/timings/${RECITER.id === 'el_ayoun_el_kouchi' ? 'kouchi' : RECITER.id}/${fileName}`
+  const ok = confirm(`📤 Pousser ${fileName} sur GitHub ?\n\nSourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.verse_count} versets\nDurée: ${fmt(payload.audio_duration)}\nBranche: ${GH.branch}`)
+  if (!ok) return
+
+  setStatus(`⏳ envoi de ${fileName} à GitHub…`)
+  try {
+    const message = `data(timings): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.verse_count} versets via audio-marker`
+    const res = await GH.putFile(path, jsonText() + '\n', message)
+    const sha = res.commit?.sha?.slice(0, 7) || ''
+    const action = res.content ? (res.commit?.parents?.length ? 'mis à jour' : 'créé') : ''
+    setStatus(`✅ ${fileName} ${action} sur GitHub (${sha})`)
+    if (navigator.vibrate) navigator.vibrate([15, 50, 15])
+  } catch (e) {
+    if (/^401/.test(e.message)) {
+      setStatus(`✗ token invalide ou expiré — re-saisir`, true)
+      GH.setPat('')
+      state.pendingPush = true
+      openPatDialog()
+    } else {
+      setStatus(`✗ GitHub: ${e.message}`, true)
+    }
+  }
+}
+
+function openPatDialog() {
+  $('patInput').value = GH.getPat()
+  $('patDialog').showModal()
+  setTimeout(() => $('patInput').focus(), 50)
+}
+
 function downloadJson() {
   const blob = new Blob([jsonText()], { type: 'application/json' })
   const a = document.createElement('a')
@@ -359,6 +455,19 @@ $('btnPlayPause').addEventListener('click', () => {
   // Manual play clears any pending "stop at end of verse" from preview mode
   state.stopAt = null
   audio.paused ? audio.play() : audio.pause()
+})
+$('btnPushGh').addEventListener('click', pushToGitHub)
+$('patSave').addEventListener('click', () => {
+  const val = $('patInput').value.trim()
+  if (!val) { setStatus('token vide', true); return }
+  GH.setPat(val)
+  $('patDialog').close()
+  setStatus('🔑 token enregistré localement')
+  if (state.pendingPush) { state.pendingPush = false; pushToGitHub() }
+})
+$('patCancel').addEventListener('click', () => {
+  $('patDialog').close()
+  state.pendingPush = false
 })
 $('btnCopy').addEventListener('click', copyJson)
 $('btnShare').addEventListener('click', shareJson)
