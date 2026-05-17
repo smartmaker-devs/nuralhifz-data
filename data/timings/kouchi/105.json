@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "surah": 105,
+  "surah_name_ar": "الفيل",
+  "verse_count": 5,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/105.mp3",
+  "audio_duration": 27.611378,
+  "marked_at": "2026-05-17T16:57:40.758Z",
+  "marks": [
+    8.576962,
+    12.779751,
+    16.924303999999996,
+    22.626384999999996,
+    27.610143
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 8.576962
+    },
+    {
+      "verse": 2,
+      "start": 8.576962,
+      "end": 12.779751
+    },
+    {
+      "verse": 3,
+      "start": 12.779751,
+      "end": 16.924303999999996
+    },
+    {
+      "verse": 4,
+      "start": 16.924303999999996,
+      "end": 22.626384999999996
+    },
+    {
+      "verse": 5,
+      "start": 22.626384999999996,
+      "end": 27.610143
+    }
+  ],
+  "complete": true
+}
