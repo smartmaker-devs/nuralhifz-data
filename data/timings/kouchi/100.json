@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "surah": 100,
+  "surah_name_ar": "العاديات",
+  "verse_count": 11,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/100.mp3",
+  "audio_duration": 46.706938,
+  "marked_at": "2026-05-17T20:35:46.594Z",
+  "marks": [
+    5.812396000000001,
+    8.353965,
+    10.899039,
+    13.659264,
+    16.268143,
+    22.114164,
+    27.127684000000006,
+    32.181607,
+    37.232849,
+    39.910289,
+    46.390762
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 5.812396000000001
+    },
+    {
+      "verse": 2,
+      "start": 5.812396000000001,
+      "end": 8.353965
+    },
+    {
+      "verse": 3,
+      "start": 8.353965,
+      "end": 10.899039
+    },
+    {
+      "verse": 4,
+      "start": 10.899039,
+      "end": 13.659264
+    },
+    {
+      "verse": 5,
+      "start": 13.659264,
+      "end": 16.268143
+    },
+    {
+      "verse": 6,
+      "start": 16.268143,
+      "end": 22.114164
+    },
+    {
+      "verse": 7,
+      "start": 22.114164,
+      "end": 27.127684000000006
+    },
+    {
+      "verse": 8,
+      "start": 27.127684000000006,
+      "end": 32.181607
+    },
+    {
+      "verse": 9,
+      "start": 32.181607,
+      "end": 37.232849
+    },
+    {
+      "verse": 10,
+      "start": 37.232849,
+      "end": 39.910289
+    },
+    {
+      "verse": 11,
+      "start": 39.910289,
+      "end": 46.390762
+    }
+  ],
+  "complete": true
+}
