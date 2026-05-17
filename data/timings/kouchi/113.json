@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "surah": 113,
+  "surah_name_ar": "الفلق",
+  "verse_count": 5,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/113.mp3",
+  "audio_duration": 19.931378,
+  "marked_at": "2026-05-17T13:26:27.265Z",
+  "marks": [
+    5.120944,
+    7.961569000000001,
+    11.740688,
+    15.894979000000001,
+    19.687901
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 5.120944
+    },
+    {
+      "verse": 2,
+      "start": 5.120944,
+      "end": 7.961569000000001
+    },
+    {
+      "verse": 3,
+      "start": 7.961569000000001,
+      "end": 11.740688
+    },
+    {
+      "verse": 4,
+      "start": 11.740688,
+      "end": 15.894979000000001
+    },
+    {
+      "verse": 5,
+      "start": 15.894979000000001,
+      "end": 19.687901
+    }
+  ],
+  "complete": true
+}
