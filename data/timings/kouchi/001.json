@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "surah": 1,
+  "surah_name_ar": "الفاتحة",
+  "verse_count": 7,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/001.mp3",
+  "audio_duration": 35.657125,
+  "marked_at": "2026-05-17T16:55:20.011Z",
+  "marks": [
+    10.471307000000001,
+    13.286863,
+    16.113135,
+    20.47991,
+    24.01644,
+    27.783555,
+    35.657125
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 10.471307000000001
+    },
+    {
+      "verse": 2,
+      "start": 10.471307000000001,
+      "end": 13.286863
+    },
+    {
+      "verse": 3,
+      "start": 13.286863,
+      "end": 16.113135
+    },
+    {
+      "verse": 4,
+      "start": 16.113135,
+      "end": 20.47991
+    },
+    {
+      "verse": 5,
+      "start": 20.47991,
+      "end": 24.01644
+    },
+    {
+      "verse": 6,
+      "start": 24.01644,
+      "end": 27.783555
+    },
+    {
+      "verse": 7,
+      "start": 27.783555,
+      "end": 35.657125
+    }
+  ],
+  "complete": true
+}
