@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "surah": 98,
+  "surah_name_ar": "البينة",
+  "verse_count": 8,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/098.mp3",
+  "audio_duration": 99.578756,
+  "marked_at": "2026-05-17T20:45:07.439Z",
+  "marks": [
+    13.042533,
+    18.548373999999995,
+    22.053838999999996,
+    32.552001,
+    50.401883,
+    66.530195,
+    77.779084,
+    99.43244
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 13.042533
+    },
+    {
+      "verse": 2,
+      "start": 13.042533,
+      "end": 18.548373999999995
+    },
+    {
+      "verse": 3,
+      "start": 18.548373999999995,
+      "end": 22.053838999999996
+    },
+    {
+      "verse": 4,
+      "start": 22.053838999999996,
+      "end": 32.552001
+    },
+    {
+      "verse": 5,
+      "start": 32.552001,
+      "end": 50.401883
+    },
+    {
+      "verse": 6,
+      "start": 50.401883,
+      "end": 66.530195
+    },
+    {
+      "verse": 7,
+      "start": 66.530195,
+      "end": 77.779084
+    },
+    {
+      "verse": 8,
+      "start": 77.779084,
+      "end": 99.43244
+    }
+  ],
+  "complete": true
+}
