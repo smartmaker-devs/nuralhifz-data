@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "surah": 99,
+  "surah_name_ar": "الزلزلة",
+  "verse_count": 9,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/099.mp3",
+  "audio_duration": 41.012189,
+  "marked_at": "2026-05-17T20:40:06.101Z",
+  "marks": [
+    6.630583,
+    9.921213,
+    13.663103,
+    17.842375,
+    22.04327,
+    26.349094999999995,
+    28.408635,
+    33.799701,
+    40.830251
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 6.630583
+    },
+    {
+      "verse": 2,
+      "start": 6.630583,
+      "end": 9.921213
+    },
+    {
+      "verse": 3,
+      "start": 9.921213,
+      "end": 13.663103
+    },
+    {
+      "verse": 4,
+      "start": 13.663103,
+      "end": 17.842375
+    },
+    {
+      "verse": 5,
+      "start": 17.842375,
+      "end": 22.04327
+    },
+    {
+      "verse": 6,
+      "start": 22.04327,
+      "end": 26.349094999999995
+    },
+    {
+      "verse": 7,
+      "start": 26.349094999999995,
+      "end": 28.408635
+    },
+    {
+      "verse": 8,
+      "start": 28.408635,
+      "end": 33.799701
+    },
+    {
+      "verse": 9,
+      "start": 33.799701,
+      "end": 40.830251
+    }
+  ],
+  "complete": true
+}
