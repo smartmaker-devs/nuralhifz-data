@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "surah": 106,
+  "surah_name_ar": "قريش",
+  "verse_count": 5,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/106.mp3",
+  "audio_duration": 29.361625,
+  "marked_at": "2026-05-17T16:07:02.437Z",
+  "marks": [
+    6.78674,
+    13.935435,
+    17.926437,
+    23.875591,
+    29.361625
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 6.78674
+    },
+    {
+      "verse": 2,
+      "start": 6.78674,
+      "end": 13.935435
+    },
+    {
+      "verse": 3,
+      "start": 13.935435,
+      "end": 17.926437
+    },
+    {
+      "verse": 4,
+      "start": 17.926437,
+      "end": 23.875591
+    },
+    {
+      "verse": 5,
+      "start": 23.875591,
+      "end": 29.361625
+    }
+  ],
+  "complete": true
+}
