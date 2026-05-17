@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "surah": 107,
+  "surah_name_ar": "الماعون",
+  "verse_count": 6,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/107.mp3",
+  "audio_duration": 34.142,
+  "marked_at": "2026-05-17T16:09:33.790Z",
+  "marks": [
+    8.977956000000002,
+    12.891495,
+    17.11925,
+    19.696773,
+    25.024907,
+    34.142
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 8.977956000000002
+    },
+    {
+      "verse": 2,
+      "start": 8.977956000000002,
+      "end": 12.891495
+    },
+    {
+      "verse": 3,
+      "start": 12.891495,
+      "end": 17.11925
+    },
+    {
+      "verse": 4,
+      "start": 17.11925,
+      "end": 19.696773
+    },
+    {
+      "verse": 5,
+      "start": 19.696773,
+      "end": 25.024907
+    },
+    {
+      "verse": 6,
+      "start": 25.024907,
+      "end": 34.142
+    }
+  ],
+  "complete": true
+}
