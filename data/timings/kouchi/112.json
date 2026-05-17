@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "surah": 112,
+  "surah_name_ar": "الإخلاص",
+  "verse_count": 4,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/112.mp3",
+  "audio_duration": 12.251378,
+  "marked_at": "2026-05-17T16:11:57.462Z",
+  "marks": [
+    5.015729,
+    6.756768000000001,
+    9.202147,
+    12.095121
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 5.015729
+    },
+    {
+      "verse": 2,
+      "start": 5.015729,
+      "end": 6.756768000000001
+    },
+    {
+      "verse": 3,
+      "start": 6.756768000000001,
+      "end": 9.202147
+    },
+    {
+      "verse": 4,
+      "start": 9.202147,
+      "end": 12.095121
+    }
+  ],
+  "complete": true
+}
