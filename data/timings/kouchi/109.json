@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "surah": 109,
+  "surah_name_ar": "الكافرون",
+  "verse_count": 6,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/109.mp3",
+  "audio_duration": 37.773067,
+  "marked_at": "2026-05-17T16:22:59.437Z",
+  "marks": [
+    8.020798000000001,
+    13.054956,
+    19.931092999999997,
+    25.573667999999994,
+    34.698569,
+    37.773067
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 8.020798000000001
+    },
+    {
+      "verse": 2,
+      "start": 8.020798000000001,
+      "end": 13.054956
+    },
+    {
+      "verse": 3,
+      "start": 13.054956,
+      "end": 19.931092999999997
+    },
+    {
+      "verse": 4,
+      "start": 19.931092999999997,
+      "end": 25.573667999999994
+    },
+    {
+      "verse": 5,
+      "start": 25.573667999999994,
+      "end": 34.698569
+    },
+    {
+      "verse": 6,
+      "start": 34.698569,
+      "end": 37.773067
+    }
+  ],
+  "complete": true
+}
