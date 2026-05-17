@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "surah": 102,
+  "surah_name_ar": "التكاثر",
+  "verse_count": 8,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/102.mp3",
+  "audio_duration": 36.466938,
+  "marked_at": "2026-05-17T17:04:24.745Z",
+  "marks": [
+    5.709199000000001,
+    8.487897,
+    11.482507,
+    15.552577000000001,
+    19.431019999999997,
+    23.150298,
+    28.788339,
+    36.466938
+  ],
+  "timings": [
+    {
+      "verse": 1,
+      "start": 0,
+      "end": 5.709199000000001
+    },
+    {
+      "verse": 2,
+      "start": 5.709199000000001,
+      "end": 8.487897
+    },
+    {
+      "verse": 3,
+      "start": 8.487897,
+      "end": 11.482507
+    },
+    {
+      "verse": 4,
+      "start": 11.482507,
+      "end": 15.552577000000001
+    },
+    {
+      "verse": 5,
+      "start": 15.552577000000001,
+      "end": 19.431019999999997
+    },
+    {
+      "verse": 6,
+      "start": 19.431019999999997,
+      "end": 23.150298
+    },
+    {
+      "verse": 7,
+      "start": 23.150298,
+      "end": 28.788339
+    },
+    {
+      "verse": 8,
+      "start": 28.788339,
+      "end": 36.466938
+    }
+  ],
+  "complete": true
+}
