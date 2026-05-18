@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-05-18",
+  "note": "Manifest d'etat des audios verset-par-verset par sourate et par reciter. Toute sourate non listee = todo (non commencee). 'done' = JSON timings + MP3 publies. 'in_progress' = en cours de generation/verification.",
+  "reciters": {
+    "kouchi": {
+      "done": [1, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
+      "in_progress": []
+    },
+    "benkirane": {
+      "done": [],
+      "in_progress": []
+    },
+    "elharraz": {
+      "done": [],
+      "in_progress": []
+    }
+  }
+}
