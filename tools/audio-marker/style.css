@@ -57,20 +57,26 @@ main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:col
 .dot.done{background:var(--green)}
 .dot.active{background:var(--accent-2);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
 
-.verses-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.3rem;max-height:50vh;overflow:auto;
+.verses-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.25rem;max-height:55vh;overflow:auto;
   -webkit-overflow-scrolling:touch}
 .verses-list li{
-  display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:center;
-  padding:.5rem .55rem;border-radius:8px;border:1px solid transparent;cursor:pointer;
+  display:grid;grid-template-columns:2.4rem minmax(0,1fr) auto;gap:.65rem;align-items:start;
+  padding:.65rem .55rem;border-radius:8px;border:1px solid transparent;cursor:pointer;
+  border-bottom:1px solid rgba(255,255,255,.04);
   min-height:48px;
 }
+.verses-list li:last-child{border-bottom-color:transparent}
 .verses-list li:active{background:#1c2029}
 .verses-list li.active{border-color:var(--accent-2);background:#1a2030}
 .verses-list li.done{background:rgba(34,197,94,.06)}
-.verses-list li .num{font-family:ui-monospace,monospace;color:var(--muted);min-width:2.2rem;text-align:start;font-size:.85rem}
-.verses-list li .text{font-size:1.05rem;line-height:1.85;font-family:'Amiri','Tahoma',serif}
+.verses-list li.done.active{background:rgba(59,130,246,.12)}
+.verses-list li .num{font-family:ui-monospace,monospace;color:var(--muted);text-align:start;font-size:.85rem;padding-top:.2rem;white-space:nowrap}
+.verses-list li .text{
+  font-size:1.05rem;line-height:1.6;font-family:'Amiri','Tahoma',serif;
+  min-width:0;word-break:break-word;overflow-wrap:anywhere;
+}
 .verses-list li .range{font-family:ui-monospace,monospace;font-size:.78rem;color:var(--muted);white-space:nowrap;text-align:start;
-  display:flex;flex-direction:column;gap:.15rem;align-items:flex-start}
+  display:flex;flex-direction:column;gap:.15rem;align-items:flex-start;padding-top:.2rem}
 .verses-list li.done .range{color:var(--green)}
 .verses-list li .range .t-start{opacity:.55}
 
@@ -84,16 +90,21 @@ main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:col
 .va-head{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap;font-size:.95rem}
 .va-head strong{color:var(--accent);font-size:1.1rem}
 .va-end-display{font-family:ui-monospace,monospace;font-size:.85rem;margin-inline-start:auto}
-.va-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+.va-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;direction:ltr}
 .va-buttons button{
-  min-height:52px;font-weight:700;font-size:1rem;border-radius:12px;
+  min-height:48px;font-weight:700;font-size:.95rem;border-radius:10px;
   background:#222632;border:1px solid var(--line);transition:transform .08s;
+  padding:.3rem .2rem;
 }
-.va-buttons button small{display:block;font-size:.65rem;font-weight:500;opacity:.7;margin-top:.1rem}
+.va-buttons button small{display:block;font-size:.6rem;font-weight:500;opacity:.65;margin-top:.05rem}
 .va-buttons button[data-d^="-"]{color:#fca5a5}
-.va-buttons button[data-d^="-"]:active{background:rgba(239,68,68,.25);border-color:var(--red)}
+.va-buttons button[data-d^="-"]:active{background:rgba(239,68,68,.25);border-color:var(--red);transform:scale(0.95)}
 .va-buttons button:not([data-d^="-"]){color:#86efac}
-.va-buttons button:not([data-d^="-"]):active{background:rgba(34,197,94,.25);border-color:var(--green)}
+.va-buttons button:not([data-d^="-"]):active{background:rgba(34,197,94,.25);border-color:var(--green);transform:scale(0.95)}
+/* Coarse row (300/200) visually stronger; fine row (100/10) lighter */
+.va-buttons button[data-d="-300"],.va-buttons button[data-d="-200"],
+.va-buttons button[data-d="200"],.va-buttons button[data-d="300"]{font-size:1rem}
+.va-buttons button[data-d="-10"],.va-buttons button[data-d="10"]{opacity:.85;font-size:.85rem}
 
 .export-bar{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
 .export-bar button{font-size:.92rem}

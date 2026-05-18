@@ -188,12 +188,14 @@ function renderVerses() {
       </span>
     `
     li.addEventListener('click', () => {
-      if (start != null) audio.currentTime = start
       state.cursor = i
-      // If verse is fully marked → preview only this verse (seek + play + auto-stop)
       if (end != null && start != null) {
-        state.stopAt = end
-        audio.play().catch(() => {})
+        // Marked verse → smart preview around end boundary (last ~1.5s + 0.5s after)
+        previewBoundary(start, end)
+      } else if (start != null) {
+        // Unmarked active verse → seek to start, no autoplay
+        audio.currentTime = start
+        state.stopAt = null
       } else {
         state.stopAt = null
       }
@@ -235,6 +237,18 @@ function markCurrent() {
   // Haptic on mobile
   if (navigator.vibrate) navigator.vibrate(15)
 }
+// Smart preview around a boundary: play last ~1.5s of verse + 0.5s after end.
+// For very short verses, plays from `lo` to (end + 0.5) — no overlap with previous boundary.
+function previewBoundary(lo, end) {
+  const PRE = 1.5  // seconds to play BEFORE the end mark
+  const POST = 0.5 // seconds to play AFTER the end mark (into next verse if any)
+  const previewStart = Math.max(lo, end - PRE)
+  const previewEnd   = Math.min((state.duration || end + POST), end + POST)
+  audio.currentTime = previewStart
+  state.stopAt = previewEnd
+  audio.play().catch(() => {})
+}
+
 // Adjust marks[i] by deltaMs, with constraints: must stay > previous mark and < next mark.
 function adjustMark(i, deltaMs) {
   if (i < 0 || i >= state.marks.length || state.marks[i] == null) return
@@ -247,11 +261,8 @@ function adjustMark(i, deltaMs) {
   state.marks[i] = newVal
   persist()
   renderVerses()
-  // Re-preview this verse with the new boundary
   state.cursor = i
-  audio.currentTime = prev
-  state.stopAt = newVal
-  audio.play().catch(() => {})
+  previewBoundary(prev, newVal)
   setStatus(`✎ آية ${i+1} → نهاية ${fmt(newVal)} (${deltaMs > 0 ? '+' : ''}${deltaMs}ms)`)
   if (navigator.vibrate) navigator.vibrate(8)
 }
