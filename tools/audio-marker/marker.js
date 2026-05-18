@@ -1,10 +1,12 @@
 /* Audio Marker — Kouchi (Warsh Muhammadi) — Android mobile-first
- * Convention: end[N] === start[N+1]. start[0] = 0. end[last] = audio.duration.
+ * Schema v2: marks[] = end timestamps. starts[] = start timestamps (length = verse_count).
+ *            Gap between verses ALLOWED (start[N+1] >= end[N], not strictly equal).
+ *            Schema v1 (legacy 114.json) had end[N] === start[N+1]; still readable.
  * Output → data/timings/kouchi/{NNN}.json (clipboard / share / download).
  */
 
 const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/' }
-const SCHEMA_VERSION = 1
+const SCHEMA_VERSION = 2
 const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1.0.0/data/'
 const TIMINGS_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@main/data/timings/kouchi/'
 const GH = {
@@ -43,11 +45,13 @@ const state = {
   verses: [],
   surahNo: null,
   cursor: 0,
-  marks: [],
+  marks: [],            // marks[i] = end of verse (i+1)
+  starts: [],           // starts[i] = start of verse (i+1) ; starts[0] always 0
   audioUrl: '',
   duration: 0,
   stopAt: null,
   pendingPush: false,
+  adjustMode: 'end',    // 'end' adjusts marks[cursor], 'start' adjusts starts[cursor]
 }
 
 // ── DOM ──────────────────────────────────────────────────────────────────────
@@ -108,6 +112,12 @@ async function overlayCommittedMarks(n) {
     const obj = await r.json()
     if (!Array.isArray(obj.marks)) throw new Error('marks missing')
     state.marks = obj.marks.slice(0, state.verses.length)
+    if (Array.isArray(obj.starts)) {
+      state.starts = obj.starts.slice(0, state.verses.length)
+    } else {
+      state.starts = []
+    }
+    syncStartsToMarks()
     state.cursor = Math.min(state.marks.length, state.verses.length - 1)
     persist()
     updateCursor()
@@ -141,13 +151,18 @@ async function loadSurah(n) {
 
   const saved = localStorage.getItem(lsKey(n))
   state.marks = []
+  state.starts = []
   if (saved) {
     try {
       const obj = JSON.parse(saved)
       if (Array.isArray(obj.marks)) state.marks = obj.marks.slice(0, state.verses.length)
+      if (Array.isArray(obj.starts)) state.starts = obj.starts.slice(0, state.verses.length)
     } catch {}
   }
+  // Backfill starts from marks if missing (legacy v1: zero-gap)
+  syncStartsToMarks()
   state.cursor = Math.min(state.marks.length, state.verses.length - 1)
+  state.adjustMode = 'end'
 
   $('metaPanel').hidden = false
   $('metaUrl').textContent = state.audioUrl
@@ -170,8 +185,8 @@ function renderVerses() {
   const list = $('versesList')
   list.innerHTML = ''
   state.verses.forEach((v, i) => {
-    const start = i === 0 ? 0 : (state.marks[i-1] ?? null)
     const end   = state.marks[i] ?? null
+    const start = i === 0 ? 0 : (state.starts[i] ?? (state.marks[i-1] ?? null))
     const done  = end != null
     const active = i === state.cursor
 
@@ -190,10 +205,13 @@ function renderVerses() {
     li.addEventListener('click', () => {
       state.cursor = i
       if (end != null && start != null) {
-        // Marked verse → smart preview around end boundary (last ~1.5s + 0.5s after)
-        previewBoundary(start, end)
+        // Preview around whichever boundary the current adjust mode targets
+        if (state.adjustMode === 'start' && i > 0) {
+          previewStartBoundary(state.marks[i-1] ?? 0, start, end)
+        } else {
+          previewBoundary(start, end)
+        }
       } else if (start != null) {
-        // Unmarked active verse → seek to start, no autoplay
         audio.currentTime = start
         state.stopAt = null
       } else {
@@ -217,8 +235,41 @@ function updateAdjustPanel() {
   const isMarked = i >= 0 && i < state.marks.length && state.marks[i] != null
   if (!isMarked) { panel.hidden = true; return }
   panel.hidden = false
+
+  // Disable "start" tab for verse 1 (start always 0, immutable)
+  const startTab = $('vaTabStart')
+  if (startTab) {
+    startTab.disabled = (i === 0)
+    if (i === 0 && state.adjustMode === 'start') state.adjustMode = 'end'
+  }
+
+  // Update tab visual state
+  $('vaTabEnd')?.classList.toggle('active', state.adjustMode === 'end')
+  $('vaTabStart')?.classList.toggle('active', state.adjustMode === 'start')
+
   $('vaVerseNum').textContent = String(i + 1)
-  $('vaEndDisplay').textContent = fmt(state.marks[i])
+  const display = state.adjustMode === 'start'
+    ? (state.starts[i] ?? state.marks[i-1] ?? 0)
+    : state.marks[i]
+  $('vaEndDisplay').textContent = fmt(display)
+  $('vaModeLabel').textContent = state.adjustMode === 'start' ? 'ضبط بداية الآية' : 'ضبط نهاية الآية'
+}
+
+function setAdjustMode(mode) {
+  if (mode === 'start' && state.cursor === 0) return
+  state.adjustMode = mode
+  updateAdjustPanel()
+  // Re-preview with the new boundary focus
+  const i = state.cursor
+  if (i < state.marks.length && state.marks[i] != null) {
+    const end = state.marks[i]
+    const start = state.starts[i] ?? (i === 0 ? 0 : state.marks[i-1])
+    if (mode === 'start' && i > 0) {
+      previewStartBoundary(state.marks[i-1] ?? 0, start, end)
+    } else {
+      previewBoundary(start, end)
+    }
+  }
 }
 const escapeHtml = (s) => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
 
@@ -229,6 +280,11 @@ function markCurrent() {
   const prev = state.cursor === 0 ? 0 : (state.marks[state.cursor - 1] ?? 0)
   if (t <= prev) { setStatus(`${fmt(t)} ≤ نهاية السابقة ${fmt(prev)}`, true); return }
   state.marks[state.cursor] = t
+  // Default: next verse starts where this one ends (zero gap, user can adjust later)
+  if (state.cursor + 1 < state.verses.length && state.starts[state.cursor + 1] == null) {
+    state.starts[state.cursor + 1] = t
+  }
+  if (state.starts[0] == null) state.starts[0] = 0
   state.cursor = Math.min(state.cursor + 1, state.verses.length)
   persist()
   updateCursor()
@@ -237,11 +293,18 @@ function markCurrent() {
   // Haptic on mobile
   if (navigator.vibrate) navigator.vibrate(15)
 }
-// Smart preview around a boundary: play last ~1.5s of verse + 0.5s after end.
-// For very short verses, plays from `lo` to (end + 0.5) — no overlap with previous boundary.
+// Ensure starts[] has a value for every i ≤ marks.length, defaulting to zero-gap
+// (start[i] = marks[i-1], start[0] = 0). Preserves any explicit values already set.
+function syncStartsToMarks() {
+  state.starts[0] = 0
+  for (let i = 1; i <= state.marks.length && i < state.verses.length; i++) {
+    if (state.starts[i] == null) state.starts[i] = state.marks[i-1]
+  }
+}
+
+// Smart preview around the END of a verse: last ~1.5s + 0.5s after end mark.
 function previewBoundary(lo, end) {
-  const PRE = 1.5  // seconds to play BEFORE the end mark
-  const POST = 0.5 // seconds to play AFTER the end mark (into next verse if any)
+  const PRE = 1.5, POST = 0.5
   const previewStart = Math.max(lo, end - PRE)
   const previewEnd   = Math.min((state.duration || end + POST), end + POST)
   audio.currentTime = previewStart
@@ -249,21 +312,58 @@ function previewBoundary(lo, end) {
   audio.play().catch(() => {})
 }
 
-// Adjust marks[i] by deltaMs, with constraints: must stay > previous mark and < next mark.
+// Smart preview around the START of a verse: 0.5s before start + 1.5s after.
+// Lets the user hear what's EXCLUDED (echo of prev verse) vs the clean attack.
+function previewStartBoundary(prevEnd, start, end) {
+  const PRE = 0.5, POST = 1.5
+  const previewStart = Math.max(prevEnd, start - PRE)
+  const previewEnd   = Math.min(end, start + POST)
+  audio.currentTime = previewStart
+  state.stopAt = previewEnd
+  audio.play().catch(() => {})
+}
+
+// Adjust either marks[i] (end) or starts[i] (start) by deltaMs, with constraints.
 function adjustMark(i, deltaMs) {
-  if (i < 0 || i >= state.marks.length || state.marks[i] == null) return
+  if (i < 0 || i >= state.verses.length) return
+
+  if (state.adjustMode === 'start') {
+    return adjustStart(i, deltaMs)
+  }
+
+  // END adjustment
+  if (state.marks[i] == null) return
   const newVal = state.marks[i] + deltaMs / 1000
-  const prev = i === 0 ? 0 : (state.marks[i-1] ?? 0)
-  const nextMark = state.marks[i+1]
-  const upper = nextMark != null ? nextMark : (state.duration || Infinity)
-  if (newVal <= prev + 0.001) { setStatus(`الحد الأدنى ${fmt(prev)} — لا يمكن النزول أكثر`, true); return }
+  const lower = state.starts[i] ?? (i === 0 ? 0 : state.marks[i-1] ?? 0)
+  const nextStart = state.starts[i+1]
+  const upper = nextStart != null ? nextStart : (state.duration || Infinity)
+  if (newVal <= lower + 0.001) { setStatus(`الحد الأدنى ${fmt(lower)} — لا يمكن النزول أكثر`, true); return }
   if (newVal >= upper - 0.001) { setStatus(`الحد الأقصى ${fmt(upper)} — لا يمكن الصعود أكثر`, true); return }
   state.marks[i] = newVal
   persist()
   renderVerses()
   state.cursor = i
-  previewBoundary(prev, newVal)
+  previewBoundary(lower, newVal)
   setStatus(`✎ آية ${i+1} → نهاية ${fmt(newVal)} (${deltaMs > 0 ? '+' : ''}${deltaMs}ms)`)
+  if (navigator.vibrate) navigator.vibrate(8)
+}
+
+// Adjust starts[i]. Constraints: starts[i] >= marks[i-1] (no overlap with prev verse)
+// AND starts[i] < marks[i] (verse non-empty). starts[0] cannot move (always 0).
+function adjustStart(i, deltaMs) {
+  if (i === 0) { setStatus('بداية الآية الأولى ثابتة عند الصفر', true); return }
+  if (state.starts[i] == null || state.marks[i-1] == null) return
+  const newVal = state.starts[i] + deltaMs / 1000
+  const lower = state.marks[i-1]
+  const end = state.marks[i] ?? state.duration ?? Infinity
+  if (newVal < lower - 0.001) { setStatus(`الحد الأدنى ${fmt(lower)} (نهاية السابقة)`, true); return }
+  if (newVal >= end - 0.001) { setStatus(`الحد الأقصى ${fmt(end)} (نهاية الآية)`, true); return }
+  state.starts[i] = newVal
+  persist()
+  renderVerses()
+  state.cursor = i
+  previewStartBoundary(lower, newVal, end)
+  setStatus(`✎ آية ${i+1} → بداية ${fmt(newVal)} (${deltaMs > 0 ? '+' : ''}${deltaMs}ms)`)
   if (navigator.vibrate) navigator.vibrate(8)
 }
 
@@ -271,6 +371,7 @@ function undoLast() {
   const idx = Math.min(state.cursor, state.marks.length) - 1
   if (idx < 0) return
   state.marks.length = idx
+  state.starts.length = Math.min(state.starts.length, idx + 1) // keep starts[0..idx], drop starts[idx+1..]
   state.cursor = idx
   persist()
   updateCursor()
@@ -288,11 +389,14 @@ function persist() {
 
 function buildPayload() {
   const surahMeta = state.surahs.find(s => s.number === state.surahNo) || {}
+  const startOf = (i) => (i === 0 ? 0 : (state.starts[i] ?? state.marks[i-1] ?? null))
   const timings = state.verses.map((v, i) => ({
     verse: v.aya,
-    start: i === 0 ? 0 : (state.marks[i-1] ?? null),
+    start: startOf(i),
     end:   state.marks[i] ?? null,
   }))
+  // Materialize starts[] aligned to verse_count for output (default to zero-gap)
+  const startsOut = state.verses.map((_, i) => startOf(i))
   return {
     schema_version: SCHEMA_VERSION,
     surah: state.surahNo,
@@ -304,6 +408,7 @@ function buildPayload() {
     audio_duration: state.duration || null,
     marked_at: new Date().toISOString(),
     marks: state.marks,
+    starts: startsOut,
     timings,
     complete: state.marks.length === state.verses.length
               && state.marks.every(x => typeof x === 'number'),
@@ -342,9 +447,11 @@ async function shareJson() {
     if (e.name !== 'AbortError') setStatus('échec share — utilise copy', true)
   }
 }
-// Strict validation before pushing to GitHub
+// Strict validation before pushing to GitHub.
+// v1 (legacy): zero-gap strictly enforced (end[i] === start[i+1]).
+// v2 (current): gaps allowed (end[i] <= start[i+1], capped at 2s max gap to avoid orphan silences).
 function validatePayload(p) {
-  if (p.schema_version !== 1) return 'schema_version doit être 1'
+  if (![1, 2].includes(p.schema_version)) return 'schema_version doit être 1 ou 2'
   if (!Number.isInteger(p.surah) || p.surah < 1 || p.surah > 114) return `surah invalide (${p.surah})`
   if (p.complete !== true) return 'سورة non terminée (complete=false) — ne pas pousser'
   if (!Array.isArray(p.marks) || p.marks.length !== p.verse_count) return `marks.length (${p.marks?.length}) ≠ verse_count (${p.verse_count})`
@@ -355,10 +462,16 @@ function validatePayload(p) {
     if (typeof m !== 'number' || !isFinite(m)) return `marks[${i}] invalide`
     if (i > 0 && m <= p.marks[i-1] + 0.001) return `marks[${i+1}] ≤ marks[${i}] (non strictement croissant)`
   }
+  for (let i = 0; i < p.timings.length; i++) {
+    const t = p.timings[i]
+    if (typeof t.start !== 'number' || typeof t.end !== 'number') return `timings[${i+1}] invalide`
+    if (t.start >= t.end) return `الآية ${i+1} : start ≥ end (verset vide)`
+  }
   for (let i = 0; i < p.timings.length - 1; i++) {
-    if (Math.abs(p.timings[i].end - p.timings[i+1].start) > 0.0001) {
-      return `gap/overlap entre آية ${i+1} et ${i+2}`
-    }
+    const gap = p.timings[i+1].start - p.timings[i].end
+    if (p.schema_version === 1 && Math.abs(gap) > 0.0001) return `v1: gap/overlap entre آية ${i+1} et ${i+2}`
+    if (gap < -0.0001) return `overlap (recouvrement) entre آية ${i+1} et ${i+2}`
+    if (gap > 2.0) return `gap trop large (${gap.toFixed(2)}s) entre آية ${i+1} et ${i+2}`
   }
   if (p.audio_duration && Math.abs(p.marks[p.marks.length-1] - p.audio_duration) > 0.5) {
     return `end[last] (${p.marks.at(-1).toFixed(3)}s) ≠ audio_duration (${p.audio_duration.toFixed(3)}s) à plus de 0.5s`
@@ -501,6 +614,8 @@ $('verseAdjust').addEventListener('click', (e) => {
   if (!btn) return
   adjustMark(state.cursor, parseInt(btn.dataset.d, 10))
 })
+$('vaTabEnd').addEventListener('click', () => setAdjustMode('end'))
+$('vaTabStart').addEventListener('click', () => setAdjustMode('start'))
 document.querySelectorAll('.nudges button').forEach(b => {
   b.addEventListener('click', () => {
     const ms = parseInt(b.dataset.nudge, 10)

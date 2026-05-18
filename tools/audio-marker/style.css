@@ -80,14 +80,22 @@ main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:col
 .verses-list li.done .range{color:var(--green)}
 .verses-list li .range .t-start{opacity:.55}
 
-/* ── Contextual verse-end adjuster ──────────────────────────────────── */
+/* ── Contextual verse boundary adjuster ─────────────────────────────── */
 .verse-adjust{
   background:linear-gradient(180deg,#1a2030,#171a21);
   border:1px solid var(--accent-2);border-radius:var(--radius);
-  padding:.7rem .8rem;display:flex;flex-direction:column;gap:.6rem;
+  padding:.7rem .8rem;display:flex;flex-direction:column;gap:.55rem;
   box-shadow:0 0 0 3px rgba(59,130,246,.08);
 }
-.va-head{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap;font-size:.95rem}
+.va-tabs{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;background:#0f1115;
+  border:1px solid var(--line);border-radius:10px;padding:.25rem}
+.va-tab{
+  min-height:38px;font-weight:600;font-size:.9rem;border-radius:7px;
+  background:transparent;border:1px solid transparent;color:var(--muted);
+}
+.va-tab.active{background:var(--accent-2);color:#fff;border-color:transparent}
+.va-tab:disabled{opacity:.4;cursor:not-allowed}
+.va-head{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap;font-size:.92rem}
 .va-head strong{color:var(--accent);font-size:1.1rem}
 .va-end-display{font-family:ui-monospace,monospace;font-size:.85rem;margin-inline-start:auto}
 .va-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;direction:ltr}
