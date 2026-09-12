@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 95,
+  "surah_name_ar": "التين",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/095.mp3",
+  "audio_duration": 38.4,
+  "marked_at": "2026-09-12T22:10:25.804Z",
+  "derived_from": "mono-thumn:audio-duration",
+  "segments": [
+    {
+      "eighth_id": 477,
+      "name_ar": "خمسة أثمان",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 8,
+      "start": 0,
+      "end": 38.4,
+      "continues_before": true,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}

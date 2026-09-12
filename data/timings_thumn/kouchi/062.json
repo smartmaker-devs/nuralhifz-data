@@ -1,0 +1,26 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 62,
+  "surah_name_ar": "الجمعة",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/062.mp3",
+  "audio_duration": 231.862813,
+  "marked_at": "2026-09-12T22:10:25.758Z",
+  "derived_from": "mono-thumn:audio-duration",
+  "segments": [
+    {
+      "eighth_id": 441,
+      "name_ar": "الثمن الأول",
+      "hizb": 56,
+      "first_verse": 1,
+      "last_verse": 11,
+      "start": 0,
+      "end": 231.862813
+    }
+  ],
+  "complete": true
+}

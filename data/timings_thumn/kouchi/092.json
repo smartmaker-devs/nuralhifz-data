@@ -1,0 +1,27 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 92,
+  "surah_name_ar": "الليل",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/092.mp3",
+  "audio_duration": 84.819567,
+  "marked_at": "2026-09-12T22:10:25.796Z",
+  "derived_from": "mono-thumn:audio-duration",
+  "segments": [
+    {
+      "eighth_id": 476,
+      "name_ar": "النصف",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 21,
+      "start": 0,
+      "end": 84.819567,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}

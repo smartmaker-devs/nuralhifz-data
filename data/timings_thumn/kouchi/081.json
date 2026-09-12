@@ -1,0 +1,26 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 81,
+  "surah_name_ar": "التكوير",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/081.mp3",
+  "audio_duration": 124.995878,
+  "marked_at": "2026-09-12T22:10:25.770Z",
+  "derived_from": "mono-thumn:audio-duration",
+  "segments": [
+    {
+      "eighth_id": 468,
+      "name_ar": "النصف",
+      "hizb": 59,
+      "first_verse": 1,
+      "last_verse": 29,
+      "start": 0,
+      "end": 124.995878
+    }
+  ],
+  "complete": true
+}
