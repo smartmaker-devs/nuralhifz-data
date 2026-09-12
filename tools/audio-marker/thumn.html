@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1115" />
+  <title>Thumn Marker — Kouchi</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <strong>Thumn</strong>
+      <span class="muted">· الكوشي</span>
+    </div>
+    <div class="topbar-actions">
+      <select id="surahSelect" aria-label="السورة"></select>
+      <button id="btnLoad" class="primary">تحميل</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="player">
+      <audio id="audio" preload="auto" controls playsinline></audio>
+      <div class="player-row">
+        <div class="time">
+          <span id="curTime">00:00.000</span>
+          <span class="muted">/</span>
+          <span id="totTime">00:00.000</span>
+        </div>
+        <div class="rates" aria-label="السرعة">
+          <button data-rate="0.5">0.5×</button>
+          <button data-rate="0.75">0.75×</button>
+          <button data-rate="1" class="active">1×</button>
+          <button data-rate="1.25">1.25×</button>
+        </div>
+      </div>
+      <div class="nudges" aria-label="ضبط دقيق">
+        <button data-nudge="-1000">−1s</button>
+        <button data-nudge="-100">−100ms</button>
+        <button data-nudge="100">+100ms</button>
+        <button data-nudge="1000">+1s</button>
+      </div>
+    </section>
+
+    <section class="meta" id="metaPanel" hidden>
+      <div><span class="muted">المؤشِّر</span> <strong id="metaCursor">—</strong></div>
+      <div><span class="muted">الأثمان</span> <strong id="metaSegCount">0</strong></div>
+      <div class="meta-url muted" id="metaUrl"></div>
+    </section>
+
+    <section class="verse-adjust" id="verseAdjust" hidden>
+      <div class="va-tabs" role="tablist">
+        <button id="vaTabEnd" class="va-tab active" role="tab" type="button">نهاية الثمن</button>
+        <button id="vaTabStart" class="va-tab" role="tab" type="button">بداية الثمن</button>
+      </div>
+      <div class="va-head">
+        <span class="muted" id="vaModeLabel">ضبط نهاية الثمن</span>
+        <strong id="vaVerseNum">—</strong>
+        <span class="va-end-display muted" id="vaEndDisplay">—</span>
+      </div>
+      <div class="va-buttons">
+        <button data-act="va" data-d="-300" aria-label="−300ms">−300<small>ms</small></button>
+        <button data-act="va" data-d="-200" aria-label="−200ms">−200<small>ms</small></button>
+        <button data-act="va" data-d="200"  aria-label="+200ms">+200<small>ms</small></button>
+        <button data-act="va" data-d="300"  aria-label="+300ms">+300<small>ms</small></button>
+        <button data-act="va" data-d="-100" aria-label="−100ms">−100<small>ms</small></button>
+        <button data-act="va" data-d="-10"  aria-label="−10ms">−10<small>ms</small></button>
+        <button data-act="va" data-d="10"   aria-label="+10ms">+10<small>ms</small></button>
+        <button data-act="va" data-d="100"  aria-label="+100ms">+100<small>ms</small></button>
+      </div>
+    </section>
+
+    <section class="verses">
+      <div class="verses-head">
+        <h2>الأثمان</h2>
+        <div class="legend muted">
+          <span><span class="dot done"></span> مُعلَّم</span>
+          <span><span class="dot active"></span> الحالي</span>
+        </div>
+      </div>
+      <ol id="segList" class="verses-list"></ol>
+    </section>
+
+    <section class="export-bar" id="exportBar" hidden>
+      <button id="btnPushGh" class="primary">⬆ GitHub</button>
+      <button id="btnCopy">📋 نسخ JSON</button>
+      <button id="btnShare" hidden>📤 مشاركة</button>
+      <button id="btnDownload">⬇ تنزيل</button>
+    </section>
+  </main>
+
+  <dialog id="patDialog" class="pat-dialog">
+    <div class="pat-card">
+      <h3>GitHub Token</h3>
+      <p class="muted">Personal Access Token avec <code>Contents: write</code> sur <code>smartmaker-devs/nuralhifz-data</code>.</p>
+      <p class="muted"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">إنشاء token جديد ↗</a></p>
+      <input id="patInput" type="password" placeholder="github_pat_..." autocomplete="off" spellcheck="false" />
+      <div class="pat-actions">
+        <button type="button" id="patCancel">إلغاء</button>
+        <button type="button" id="patSave" class="primary">حفظ ومتابعة</button>
+      </div>
+      <p class="muted pat-hint">Stocké localement (localStorage) sur cet appareil.</p>
+    </div>
+  </dialog>
+
+  <div class="actionbar" id="actionBar" hidden>
+    <button id="btnUndo" class="action-undo" aria-label="تراجع">↶</button>
+    <button id="btnPlayPause" class="action-play" aria-label="تشغيل/إيقاف">▶</button>
+    <button id="btnMark" class="action-mark primary">MARK</button>
+  </div>
+
+  <footer class="statusbar">
+    <span id="status" class="muted">جاهز — اختر سورة.</span>
+    <span id="autosave" class="muted"></span>
+  </footer>
+
+  <script src="thumn.js"></script>
+</body>
+</html>
