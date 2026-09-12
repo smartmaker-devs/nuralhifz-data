@@ -1,0 +1,37 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 100,
+  "surah_name_ar": "العاديات",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/100.mp3",
+  "audio_duration": 46.706938,
+  "marked_at": "2026-09-11T21:36:47.605Z",
+  "derived_from": "data/timings/kouchi/100.json",
+  "segments": [
+    {
+      "eighth_id": 478,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 8,
+      "start": 0,
+      "end": 32.181607,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 479,
+      "name_ar": "سبعة أثمان",
+      "hizb": 60,
+      "first_verse": 9,
+      "last_verse": 11,
+      "start": 32.181607,
+      "end": 46.706938,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}

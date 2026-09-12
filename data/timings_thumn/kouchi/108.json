@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 108,
+  "surah_name_ar": "الكوثر",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/108.mp3",
+  "audio_duration": 15.621189,
+  "marked_at": "2026-09-11T21:36:47.621Z",
+  "derived_from": "data/timings/kouchi/108.json",
+  "segments": [
+    {
+      "eighth_id": 480,
+      "name_ar": "الثمن الأخير",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 3,
+      "start": 0,
+      "end": 15.621189,
+      "continues_before": true,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 104,
+  "surah_name_ar": "الهمزة",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/104.mp3",
+  "audio_duration": 37.929756,
+  "marked_at": "2026-09-11T21:36:47.614Z",
+  "derived_from": "data/timings/kouchi/104.json",
+  "segments": [
+    {
+      "eighth_id": 479,
+      "name_ar": "سبعة أثمان",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 9,
+      "start": 0,
+      "end": 37.929756,
+      "continues_before": true,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
