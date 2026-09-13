@@ -1,19 +1,82 @@
 {
-  "schema_version": 1,
-  "updated_at": "2026-05-18",
-  "note": "Manifest d'etat des audios verset-par-verset par sourate et par reciter. Toute sourate non listee = todo (non commencee). 'done' = JSON timings + MP3 publies. 'in_progress' = en cours de generation/verification.",
+  "schema_version": 2,
+  "granularity": "thumn",
+  "updated_at": "2026-09-13",
+  "note": "Etat de couverture audio par ثمن. Genere automatiquement par tools/gen-audio-status.mjs depuis la presence des fichiers data/timings_thumn/{reciter}/{NNN}.json — ne pas editer a la main. 'done' = sourates marquees. Un ثمن n'est JOUABLE que si toutes les sourates qu'il traverse sont marquees, d'ou eighths_playable qui est le chiffre utile a l'utilisateur. Toute sourate non listee = todo.",
+  "totals": {
+    "surahs": 114,
+    "eighths": 480
+  },
   "reciters": {
     "kouchi": {
-      "done": [1, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114],
-      "in_progress": []
+      "done": [
+        1,
+        61,
+        62,
+        75,
+        78,
+        80,
+        81,
+        82,
+        86,
+        87,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114
+      ],
+      "in_progress": [],
+      "surah_count": 36,
+      "eighths_playable": 11,
+      "eighths_playable_ids": [
+        440,
+        441,
+        461,
+        465,
+        468,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480
+      ]
     },
     "benkirane": {
       "done": [],
-      "in_progress": []
+      "in_progress": [],
+      "surah_count": 0,
+      "eighths_playable": 0,
+      "eighths_playable_ids": []
     },
     "elharraz": {
       "done": [],
-      "in_progress": []
+      "in_progress": [],
+      "surah_count": 0,
+      "eighths_playable": 0,
+      "eighths_playable_ids": []
     }
   }
 }
