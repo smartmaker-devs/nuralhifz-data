@@ -126,6 +126,70 @@ function computeSegments(eighths, surahNo) {
   return segs.filter(s => s.first_verse <= s.last_verse)
 }
 
+// ── Estimation de la position d'une frontière ────────────────────────────────
+// Valide sur les 118 marques verset reelles : mediane 0.47s, 99% sous 3s.
+//
+// Deux pieges dans le decompte de mots, mesures sur la donnee :
+//   1. Le numero de verset s'ecrit U+FD3F <chiffres> U+FD3E — dans CET ordre,
+//      alors qu'Unicode nomme FD3E « LEFT » et FD3F « RIGHT ». Une regex ecrite
+//      d'apres les noms ne matche jamais et le chiffre compte comme un mot.
+//   2. Les marques warsh (U+06EC, U+06D6…) sont A L'INTERIEUR des mots. Les
+//      remplacer par un espace coupe le mot en deux : 81% des versets fausses.
+//      Il faut les retirer par la chaine vide.
+// Controle de non-regression : الفاتحة 1:1 = 8 mots. Le total du Coran depend
+// de la version de donnee lue : 77430 sur @v1.0.0 (le tag auquel DATA_BASE est
+// epingle), 77431 sur @main depuis le fix du ۞ colle en 2:233. 24 versets
+// different entre les deux — sans effet sur l'estimation (1 mot sur 77430).
+const VERSE_NUM = /﴿[^﴾]*﴾/g
+const WARSH_MARKS = /[ۖ-ۭ۝࣢]|ـ/g
+const wordCount = (t) => (t || '').replace(VERSE_NUM, ' ').replace(WARSH_MARKS, '').trim().split(/\s+/).filter(Boolean).length
+
+// La basmala est recitee avant le verset 1 mais absente de son texte — sauf :
+//   الفاتحة : elle EST fusionnee dans le verset 1 (deja comptee, +4 serait un doublon)
+//   التوبة  : aucune basmala recitee
+const BASMALA_WORDS = 4
+// Fenetre d'ecoute autour de l'estimation. Symetrique et >= a l'erreur max
+// mesuree (3.22s) : si l'estimation tombe TOT, la frontiere arrive apres elle
+// et une fenetre courte du cote POST la ferait manquer. Teste sur la sourate
+// 100 (frontiere reelle a 32.182s, estimee a 29.723s) : 2.46s d'ecart, soit
+// deja 82% d'une fenetre a 3s.
+const PREVIEW_PRE = 5
+const PREVIEW_POST = 5
+
+// Mots "audio" d'un segment : texte + basmala si le segment ouvre la sourate
+function segmentWords(sg) {
+  let w = 0
+  for (let v = sg.first_verse; v <= sg.last_verse; v++) w += wordCount(state.versesByAya.get(v))
+  if (sg.first_verse === 1 && state.surahNo !== 1 && state.surahNo !== 9) w += BASMALA_WORDS
+  return w
+}
+
+// Estimation ancree : on repart de la derniere frontiere CONFIRMEE et on
+// repartit le temps restant sur les mots restants. L'erreur ne s'accumule
+// donc pas le long de la sourate — elle se remet a zero a chaque marque.
+function estimateFor(i) {
+  if (!state.duration || i < 0 || i >= state.segments.length) return null
+  const prev = i === 0 ? 0 : (state.marks[i-1] ?? null)
+  if (prev == null) return null
+  let remaining = 0
+  for (let k = i; k < state.segments.length; k++) remaining += state.segments[k].words ?? 0
+  if (remaining <= 0) return null
+  const est = prev + ((state.segments[i].words ?? 0) / remaining) * (state.duration - prev)
+  return Math.min(est, state.duration)
+}
+
+// Amene l'audio devant la frontiere estimee et joue une fenetre autour.
+function seekToEstimate(i, announce) {
+  const est = estimateFor(i)
+  if (est == null) { if (announce) setStatus('estimation indisponible — charge l’audio', true); return false }
+  const lower = i === 0 ? 0 : (state.marks[i-1] ?? 0)
+  audio.currentTime = Math.max(lower, est - PREVIEW_PRE)
+  state.stopAt = Math.min(state.duration, est + PREVIEW_POST)
+  audio.play().catch(() => {})
+  if (announce) setStatus(`🎯 ${state.segments[i]?.name_ar ?? ''} — estimee vers ${fmt(est)}`)
+  return true
+}
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 async function boot() {
   try {
@@ -176,6 +240,7 @@ async function loadSurah(n) {
   }
 
   state.segments = computeSegments(state.eighths, n)
+  for (const sg of state.segments) sg.words = segmentWords(sg)
   state.audioUrl = `${RECITER.server}${pad3(n)}.mp3`
   audio.src = state.audioUrl
 
@@ -260,6 +325,10 @@ function renderSegments() {
 
     // On marque la FIN du segment : c'est le dernier verset qu'on écoute.
     const cue = state.versesByAya.get(sg.last_verse) || ''
+    // L'estimation n'est calculable que pour la frontiere courante : elle
+    // s'ancre sur la precedente CONFIRMEE, qui n'existe pas au-dela.
+    const estVal = (!isLast && end == null) ? estimateFor(i) : null
+    const estText = estVal != null ? fmt(estVal) : ''
 
     const li = document.createElement('li')
     if (done) li.classList.add('done')
@@ -270,7 +339,7 @@ function renderSegments() {
       <span class="text">${escapeHtml(cue)} ${badges.join(' ')}</span>
       <span class="range">
         <span class="t-start">${start != null ? fmt(start) : '—'}</span>
-        <span class="t-end">${end != null ? fmt(end) : '—'}</span>
+        <span class="t-end">${end != null ? fmt(end) : (estText ? '🎯 ' + estText : '—')}</span>
       </span>
     `
     li.addEventListener('click', () => {
@@ -347,8 +416,16 @@ function markCurrent() {
   persist()
   updateCursor()
   renderSegments()
-  setStatus(`✓ ${sg?.name_ar ?? ''} — ${fmt(t)}`)
   if (navigator.vibrate) navigator.vibrate(15)
+
+  // Enchaine directement sur la frontiere suivante : l'ecoute lineaire d'une
+  // sourate de 2h pour 38 frontieres n'est pas tenable.
+  if (state.cursor < innerCount() && seekToEstimate(state.cursor, false)) {
+    const est = estimateFor(state.cursor)
+    setStatus(`✓ ${sg?.name_ar ?? ''} ${fmt(t)} → 🎯 suivante vers ${fmt(est)}`)
+  } else {
+    setStatus(`✓ ${sg?.name_ar ?? ''} — ${fmt(t)}`)
+  }
 }
 
 function previewBoundary(lo, end) {
@@ -595,6 +672,7 @@ $('btnLoad').addEventListener('click', () => {
 })
 $('btnMark').addEventListener('click', markCurrent)
 $('btnUndo').addEventListener('click', undoLast)
+$('btnSeek').addEventListener('click', () => seekToEstimate(state.cursor, true))
 $('btnPlayPause').addEventListener('click', () => {
   state.stopAt = null
   audio.paused ? audio.play() : audio.pause()
