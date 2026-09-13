@@ -16,6 +16,7 @@
 const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/' }
 const SCHEMA_VERSION = 3
 const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1.0.0/data/'
+const STATUS_URL = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@main/data/audio_status.json'
 const OUT_DIR = 'data/timings_thumn/kouchi'
 
 const GH = {
@@ -55,6 +56,8 @@ const state = {
   versesByAya: new Map(),  // aya -> texte, pour la sourate courante
   segments: [],            // segments de thumn de la sourate courante
   surahNo: null,
+  hizbNo: null,            // hizb de la session en cours
+  doneSurahs: new Set(),   // sourates deja marquees, d'apres data/audio_status.json
   cursor: 0,
   marks: [],               // marks[i] = fin du segment i ; le dernier = durée audio
   starts: [],              // starts[i] = début du segment i ; starts[0] = 0
@@ -190,6 +193,99 @@ function seekToEstimate(i, announce) {
   return true
 }
 
+// ── Session par hizb ─────────────────────────────────────────────────────────
+// On raisonne en ثمن, donc on navigue par hizb. Mais l'audio est stocke PAR
+// SOURATE : « ouvrir un hizb » ne charge pas un fichier, ca ouvre une FILE des
+// sourates qu'il lui manque (1 a 5, mediane 2), enchainees automatiquement.
+//
+// Un fichier de sourate n'est poussable que COMPLET : marquer seulement la
+// part d'un hizb dans une sourate longue ne produirait rien de publiable. La
+// file contient donc des sourates entieres — le hizb dit dans quel ORDRE
+// travailler et pourquoi, pas ce qu'on peut marquer a moitie.
+
+// sourates traversees par un hizb
+function surahsOfHizb(h) {
+  const set = new Set()
+  for (const t of state.eighths) {
+    if (t.hizb !== h) continue
+    for (const v of t.verses_covered) set.add(v.sura)
+  }
+  return [...set].sort((a, b) => a - b)
+}
+
+// ثمن jouables d'un hizb : tous ceux dont TOUTES les sourates sont marquees
+function playableInHizb(h) {
+  let n = 0
+  for (const t of state.eighths) {
+    if (t.hizb !== h) continue
+    const surs = [...new Set(t.verses_covered.map(v => v.sura))]
+    if (surs.every(s => state.doneSurahs.has(s))) n++
+  }
+  return n
+}
+
+// Une sourate compte comme faite si le manifeste la declare OU si le marquage
+// local est complet (le CDN a ~12h de cache, le local est plus frais).
+function isSurahDone(n) {
+  if (state.doneSurahs.has(n)) return true
+  try {
+    const raw = localStorage.getItem(lsKey(n))
+    if (raw) return JSON.parse(raw).complete === true
+  } catch {}
+  return false
+}
+
+function hizbQueue(h) { return surahsOfHizb(h).filter(n => !isSurahDone(n)) }
+
+function renderHizbOptions() {
+  const sel = $('hizbSelect')
+  sel.innerHTML = ''
+  for (let h = 1; h <= 60; h++) {
+    const todo = hizbQueue(h).length
+    const play = playableInHizb(h)
+    const opt = document.createElement('option')
+    opt.value = String(h)
+    // Libelle court : replie, le <select> n'affiche qu'environ 130px. Le detail
+    // complet (sourates restantes) part dans la ligne de statut a la selection.
+    opt.textContent = todo === 0 ? `الحزب ${h} ✓` : `الحزب ${h} — ${play}/8`
+    sel.appendChild(opt)
+  }
+}
+
+// Liste des sourates du hizb choisi, celles qui restent d'abord
+function renderSurahOptions(h) {
+  const sel = $('surahSelect')
+  sel.innerHTML = ''
+  for (const n of surahsOfHizb(h)) {
+    const meta = state.surahs.find(s => s.number === n)
+    const inner = state.eighths.filter(t => t.hizb != null && t.start.sura === n && t.start.aya > 1).length
+    const opt = document.createElement('option')
+    opt.value = String(n)
+    opt.textContent = isSurahDone(n)
+      ? `✓ ${n}. ${meta?.name_ar ?? ''}`
+      : `${n}. ${meta?.name_ar ?? ''} — ${inner} حد`
+    sel.appendChild(opt)
+  }
+  const first = hizbQueue(h)[0]
+  if (first != null) sel.value = String(first)
+}
+
+function onHizbChange() {
+  const h = parseInt($('hizbSelect').value, 10)
+  state.hizbNo = h
+  renderSurahOptions(h)
+  const q = hizbQueue(h)
+  setStatus(q.length === 0
+    ? `الحزب ${h} مكتمل ✓`
+    : `الحزب ${h} — ${playableInHizb(h)}/8 ثمن · يتبقى ${q.length} سورة : ${q.join('، ')}`)
+}
+
+// Sourate suivante de la file du hizb courant, une fois celle-ci terminee
+function nextInQueue() {
+  if (state.hizbNo == null) return null
+  return hizbQueue(state.hizbNo).find(n => n !== state.surahNo) ?? null
+}
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 async function boot() {
   try {
@@ -206,22 +302,33 @@ async function boot() {
     return
   }
 
-  const sel = $('surahSelect')
-  for (const s of state.surahs) {
-    const n = computeSegments(state.eighths, s.number).length
-    const inner = Math.max(0, n - 1)
-    const opt = document.createElement('option')
-    opt.value = s.number
-    opt.textContent = `${s.number}. ${s.name_ar} — ${inner} حد`
-    sel.appendChild(opt)
-  }
-  setStatus('جاهز — اختر سورة.')
+  // Etat de couverture — lu sur @main : le manifeste bouge a chaque push, il ne
+  // peut pas vivre sur le tag epingle. Absent = on part de zero, sans bloquer.
+  try {
+    const rst = await fetch(`${STATUS_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    if (rst.ok) {
+      const st = await rst.json()
+      state.doneSurahs = new Set(st?.reciters?.kouchi?.done ?? [])
+    }
+  } catch {}
 
+  renderHizbOptions()
   if (navigator.share) $('btnShare').hidden = false
 
   const params = new URLSearchParams(location.search)
   const n = parseInt(params.get('surah') || '', 10)
-  if (n >= 1 && n <= 114) { $('surahSelect').value = n; await loadSurah(n) }
+  if (n >= 1 && n <= 114) {
+    // Acces direct a une sourate : on cale le hizb sur celui qui la contient
+    const h = state.eighths.find(t => t.verses_covered.some(v => v.sura === n))?.hizb
+    if (h) { $('hizbSelect').value = String(h); onHizbChange() }
+    $('surahSelect').value = String(n)
+    await loadSurah(n)
+  } else {
+    // Ouvre sur le premier hizb incomplet
+    const firstOpen = Array.from({ length: 60 }, (_, i) => i + 1).find(h => hizbQueue(h).length > 0) ?? 1
+    $('hizbSelect').value = String(firstOpen)
+    onHizbChange()
+  }
 }
 
 // ── Load surah ───────────────────────────────────────────────────────────────
@@ -261,6 +368,12 @@ async function loadSurah(n) {
   $('metaPanel').hidden = false
   $('metaUrl').textContent = state.audioUrl
   $('metaSegCount').textContent = String(state.segments.length)
+  if (state.hizbNo != null) {
+    const q = hizbQueue(state.hizbNo)
+    const pos = q.indexOf(n)
+    $('metaHizb').textContent = `${state.hizbNo} · ${playableInHizb(state.hizbNo)}/8 ثمن`
+      + (pos >= 0 && q.length > 1 ? ` · سورة ${pos + 1}/${q.length}` : '')
+  }
   $('actionBar').hidden = false
   $('exportBar').hidden = false
 
@@ -424,7 +537,12 @@ function markCurrent() {
     const est = estimateFor(state.cursor)
     setStatus(`✓ ${sg?.name_ar ?? ''} ${fmt(t)} → 🎯 suivante vers ${fmt(est)}`)
   } else {
-    setStatus(`✓ ${sg?.name_ar ?? ''} — ${fmt(t)}`)
+    // Sourate terminee : on annonce la suite sans charger quoi que ce soit.
+    // Enchainer tout seul ferait perdre un marquage non pousse.
+    const next = nextInQueue()
+    setStatus(next != null
+      ? `✓ اكتملت السورة ${state.surahNo} — ادفع إلى GitHub، ثم السورة ${next}`
+      : `✓ اكتملت السورة ${state.surahNo} — ادفع إلى GitHub`)
   }
 }
 
@@ -625,8 +743,25 @@ async function pushToGitHub() {
     const message = `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.segment_count} thumn via thumn-marker`
     const res = await GH.putFile(path, jsonText() + '\n', message)
     const sha = res.commit?.sha?.slice(0, 7) || ''
-    setStatus(`✅ ${fn} poussé sur GitHub (${sha})`)
     if (navigator.vibrate) navigator.vibrate([15, 50, 15])
+
+    // La sourate est publiee : elle compte desormais comme faite. On rafraichit
+    // l'avancement des hizbs et on enchaine sur la suivante de la file.
+    state.doneSurahs.add(payload.surah)
+    const next = nextInQueue()
+    renderHizbOptions()
+    if (state.hizbNo != null) $('hizbSelect').value = String(state.hizbNo)
+    renderSurahOptions(state.hizbNo ?? 1)
+    if (next != null) {
+      $('surahSelect').value = String(next)
+      setStatus(`✅ ${fn} poussé (${sha}) — chargement de la سورة ${next}…`)
+      await loadSurah(next)
+    } else {
+      const h = state.hizbNo
+      setStatus(h != null && hizbQueue(h).length === 0
+        ? `✅ ${fn} poussé (${sha}) — الحزب ${h} مكتمل ✓`
+        : `✅ ${fn} poussé sur GitHub (${sha})`)
+    }
   } catch (e) {
     if (/^401/.test(e.message)) {
       setStatus('✗ token invalide ou expiré — re-saisir', true)
@@ -666,6 +801,7 @@ audio.addEventListener('pause', () => $('btnPlayPause').classList.remove('playin
 audio.addEventListener('ended', () => $('btnPlayPause').classList.remove('playing'))
 
 // ── Buttons ──────────────────────────────────────────────────────────────────
+$('hizbSelect').addEventListener('change', onHizbChange)
 $('btnLoad').addEventListener('click', () => {
   const n = parseInt($('surahSelect').value, 10)
   if (n) loadSurah(n)

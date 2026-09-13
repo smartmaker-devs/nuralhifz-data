@@ -23,16 +23,20 @@ button.active{background:var(--accent-2);border-color:transparent;color:#fff}
 code{background:#222632;padding:.1rem .35rem;border-radius:4px;font-family:ui-monospace,monospace;font-size:.85em;word-break:break-all}
 
 .topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;
   padding:.7rem .9rem;border-bottom:1px solid var(--line);background:var(--panel);
   position:sticky;top:0;z-index:5;
 }
 .brand{display:flex;gap:.4rem;align-items:baseline;white-space:nowrap}
-.topbar-actions{display:flex;gap:.4rem;align-items:center;flex:1;justify-content:flex-end}
+.topbar-actions{display:flex;gap:.4rem;align-items:center;flex:1 1 auto;min-width:0;justify-content:flex-end}
+/* min-width:0 est indispensable : sans lui un enfant flex refuse de rétrécir
+   sous la largeur de son contenu, et les deux <select> (حزب + سورة) débordent
+   de l'écran. max-width en vw ne marche qu'avec un seul select. */
 .topbar-actions select{
   background:#222632;border:1px solid var(--line);padding:.55rem .5rem;border-radius:10px;
-  min-height:44px;max-width:55vw;flex:1;
+  min-height:44px;flex:1 1 0;min-width:0;
 }
+.topbar-actions button{flex:0 0 auto}
 
 main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:.8rem}
 
