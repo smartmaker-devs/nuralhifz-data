@@ -10,7 +10,8 @@
  * thumn sont complètes sans aucun clic.
  *
  * Sortie → data/timings_thumn/kouchi/{NNN}.json
- * (les timings verset de data/timings/ restent intacts en parallèle)
+ * (data/timings/ — les anciens timings verset — a été supprimé le 2026-09-13
+ *  une fois l'app passée au ثمن ; récupérable dans l'historique git)
  */
 
 const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/' }
