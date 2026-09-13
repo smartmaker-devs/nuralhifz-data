@@ -314,6 +314,9 @@ async function boot() {
   } catch {}
 
   renderHizbOptions()
+  // Lance le texte du Coran en tache de fond : il est le plus souvent pret
+  // avant le premier « تحميل », sans retarder l'affichage du menu.
+  getQuranAll().catch(() => {})
   if (navigator.share) $('btnShare').hidden = false
 
   const params = new URLSearchParams(location.search)
@@ -332,18 +335,40 @@ async function boot() {
   }
 }
 
+// ── Texte du Coran : un seul telechargement par session ──────────────────────
+// quran_muhammadi.json pese 3,7 Mo. Il etait refetch a CHAQUE chargement de
+// sourate : insupportable au telephone, et la file du hizb enchaine les
+// sourates, donc le cout se payait en boucle. On le garde en memoire.
+// Timeout explicite : sans lui un reseau qui traine laisse l'UI figee sans
+// message, ce qui est indiscernable d'un plantage.
+let _quranAll = null
+async function getQuranAll() {
+  if (_quranAll) return _quranAll
+  const ctl = new AbortController()
+  const timer = setTimeout(() => ctl.abort(), 60000)
+  try {
+    const r = await fetch(`${DATA_BASE}quran_muhammadi.json`, { signal: ctl.signal })
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    _quranAll = await r.json()
+    return _quranAll
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // ── Load surah ───────────────────────────────────────────────────────────────
 async function loadSurah(n) {
-  setStatus(`جارٍ تحميل السورة ${n}…`)
   state.surahNo = n
 
   try {
-    const r = await fetch(`${DATA_BASE}quran_muhammadi.json`)
-    if (!r.ok) throw new Error()
-    const all = await r.json()
+    if (!_quranAll) setStatus('جارٍ تنزيل نص القرآن (3.7 Mo) — مرة واحدة فقط…')
+    else setStatus(`جارٍ تحميل السورة ${n}…`)
+    const all = await getQuranAll()
     state.versesByAya = new Map(all.filter(v => v.sura === n).map(v => [v.aya, v.text]))
-  } catch {
-    setStatus('échec chargement quran_muhammadi.json', true)
+  } catch (e) {
+    setStatus(e?.name === 'AbortError'
+      ? 'انتهت مهلة تنزيل نص القرآن (60 ث) — تحقق من الاتصال وأعد المحاولة'
+      : `فشل تنزيل نص القرآن : ${e?.message ?? e}`, true)
     return
   }
 
