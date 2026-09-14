@@ -314,6 +314,7 @@ async function boot() {
   } catch {}
 
   renderHizbOptions()
+  updateTaskUI()   // etat coherent des le depart : consigne + boutons inactifs
   // Lance le texte du Coran en tache de fond : il est le plus souvent pret
   // avant le premier « تحميل », sans retarder l'affichage du menu.
   getQuranAll().catch(() => {})
@@ -407,7 +408,9 @@ async function loadSurah(n) {
   updateCursor()
 
   if (innerCount() === 0) {
-    setStatus(`السورة ${n} — ثمن واحد، لا حدود داخلية. جاهز للرفع ✓`)
+    setStatus(state.doneSurahs.has(n)
+      ? `السورة ${n} منشورة بالفعل ✓ — لا شيء تعلّمه هنا`
+      : `السورة ${n} — ثمن واحد، لا حدود داخلية. جاهز للرفع ✓`)
   } else {
     setStatus(`السورة ${n} — ${state.segments.length} ثمن، ${innerCount()} حد للتعليم.`)
   }
@@ -435,11 +438,68 @@ function sealLastMark() {
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
+// Consigne + etat des boutons. MARK et 🎯 restaient actifs meme quand il n'y
+// avait rien a marquer : on cliquait et on recevait une erreur au lieu de
+// comprendre qu'il fallait changer de sourate.
+function updateTaskUI() {
+  const hint = $('taskHint')
+  const mark = $('btnMark')
+  const seek = $('btnSeek')
+  if (!hint) return
+
+  const setBtns = (on, why) => {
+    for (const b of [mark, seek]) {
+      if (!b) continue
+      b.disabled = !on
+      b.style.opacity = on ? '' : '.35'
+      b.title = on ? '' : why
+    }
+  }
+
+  if (state.surahNo == null) {
+    hint.className = 'task-hint idle'
+    hint.innerHTML = 'اختر حزباً ثم سورة، واضغط <strong>تحميل</strong>.'
+    setBtns(false, 'حمّل سورة أولاً')
+    return
+  }
+  if (innerCount() === 0) {
+    const published = state.doneSurahs.has(state.surahNo)
+    hint.className = 'task-hint done'
+    hint.innerHTML = published
+      ? `هذه السورة <strong>منشورة بالفعل ✓</strong> ولا تحتوي أيّ حدّ داخلي — اختر سورة أخرى من القائمة.`
+      : `ثمن واحد يغطّي السورة كاملة : <strong>لا شيء تعلّمه هنا</strong>. اضغط <strong>⬆ GitHub</strong> للنشر مباشرة.`
+    setBtns(false, 'لا حدود داخلية في هذه السورة')
+    return
+  }
+  if (countInnerMarked() >= innerCount()) {
+    hint.className = 'task-hint done'
+    hint.innerHTML = 'اكتملت كل الحدود ✓ — اضغط <strong>⬆ GitHub</strong> للنشر.'
+    setBtns(false, 'اكتملت كل الحدود')
+    return
+  }
+  // Deja publiee mais des frontieres a marquer : le marquage local est vide
+  // (publie depuis un autre appareil). Sans cet avertissement on refait un
+  // travail deja fait, et un push l'ecraserait.
+  if (state.doneSurahs.has(state.surahNo) && countInnerMarked() === 0) {
+    hint.className = 'task-hint done'
+    hint.innerHTML = `هذه السورة <strong>منشورة بالفعل ✓</strong>. يمكنك إعادة تعليمها، لكن النشر سيستبدل الموجود — `
+      + `إن لم يكن ذلك مقصوداً، اختر سورة أخرى.`
+    setBtns(true, '')
+    return
+  }
+
+  hint.className = 'task-hint'
+  hint.innerHTML = 'اضغط <strong>🎯</strong> للقفز إلى الموضع المقدَّر، استمع، ثم <strong>MARK</strong> عند نهاية الثمن. '
+    + 'النصّ المعروض هو <strong>آخر آية</strong> في الثمن — هي التي يجب أن تسمع نهايتها.'
+  setBtns(true, '')
+}
+
 function updateCursor() {
   const done = countInnerMarked()
   $('metaCursor').textContent = innerCount() === 0
     ? 'لا حدود ✓'
     : (done >= innerCount() ? 'اكتمل ✓' : `${done + 1} / ${innerCount()}`)
+  updateTaskUI()  // point de passage unique : loadSurah, MARK et undo passent tous ici
 }
 
 function renderSegments() {
