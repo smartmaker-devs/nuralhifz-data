@@ -59,6 +59,11 @@ main{padding:.8rem;max-width:760px;margin:0 auto;display:flex;flex-direction:col
 /* Consigne permanente : l'outil ne disait nulle part ce qu'on attend de
    l'utilisateur. Le texte s'adapte a l'etat (rien charge / a marquer /
    rien a faire ici / pret a publier). */
+/* Deux ecoutes distinctes : le ثمن entier (verifier qu'il ne deborde pas) et
+   les 2s autour de la frontiere (ajuster au millieme). */
+.va-listen{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.5rem}
+.va-listen button{min-height:46px;font-size:.92rem;background:#222632}
+
 .task-hint{
   margin:0 0 .6rem;padding:.55rem .7rem;border-radius:10px;
   background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);

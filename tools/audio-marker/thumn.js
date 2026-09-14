@@ -473,7 +473,8 @@ function updateTaskUI() {
   }
   if (countInnerMarked() >= innerCount()) {
     hint.className = 'task-hint done'
-    hint.innerHTML = 'اكتملت كل الحدود ✓ — اضغط <strong>⬆ GitHub</strong> للنشر.'
+    hint.innerHTML = 'اكتملت كل الحدود ✓ — <strong>اضغط على أيّ ثمن لسماعه كاملاً</strong> '
+      + 'والتأكّد من عدم التداخل، ثم <strong>⬆ GitHub</strong> للنشر.'
     setBtns(false, 'اكتملت كل الحدود')
     return
   }
@@ -541,13 +542,13 @@ function renderSegments() {
         <span class="t-end">${end != null ? fmt(end) : (estText ? '🎯 ' + estText : '—')}</span>
       </span>
     `
+    // Taper une ligne = ecouter le ثمن ENTIER (verification du debordement).
+    // L'ajustement fin de la frontiere se fait via le panneau ±, qui rejoue
+    // deja les 2s autour a chaque tap. Le dernier segment est ecoutable comme
+    // les autres : sa fin est la duree audio, pas une raison de l'exclure.
     li.addEventListener('click', () => {
-      if (isLast) { setStatus('نهاية السورة — محسوبة تلقائياً'); return }
-      state.cursor = i
-      if (end != null && start != null) {
-        if (state.adjustMode === 'start' && i > 0) previewStartBoundary(state.marks[i-1] ?? 0, start, end)
-        else previewBoundary(start, end)
-      } else if (start != null) {
+      if (!isLast) state.cursor = i
+      if (!playSegment(i) && start != null) {
         audio.currentTime = start
         state.stopAt = null
       }
@@ -630,6 +631,23 @@ function markCurrent() {
       ? `✓ اكتملت السورة ${state.surahNo} — ادفع إلى GitHub، ثم السورة ${next}`
       : `✓ اكتملت السورة ${state.surahNo} — ادفع إلى GitHub`)
   }
+}
+
+// Ecoute d'un ثمن ENTIER, du debut a la fin. C'est le seul moyen d'entendre
+// s'il deborde : la preview de frontiere (2s) sert a ajuster au millieme, pas
+// a verifier le contenu. C'est aussi exactement ce que l'app fera jouer.
+function playSegment(i) {
+  const sg = state.segments[i]
+  if (!sg) return false
+  const start = i === 0 ? 0 : (state.starts[i] ?? state.marks[i-1] ?? null)
+  const end = state.marks[i] ?? null
+  if (start == null || end == null) { setStatus('هذا الثمن غير مُعلَّم بعد', true); return false }
+  audio.currentTime = start
+  state.stopAt = end
+  audio.play().catch(() => {})
+  const dur = end - start
+  setStatus(`▶ ${sg.name_ar} ﴿${sg.first_verse}–${sg.last_verse}﴾ — ${fmt(start)} → ${fmt(end)} (${dur.toFixed(1)} ث)`)
+  return true
 }
 
 function previewBoundary(lo, end) {
@@ -923,6 +941,15 @@ $('verseAdjust').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-act="va"]')
   if (!btn) return
   adjustMark(state.cursor, parseInt(btn.dataset.d, 10))
+})
+$('btnPlaySegment').addEventListener('click', () => playSegment(state.cursor))
+$('btnPlayBoundary').addEventListener('click', () => {
+  const i = state.cursor
+  const end = state.marks[i]
+  if (end == null) { setStatus('هذا الحدّ غير مُعلَّم بعد', true); return }
+  const start = i === 0 ? 0 : (state.starts[i] ?? state.marks[i-1] ?? 0)
+  if (state.adjustMode === 'start' && i > 0) previewStartBoundary(state.marks[i-1] ?? 0, start, end)
+  else previewBoundary(start, end)
 })
 $('vaTabEnd').addEventListener('click', () => setAdjustMode('end'))
 $('vaTabStart').addEventListener('click', () => setAdjustMode('start'))
