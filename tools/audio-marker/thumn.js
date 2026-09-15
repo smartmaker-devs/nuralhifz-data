@@ -561,11 +561,22 @@ function renderSegments() {
   updateAdjustPanel()
 }
 
+// Frontiere sur laquelle porte le panneau d'ajustement.
+// Une fois la derniere marque posee, state.cursor vaut innerCount() — c'est
+// sa facon de dire « termine ». Le panneau se refermait donc PILE au moment
+// ou l'on veut reecouter et corriger son travail. On le rabat sur la derniere
+// frontiere marquee au lieu de le cacher. On ne clampe pas state.cursor
+// lui-meme : markCurrent s'en sert pour refuser de marquer au-dela.
+function focusIndex() {
+  const last = innerCount() - 1
+  return last < 0 ? -1 : Math.min(state.cursor, last)
+}
+
 function updateAdjustPanel() {
   const panel = $('verseAdjust')
   if (!panel) return
-  const i = state.cursor
-  const isMarked = i >= 0 && i < innerCount() && state.marks[i] != null
+  const i = focusIndex()
+  const isMarked = i >= 0 && state.marks[i] != null
   if (!isMarked) { panel.hidden = true; return }
   panel.hidden = false
 
@@ -586,11 +597,11 @@ function updateAdjustPanel() {
 }
 
 function setAdjustMode(mode) {
-  if (mode === 'start' && state.cursor === 0) return
+  if (mode === 'start' && focusIndex() === 0) return
   state.adjustMode = mode
   updateAdjustPanel()
-  const i = state.cursor
-  if (i < innerCount() && state.marks[i] != null) {
+  const i = focusIndex()
+  if (i >= 0 && state.marks[i] != null) {
     const end = state.marks[i]
     const start = state.starts[i] ?? (i === 0 ? 0 : state.marks[i-1])
     if (mode === 'start' && i > 0) previewStartBoundary(state.marks[i-1] ?? 0, start, end)
@@ -940,11 +951,11 @@ document.querySelectorAll('.rates button').forEach(b => {
 $('verseAdjust').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-act="va"]')
   if (!btn) return
-  adjustMark(state.cursor, parseInt(btn.dataset.d, 10))
+  adjustMark(focusIndex(), parseInt(btn.dataset.d, 10))
 })
-$('btnPlaySegment').addEventListener('click', () => playSegment(state.cursor))
+$('btnPlaySegment').addEventListener('click', () => playSegment(focusIndex()))
 $('btnPlayBoundary').addEventListener('click', () => {
-  const i = state.cursor
+  const i = focusIndex()
   const end = state.marks[i]
   if (end == null) { setStatus('هذا الحدّ غير مُعلَّم بعد', true); return }
   const start = i === 0 ? 0 : (state.starts[i] ?? state.marks[i-1] ?? 0)
