@@ -470,7 +470,10 @@ function persist() {
 
 function buildPayload() {
   const surahMeta = state.surahs.find(s => s.number === state.surahNo) || {}
-  // pas de blanc entre deux ثمن : chacun commence ou finit le precedent
+  // pas de blanc entre deux ثمن : chacun commence ou finit le precedent.
+  // Borne inconnue = null, JAMAIS 0 : l'app rejette tout le fichier comme
+  // corrompu si un segment a des bornes numeriques avec end <= start. Seul le
+  // debut du 1er segment vaut 0 (c'est le debut reel de l'audio).
   const startOf = (i) => (i === 0 ? 0 : (state.marks[i - 1] ?? null))
   const segments = state.segments.map((sg, i) => ({
     eighth_id: sg.eighth_id, name_ar: sg.name_ar, hizb: sg.hizb,
