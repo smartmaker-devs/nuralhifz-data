@@ -618,6 +618,12 @@ $('doneList').addEventListener('click', (e) => {
 // addEventListener passerait l'evenement comme 1er argument (= partial « vrai »)
 $('btnPublish').addEventListener('click', () => publish(false))
 $('btnPubPartial').addEventListener('click', () => publish(true))
+// Sortie sans jeton, disponible a tout moment : copier le fichier (ou le
+// telecharger si le presse-papiers est refuse) pour le faire publier ailleurs.
+$('btnCopyPartial').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(jsonText()); setStatus(`📋 نُسخ ${fileName()} (${countTimed()} ثمن) — أرسله للنشر`) }
+  catch { downloadJson() }
+})
 $('btnCopy').addEventListener('click', copyJson)
 $('btnDownload').addEventListener('click', downloadJson)
 $('patSave').addEventListener('click', () => {

@@ -26,6 +26,8 @@ body{display:flex;justify-content:center}
 .pubbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);
   border:1px solid var(--line);border-radius:12px;padding:8px 10px 8px 12px;font-size:14px;line-height:1.4}
 .pubbar button{min-height:40px;padding:8px 14px;font-size:15px;white-space:nowrap}
+.pubacts{display:flex;gap:6px}
+.pubbar #btnCopyPartial{padding:8px 10px}
 .pubbar.ready{background:#123322;border-color:var(--green)}
 .pubbar.ready button{background:var(--green);border-color:var(--green);color:#06210f;font-weight:600}
 
