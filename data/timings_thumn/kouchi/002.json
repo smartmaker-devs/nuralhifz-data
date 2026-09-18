@@ -1,0 +1,375 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 2,
+  "surah_name_ar": "البقرة",
+  "segment_count": 39,
+  "inner_boundaries": 38,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/002.mp3",
+  "audio_duration": 7725.348567,
+  "marked_at": "2026-09-18T21:01:10.885Z",
+  "segments": [
+    {
+      "eighth_id": 1,
+      "name_ar": "الثمن الأول",
+      "hizb": 1,
+      "first_verse": 1,
+      "last_verse": 15,
+      "start": 0,
+      "end": 234.0135120000002,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 2,
+      "name_ar": "الربع",
+      "hizb": 1,
+      "first_verse": 16,
+      "last_verse": 24,
+      "start": 234.0135120000002,
+      "end": 437.2029660000002
+    },
+    {
+      "eighth_id": 3,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 1,
+      "first_verse": 25,
+      "last_verse": 32,
+      "start": 437.2029660000002,
+      "end": 662.1835729999992
+    },
+    {
+      "eighth_id": 4,
+      "name_ar": "النصف",
+      "hizb": 1,
+      "first_verse": 33,
+      "last_verse": 40,
+      "start": 662.1835729999992,
+      "end": 810.3767269999994
+    },
+    {
+      "eighth_id": 5,
+      "name_ar": "خمسة أثمان",
+      "hizb": 1,
+      "first_verse": 41,
+      "last_verse": 52,
+      "start": 810.3767269999994,
+      "end": 975.6205709999992
+    },
+    {
+      "eighth_id": 6,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 1,
+      "first_verse": 53,
+      "last_verse": 58,
+      "start": 975.6205709999992,
+      "end": 1090.0983459999993
+    },
+    {
+      "eighth_id": 7,
+      "name_ar": "سبعة أثمان",
+      "hizb": 1,
+      "first_verse": 59,
+      "last_verse": 65,
+      "start": 1090.0983459999993,
+      "end": 1264.7216939999994
+    },
+    {
+      "eighth_id": 8,
+      "name_ar": "الثمن الأخير",
+      "hizb": 1,
+      "first_verse": 66,
+      "last_verse": 74,
+      "start": 1264.7216939999994,
+      "end": 1439.5304119999992
+    },
+    {
+      "eighth_id": 9,
+      "name_ar": "الثمن الأول",
+      "hizb": 2,
+      "first_verse": 75,
+      "last_verse": 84,
+      "start": 1439.5304119999992,
+      "end": null,
+      "shared_boundary": true
+    },
+    {
+      "eighth_id": 10,
+      "name_ar": "الربع",
+      "hizb": 2,
+      "first_verse": 85,
+      "last_verse": 90,
+      "start": null,
+      "end": null,
+      "shared_boundary": true
+    },
+    {
+      "eighth_id": 11,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 2,
+      "first_verse": 91,
+      "last_verse": 99,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 12,
+      "name_ar": "النصف",
+      "hizb": 2,
+      "first_verse": 100,
+      "last_verse": 104,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 13,
+      "name_ar": "خمسة أثمان",
+      "hizb": 2,
+      "first_verse": 105,
+      "last_verse": 112,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 14,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 2,
+      "first_verse": 113,
+      "last_verse": 122,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 15,
+      "name_ar": "سبعة أثمان",
+      "hizb": 2,
+      "first_verse": 123,
+      "last_verse": 131,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 16,
+      "name_ar": "الثمن الأخير",
+      "hizb": 2,
+      "first_verse": 132,
+      "last_verse": 140,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 17,
+      "name_ar": "الثمن الأول",
+      "hizb": 3,
+      "first_verse": 141,
+      "last_verse": 146,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 18,
+      "name_ar": "الربع",
+      "hizb": 3,
+      "first_verse": 147,
+      "last_verse": 156,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 19,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 3,
+      "first_verse": 157,
+      "last_verse": 164,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 20,
+      "name_ar": "النصف",
+      "hizb": 3,
+      "first_verse": 165,
+      "last_verse": 175,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 21,
+      "name_ar": "خمسة أثمان",
+      "hizb": 3,
+      "first_verse": 176,
+      "last_verse": 183,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 22,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 3,
+      "first_verse": 184,
+      "last_verse": 187,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 23,
+      "name_ar": "سبعة أثمان",
+      "hizb": 3,
+      "first_verse": 188,
+      "last_verse": 195,
+      "start": null,
+      "end": null,
+      "shared_boundary": true
+    },
+    {
+      "eighth_id": 24,
+      "name_ar": "الثمن الأخير",
+      "hizb": 3,
+      "first_verse": 196,
+      "last_verse": 200,
+      "start": null,
+      "end": null,
+      "shared_boundary": true
+    },
+    {
+      "eighth_id": 25,
+      "name_ar": "الثمن الأول",
+      "hizb": 4,
+      "first_verse": 201,
+      "last_verse": 210,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 26,
+      "name_ar": "الربع",
+      "hizb": 4,
+      "first_verse": 211,
+      "last_verse": 216,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 27,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 4,
+      "first_verse": 217,
+      "last_verse": 224,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 28,
+      "name_ar": "النصف",
+      "hizb": 4,
+      "first_verse": 225,
+      "last_verse": 230,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 29,
+      "name_ar": "خمسة أثمان",
+      "hizb": 4,
+      "first_verse": 231,
+      "last_verse": 233,
+      "start": null,
+      "end": null,
+      "shared_boundary": true
+    },
+    {
+      "eighth_id": 30,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 4,
+      "first_verse": 234,
+      "last_verse": 240,
+      "start": null,
+      "end": null,
+      "shared_boundary": true
+    },
+    {
+      "eighth_id": 31,
+      "name_ar": "سبعة أثمان",
+      "hizb": 4,
+      "first_verse": 241,
+      "last_verse": 245,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 32,
+      "name_ar": "الثمن الأخير",
+      "hizb": 4,
+      "first_verse": 246,
+      "last_verse": 250,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 33,
+      "name_ar": "الثمن الأول",
+      "hizb": 5,
+      "first_verse": 251,
+      "last_verse": 256,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 34,
+      "name_ar": "الربع",
+      "hizb": 5,
+      "first_verse": 257,
+      "last_verse": 261,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 35,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 5,
+      "first_verse": 262,
+      "last_verse": 265,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 36,
+      "name_ar": "النصف",
+      "hizb": 5,
+      "first_verse": 266,
+      "last_verse": 270,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 37,
+      "name_ar": "خمسة أثمان",
+      "hizb": 5,
+      "first_verse": 271,
+      "last_verse": 278,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 38,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 5,
+      "first_verse": 279,
+      "last_verse": 281,
+      "start": null,
+      "end": null
+    },
+    {
+      "eighth_id": 39,
+      "name_ar": "سبعة أثمان",
+      "hizb": 5,
+      "first_verse": 282,
+      "last_verse": 285,
+      "start": null,
+      "end": 7725.348567,
+      "continues_after": true
+    }
+  ],
+  "complete": false
+}
