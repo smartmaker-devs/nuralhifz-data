@@ -182,6 +182,45 @@ function estimateFor(i) {
   return Math.min(est, state.duration)
 }
 
+// Estimation de N'IMPORTE quelle frontiere, meme loin devant.
+// estimateFor() exige que la precedente soit marquee — donc seule la frontiere
+// courante etait estimable, et taper une ligne plus bas ne donnait rien. Ici on
+// s'ancre sur la derniere frontiere REELLEMENT marquee puis on enchaine les
+// estimations jusqu'a i. Moins fiable a mesure qu'on s'eloigne de l'ancre,
+// mais amplement suffisant pour se positionner a l'ecoute.
+function estimateLoose(i) {
+  if (!state.duration || i < 0 || i >= state.segments.length) return null
+  let anchor = -1
+  for (let k = i - 1; k >= 0; k--) { if (state.marks[k] != null) { anchor = k; break } }
+  let t = anchor >= 0 ? state.marks[anchor] : 0
+  for (let k = anchor + 1; k <= i; k++) {
+    let remaining = 0
+    for (let m = k; m < state.segments.length; m++) remaining += state.segments[m].words ?? 0
+    if (remaining <= 0) return null
+    t += ((state.segments[k].words ?? 0) / remaining) * (state.duration - t)
+  }
+  return Math.min(t, state.duration)
+}
+
+// Ecoute de la FIN d'un ثمن : on arrive quelques secondes avant la coupure et
+// on continue au-dela, pour entendre si ca deborde sur le verset suivant.
+// C'est ce qu'on veut en tapant une ligne — pas relire le ثمن depuis son debut.
+const END_PRE = 8, END_POST = 4
+function previewEnd(i) {
+  const sg = state.segments[i]
+  if (!sg) return false
+  const end = state.marks[i] ?? estimateLoose(i)
+  if (end == null) { setStatus('حمّل الصوت أولاً لحساب الموضع', true); return false }
+  const lower = i === 0 ? 0 : (state.marks[i-1] ?? 0)
+  audio.currentTime = Math.max(lower, end - END_PRE)
+  state.stopAt = Math.min(state.duration, end + END_POST)
+  audio.play().catch(() => {})
+  const marque = state.marks[i] != null
+  setStatus(`${marque ? '▶' : '🎯'} ${sg.name_ar} ﴿${sg.first_verse}–${sg.last_verse}﴾ — `
+    + `${marque ? 'نهاية' : 'تقدير'} ${fmt(end)} (−${END_PRE}s / +${END_POST}s)`)
+  return true
+}
+
 // Amene l'audio devant la frontiere estimee et joue une fenetre autour.
 function seekToEstimate(i, announce) {
   const est = estimateFor(i)
@@ -525,9 +564,9 @@ function renderSegments() {
 
     // On marque la FIN du segment : c'est le dernier verset qu'on écoute.
     const cue = state.versesByAya.get(sg.last_verse) || ''
-    // L'estimation n'est calculable que pour la frontiere courante : elle
-    // s'ancre sur la precedente CONFIRMEE, qui n'existe pas au-dela.
-    const estVal = (!isLast && end == null) ? estimateFor(i) : null
+    // Estimation affichee sur TOUTE ligne non marquee, pas seulement la
+    // courante : sinon on ne sait pas ou taper pour aller ecouter plus loin.
+    const estVal = (!isLast && end == null) ? estimateLoose(i) : null
     const estText = estVal != null ? fmt(estVal) : ''
 
     const li = document.createElement('li')
@@ -546,12 +585,13 @@ function renderSegments() {
     // L'ajustement fin de la frontiere se fait via le panneau ±, qui rejoue
     // deja les 2s autour a chaque tap. Le dernier segment est ecoutable comme
     // les autres : sa fin est la duree audio, pas une raison de l'exclure.
+    // Taper une ligne amene a la FIN de ce ثمن, pas a son debut : c'est la
+    // coupure qu'on veut entendre, et relire un ثمن de 3 min depuis le debut
+    // n'a aucun interet. Marche aussi sur les ثمن non marques (estimation) et
+    // sur le dernier. Pour le ثمن entier, il y a « ▶ الثمن كاملاً ».
     li.addEventListener('click', () => {
       if (!isLast) state.cursor = i
-      if (!playSegment(i) && start != null) {
-        audio.currentTime = start
-        state.stopAt = null
-      }
+      previewEnd(i)
       updateCursor()
       renderSegments()
     })
@@ -661,8 +701,10 @@ function playSegment(i) {
   return true
 }
 
+// 0.5s apres la coupure ne suffisait pas pour juger d'un debordement : on
+// n'entendait pas si le verset suivant avait commence. 3s de chaque cote.
 function previewBoundary(lo, end) {
-  const PRE = 1.5, POST = 0.5
+  const PRE = 3, POST = 3
   audio.currentTime = Math.max(lo, end - PRE)
   state.stopAt = Math.min((state.duration || end + POST), end + POST)
   audio.play().catch(() => {})
@@ -911,9 +953,19 @@ audio.addEventListener('timeupdate', () => {
     state.stopAt = null
   }
 })
-audio.addEventListener('play',  () => $('btnPlayPause').classList.add('playing'))
-audio.addEventListener('pause', () => $('btnPlayPause').classList.remove('playing'))
-audio.addEventListener('ended', () => $('btnPlayPause').classList.remove('playing'))
+// Le bouton ne changeait que de COULEUR : impossible de savoir d'un coup d'oeil
+// si on est en lecture. Le glyphe suit maintenant l'etat reel de l'audio.
+function syncPlayButton() {
+  const b = $('btnPlayPause')
+  if (!b) return
+  const playing = !audio.paused && !audio.ended
+  b.classList.toggle('playing', playing)
+  b.textContent = playing ? '⏸' : '▶'
+  b.setAttribute('aria-label', playing ? 'إيقاف مؤقت' : 'تشغيل')
+}
+audio.addEventListener('play',  syncPlayButton)
+audio.addEventListener('pause', syncPlayButton)
+audio.addEventListener('ended', syncPlayButton)
 
 // ── Buttons ──────────────────────────────────────────────────────────────────
 $('hizbSelect').addEventListener('change', onHizbChange)
