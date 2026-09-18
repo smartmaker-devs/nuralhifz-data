@@ -1,0 +1,71 @@
+/* Thumn Marker — interface par etapes : une frontiere a la fois, deux
+   questions (ou finit le ثمن ? la coupure est-elle bonne ?). Feuille dediee :
+   style.css reste celle du marqueur verset. */
+:root{
+  --bg:#0f1115;--panel:#171a21;--card:#1f2330;--line:#2a2f3c;--txt:#e8eaf0;--mut:#8a93a6;
+  --blue:#3b82f6;--green:#22c55e;--gold:#d4a843;--red:#ef4444;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Tahoma,sans-serif}
+body{display:flex;justify-content:center}
+.app{width:100%;max-width:480px;min-height:100vh;padding:14px 16px 24px;display:flex;flex-direction:column;gap:14px}
+
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.where{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--txt);
+  font:inherit;font-size:14px;cursor:pointer;min-height:0}
+.count{color:var(--mut);white-space:nowrap}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .3s}
+
+.picker{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.picker select{width:100%;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;
+  padding:12px;font:inherit;font-size:16px;min-height:48px}
+.picker .info{font-size:13px;color:var(--mut);line-height:1.5}
+
+.screen{display:flex;flex-direction:column;gap:14px;flex:1}
+h1{font-size:21px;font-weight:600;text-align:center;margin:4px 0 0}
+.sub{font-size:13px;color:var(--mut);text-align:center;margin-top:-6px;line-height:1.5}
+
+.verse{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+  font-family:'Amiri','Traditional Arabic',serif;font-size:21px;line-height:1.9}
+.verse small{display:block;font-family:system-ui,Tahoma,sans-serif;font-size:12px;color:var(--mut);line-height:1.4;margin-bottom:2px}
+.verse.end{border-color:var(--gold)}
+.join{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 10px;text-align:center;
+  font-family:'Amiri',serif;font-size:22px;line-height:1.8}
+.join b{color:var(--blue);font-size:28px;margin:0 8px;font-family:system-ui}
+
+.clock{font-family:ui-monospace,monospace;font-size:30px;text-align:center;letter-spacing:1px;direction:ltr}
+.clock small{display:block;font-size:13px;color:var(--mut);font-family:system-ui;letter-spacing:0;direction:rtl}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;color:var(--txt);background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:12px 8px;font-size:16px;cursor:pointer;min-height:56px}
+button:active{transform:scale(.98)}
+.play{font-size:22px}
+.main{min-height:68px;font-size:19px;font-weight:600;width:100%;margin-top:auto}
+.blue{background:var(--blue);border-color:var(--blue);color:#fff}
+.green{background:var(--green);border-color:var(--green);color:#06210f}
+.link{background:none;border:none;color:var(--mut);font-size:14px;min-height:0;padding:6px;width:100%}
+.hint{font-size:13px;color:var(--mut);text-align:center;line-height:1.5}
+
+.list{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.list div{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border-bottom:1px solid var(--line);cursor:pointer;font-size:15px}
+.list div:last-child{border-bottom:none}
+.list span{font-family:ui-monospace,monospace;color:var(--mut);font-size:13px;direction:ltr}
+.ok{color:var(--green)}
+.msg{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:15px;line-height:1.6;text-align:center}
+
+.small-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.small-actions button{min-height:46px;font-size:14px}
+
+.status{font-size:13px;color:var(--mut);text-align:center;min-height:1.2em}
+.status.err{color:var(--red)}
+
+dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:16px;padding:18px;max-width:420px;width:92vw}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h3{margin:0 0 8px;font-size:17px}
+dialog p{font-size:13px;color:var(--mut);line-height:1.5;margin:6px 0}
+dialog a{color:var(--blue)}
+dialog input{width:100%;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;margin:8px 0;direction:ltr}
+dialog .acts{display:grid;grid-template-columns:1fr 1fr;gap:10px}

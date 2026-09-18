@@ -1,17 +1,17 @@
-/* Thumn Marker — Kouchi (Warsh Muhammadi) — Android mobile-first
+/* Thumn Marker — Kouchi (Warsh Muhammadi)
  *
- * Schema v3 : l'unité marquée est le SEGMENT DE THUMN, pas le verset.
- *   Un segment = la portion d'un thumn (ثمن, 1–480) contenue dans une sourate.
- *   Marquer au thumn coûte 435 marques sur tout le Coran, contre 6214 au verset.
+ * Interface par etapes : une frontiere de ثمن a la fois, deux questions.
+ *   1. Trouver  — ou finit le ثمن ? (on ecoute autour de l'estimation)
+ *   2. Verifier — la coupure est-elle bonne ? (rejoue 3s avant / 3s apres)
+ *   3. Termine  — recapitulatif, revision, publication.
  *
- * La fin du dernier segment d'une sourate EST la fin de l'audio : elle est
- * remplie automatiquement et sortie de la séquence de marquage. On ne marque
- * donc que les frontières internes — et les 35 sourates tenant dans un seul
- * thumn sont complètes sans aucun clic.
+ * Unite marquee : le SEGMENT de ثمن (la portion d'un ثمن contenue dans une
+ * sourate). 435 frontieres sur tout le Coran. La fin du dernier segment est la
+ * duree de l'audio, remplie automatiquement.
  *
- * Sortie → data/timings_thumn/kouchi/{NNN}.json
- * (data/timings/ — les anciens timings verset — a été supprimé le 2026-09-13
- *  une fois l'app passée au ثمن ; récupérable dans l'historique git)
+ * Sortie → data/timings_thumn/kouchi/{NNN}.json (schema v3). Le format de
+ * sauvegarde locale (marks/starts) est inchange : un marquage deja commence
+ * dans l'ancienne interface se reprend tel quel.
  */
 
 const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/' }
@@ -20,31 +20,31 @@ const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1
 const STATUS_URL = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@main/data/audio_status.json'
 const OUT_DIR = 'data/timings_thumn/kouchi'
 
+const FIND_LEAD = 6      // l'ecoute demarre 6s avant la position estimee
+const JUMP = 5           // boutons قبل / بعد
+const NUDGE = 0.2        // boutons أبكر / أبعد
+const CHECK_WIN = 3      // verification : 3s avant et 3s apres la coupure
+
 const GH = {
   owner: 'smartmaker-devs', repo: 'nuralhifz-data', branch: 'main',
   patKey: 'marker:gh:pat',
   getPat() { return localStorage.getItem(this.patKey) || '' },
   setPat(v) { v ? localStorage.setItem(this.patKey, v) : localStorage.removeItem(this.patKey) },
   _hdr() {
-    return {
-      'Authorization': `Bearer ${this.getPat()}`,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-    }
+    return { 'Authorization': `Bearer ${this.getPat()}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
   },
+  _url(path) { return `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}` },
   async getFileSha(path) {
-    const url = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${this.branch}`
-    const r = await fetch(url, { headers: this._hdr(), cache: 'no-store' })
+    const r = await fetch(`${this._url(path)}?ref=${this.branch}`, { headers: this._hdr(), cache: 'no-store' })
     if (r.status === 404) return null
-    if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(`${r.status}: ${e.message || 'GET contents failed'}`) }
+    if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(`${r.status}: ${e.message || 'GET failed'}`) }
     return (await r.json()).sha
   },
   async putFile(path, content, message) {
     const sha = await this.getFileSha(path)
     const body = { message, content: btoa(unescape(encodeURIComponent(content))), branch: this.branch }
     if (sha) body.sha = sha
-    const url = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`
-    const r = await fetch(url, { method: 'PUT', headers: { ...this._hdr(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const r = await fetch(this._url(path), { method: 'PUT', headers: { ...this._hdr(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(`${r.status}: ${e.message || 'PUT failed'}`) }
     return r.json()
   },
@@ -52,115 +52,83 @@ const GH = {
 
 // ── State ────────────────────────────────────────────────────────────────────
 const state = {
-  surahs: [],
-  eighths: [],
-  versesByAya: new Map(),  // aya -> texte, pour la sourate courante
-  segments: [],            // segments de thumn de la sourate courante
-  surahNo: null,
-  hizbNo: null,            // hizb de la session en cours
-  doneSurahs: new Set(),   // sourates deja marquees, d'apres data/audio_status.json
-  cursor: 0,
-  marks: [],               // marks[i] = fin du segment i ; le dernier = durée audio
-  starts: [],              // starts[i] = début du segment i ; starts[0] = 0
-  audioUrl: '',
+  surahs: [], eighths: [], doneSurahs: new Set(),
+  hizbNo: null, surahNo: null,
+  versesByAya: new Map(),
+  segments: [],
+  marks: [], starts: [],
+  cursor: 0,            // frontiere en cours (0 .. innerCount-1)
+  reviewing: false,     // on revoit une frontiere depuis l'ecran « termine »
   duration: 0,
+  audioUrl: '',
   stopAt: null,
   pendingPush: false,
-  adjustMode: 'end',
 }
-
-// Nombre de frontières que l'utilisateur doit réellement poser.
-// La fin du dernier segment = durée audio, remplie automatiquement.
 const innerCount = () => Math.max(0, state.segments.length - 1)
 
-// ── DOM ──────────────────────────────────────────────────────────────────────
 const $ = (id) => document.getElementById(id)
 const audio = $('audio')
-
-// ── Utils ────────────────────────────────────────────────────────────────────
 const pad3 = (n) => String(n).padStart(3, '0')
 const fmt = (s) => {
-  if (!isFinite(s)) return '--:--.---'
-  const m = Math.floor(s/60), r = s - m*60
-  return `${String(m).padStart(2,'0')}:${r.toFixed(3).padStart(6,'0')}`
+  if (!isFinite(s)) return '--:--.-'
+  const m = Math.floor(s / 60), r = s - m * 60
+  return `${String(m).padStart(2, '0')}:${r.toFixed(1).padStart(4, '0')}`
 }
-const setStatus = (msg, isError) => {
-  const el = $('status')
-  el.textContent = msg
-  el.style.color = isError ? 'var(--red)' : 'var(--muted)'
+const fmtMs = (s) => {
+  if (!isFinite(s)) return '--:--.---'
+  const m = Math.floor(s / 60), r = s - m * 60
+  return `${String(m).padStart(2, '0')}:${r.toFixed(3).padStart(6, '0')}`
 }
 const lsKey = (n) => `marker:kouchi:thumn:${pad3(n)}`
-const escapeHtml = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+function setStatus(msg, isError) { const e = $('status'); e.textContent = msg || ''; e.classList.toggle('err', !!isError) }
 
-// ── Découpage : segments de thumn d'une sourate ──────────────────────────────
-// Un thumn qui traverse plusieurs sourates produit un segment par sourate.
+// ── Decoupage : segments de ثمن d'une sourate ────────────────────────────────
 function computeSegments(eighths, surahNo) {
   const segs = []
   for (const t of eighths) {
-    const mine = t.verses_covered
-      .filter(v => v.sura === surahNo)
-      .map(v => v.aya)
-      .sort((a, b) => a - b)
+    const mine = t.verses_covered.filter(v => v.sura === surahNo).map(v => v.aya).sort((a, b) => a - b)
     if (!mine.length) continue
     const suras = t.verses_covered.map(v => v.sura)
     segs.push({
-      eighth_id:        t.eighth_id,
-      name_ar:          t.name_ar || `الثمن ${t.eighth_id}`,
-      hizb:             t.hizb,
-      first_verse:      mine[0],
-      last_verse:       mine[mine.length - 1],
+      eighth_id: t.eighth_id,
+      name_ar: t.name_ar || `الثمن ${t.eighth_id}`,
+      hizb: t.hizb,
+      first_verse: mine[0],
+      last_verse: mine[mine.length - 1],
       continues_before: Math.min(...suras) < surahNo,
-      continues_after:  Math.max(...suras) > surahNo,
-      shared_boundary:  false,
+      continues_after: Math.max(...suras) > surahNo,
+      shared_boundary: false,
     })
   }
   segs.sort((a, b) => a.eighth_id - b.eighth_id)
-
-  // 12 versets portent une frontière de thumn en plein milieu (paires ۞) et
-  // figurent donc dans DEUX thumns. On ne coupe pas une récitation au milieu
-  // d'un verset : le thumn antérieur court jusqu'à la FIN du verset, le suivant
-  // démarre au verset d'après. Les deux segments portent shared_boundary.
+  // 12 versets portent une frontiere de ثمن en plein milieu (paires ۞). On ne
+  // coupe pas une recitation au milieu d'un verset : le ثمن anterieur court
+  // jusqu'a la FIN du verset, le suivant demarre au verset d'apres.
   for (let i = 1; i < segs.length; i++) {
-    if (segs[i].first_verse <= segs[i-1].last_verse) {
-      segs[i].first_verse = segs[i-1].last_verse + 1
+    if (segs[i].first_verse <= segs[i - 1].last_verse) {
+      segs[i].first_verse = segs[i - 1].last_verse + 1
       segs[i].shared_boundary = true
-      segs[i-1].shared_boundary = true
+      segs[i - 1].shared_boundary = true
     }
   }
   return segs.filter(s => s.first_verse <= s.last_verse)
 }
 
-// ── Estimation de la position d'une frontière ────────────────────────────────
-// Valide sur les 118 marques verset reelles : mediane 0.47s, 99% sous 3s.
-//
-// Deux pieges dans le decompte de mots, mesures sur la donnee :
-//   1. Le numero de verset s'ecrit U+FD3F <chiffres> U+FD3E — dans CET ordre,
-//      alors qu'Unicode nomme FD3E « LEFT » et FD3F « RIGHT ». Une regex ecrite
-//      d'apres les noms ne matche jamais et le chiffre compte comme un mot.
-//   2. Les marques warsh (U+06EC, U+06D6…) sont A L'INTERIEUR des mots. Les
-//      remplacer par un espace coupe le mot en deux : 81% des versets fausses.
-//      Il faut les retirer par la chaine vide.
-// Controle de non-regression : الفاتحة 1:1 = 8 mots. Le total du Coran depend
-// de la version de donnee lue : 77430 sur @v1.0.0 (le tag auquel DATA_BASE est
-// epingle), 77431 sur @main depuis le fix du ۞ colle en 2:233. 24 versets
-// different entre les deux — sans effet sur l'estimation (1 mot sur 77430).
+// ── Estimation de la position d'une frontiere ────────────────────────────────
+// Valide sur 118 marques verset reelles : mediane 0.47s, 99% sous 3s pour la
+// frontiere qui suit une marque. Deux pieges du decompte de mots :
+//   - le numero de verset s'ecrit U+FD3F <chiffres> U+FD3E, dans CET ordre
+//     (Unicode nomme FD3E « LEFT » : une regex ecrite d'apres les noms echoue) ;
+//   - les marques warsh sont A L'INTERIEUR des mots : les retirer sans espace.
 const VERSE_NUM = /﴿[^﴾]*﴾/g
 const WARSH_MARKS = /[ۖ-ۭ۝࣢]|ـ/g
 const wordCount = (t) => (t || '').replace(VERSE_NUM, ' ').replace(WARSH_MARKS, '').trim().split(/\s+/).filter(Boolean).length
-
-// La basmala est recitee avant le verset 1 mais absente de son texte — sauf :
-//   الفاتحة : elle EST fusionnee dans le verset 1 (deja comptee, +4 serait un doublon)
+// Basmala recitee avant le verset 1 mais absente de son texte — sauf :
+//   الفاتحة : elle EST fusionnee dans le verset 1 (deja comptee)
 //   التوبة  : aucune basmala recitee
 const BASMALA_WORDS = 4
-// Fenetre d'ecoute autour de l'estimation. Symetrique et >= a l'erreur max
-// mesuree (3.22s) : si l'estimation tombe TOT, la frontiere arrive apres elle
-// et une fenetre courte du cote POST la ferait manquer. Teste sur la sourate
-// 100 (frontiere reelle a 32.182s, estimee a 29.723s) : 2.46s d'ecart, soit
-// deja 82% d'une fenetre a 3s.
-const PREVIEW_PRE = 5
-const PREVIEW_POST = 5
 
-// Mots "audio" d'un segment : texte + basmala si le segment ouvre la sourate
 function segmentWords(sg) {
   let w = 0
   for (let v = sg.first_verse; v <= sg.last_verse; v++) w += wordCount(state.versesByAya.get(v))
@@ -168,27 +136,9 @@ function segmentWords(sg) {
   return w
 }
 
-// Estimation ancree : on repart de la derniere frontiere CONFIRMEE et on
-// repartit le temps restant sur les mots restants. L'erreur ne s'accumule
-// donc pas le long de la sourate — elle se remet a zero a chaque marque.
-function estimateFor(i) {
-  if (!state.duration || i < 0 || i >= state.segments.length) return null
-  const prev = i === 0 ? 0 : (state.marks[i-1] ?? null)
-  if (prev == null) return null
-  let remaining = 0
-  for (let k = i; k < state.segments.length; k++) remaining += state.segments[k].words ?? 0
-  if (remaining <= 0) return null
-  const est = prev + ((state.segments[i].words ?? 0) / remaining) * (state.duration - prev)
-  return Math.min(est, state.duration)
-}
-
-// Estimation de N'IMPORTE quelle frontiere, meme loin devant.
-// estimateFor() exige que la precedente soit marquee — donc seule la frontiere
-// courante etait estimable, et taper une ligne plus bas ne donnait rien. Ici on
-// s'ancre sur la derniere frontiere REELLEMENT marquee puis on enchaine les
-// estimations jusqu'a i. Moins fiable a mesure qu'on s'eloigne de l'ancre,
-// mais amplement suffisant pour se positionner a l'ecoute.
-function estimateLoose(i) {
+// Ancree sur la derniere frontiere REELLEMENT marquee, puis on repartit le
+// temps restant sur les mots restants, frontiere apres frontiere.
+function estimate(i) {
   if (!state.duration || i < 0 || i >= state.segments.length) return null
   let anchor = -1
   for (let k = i - 1; k >= 0; k--) { if (state.marks[k] != null) { anchor = k; break } }
@@ -202,185 +152,7 @@ function estimateLoose(i) {
   return Math.min(t, state.duration)
 }
 
-// Ecoute de la FIN d'un ثمن : on arrive quelques secondes avant la coupure et
-// on continue au-dela, pour entendre si ca deborde sur le verset suivant.
-// C'est ce qu'on veut en tapant une ligne — pas relire le ثمن depuis son debut.
-const END_PRE = 8, END_POST = 4
-function previewEnd(i) {
-  const sg = state.segments[i]
-  if (!sg) return false
-  const end = state.marks[i] ?? estimateLoose(i)
-  if (end == null) { setStatus('حمّل الصوت أولاً لحساب الموضع', true); return false }
-  const lower = i === 0 ? 0 : (state.marks[i-1] ?? 0)
-  audio.currentTime = Math.max(lower, end - END_PRE)
-  state.stopAt = Math.min(state.duration, end + END_POST)
-  audio.play().catch(() => {})
-  const marque = state.marks[i] != null
-  setStatus(`${marque ? '▶' : '🎯'} ${sg.name_ar} ﴿${sg.first_verse}–${sg.last_verse}﴾ — `
-    + `${marque ? 'نهاية' : 'تقدير'} ${fmt(end)} (−${END_PRE}s / +${END_POST}s)`)
-  return true
-}
-
-// Amene l'audio devant la frontiere estimee et joue une fenetre autour.
-function seekToEstimate(i, announce) {
-  const est = estimateFor(i)
-  if (est == null) { if (announce) setStatus('estimation indisponible — charge l’audio', true); return false }
-  const lower = i === 0 ? 0 : (state.marks[i-1] ?? 0)
-  audio.currentTime = Math.max(lower, est - PREVIEW_PRE)
-  state.stopAt = Math.min(state.duration, est + PREVIEW_POST)
-  audio.play().catch(() => {})
-  if (announce) setStatus(`🎯 ${state.segments[i]?.name_ar ?? ''} — estimee vers ${fmt(est)}`)
-  return true
-}
-
-// ── Session par hizb ─────────────────────────────────────────────────────────
-// On raisonne en ثمن, donc on navigue par hizb. Mais l'audio est stocke PAR
-// SOURATE : « ouvrir un hizb » ne charge pas un fichier, ca ouvre une FILE des
-// sourates qu'il lui manque (1 a 5, mediane 2), enchainees automatiquement.
-//
-// Un fichier de sourate n'est poussable que COMPLET : marquer seulement la
-// part d'un hizb dans une sourate longue ne produirait rien de publiable. La
-// file contient donc des sourates entieres — le hizb dit dans quel ORDRE
-// travailler et pourquoi, pas ce qu'on peut marquer a moitie.
-
-// sourates traversees par un hizb
-function surahsOfHizb(h) {
-  const set = new Set()
-  for (const t of state.eighths) {
-    if (t.hizb !== h) continue
-    for (const v of t.verses_covered) set.add(v.sura)
-  }
-  return [...set].sort((a, b) => a - b)
-}
-
-// ثمن jouables d'un hizb : tous ceux dont TOUTES les sourates sont marquees
-function playableInHizb(h) {
-  let n = 0
-  for (const t of state.eighths) {
-    if (t.hizb !== h) continue
-    const surs = [...new Set(t.verses_covered.map(v => v.sura))]
-    if (surs.every(s => state.doneSurahs.has(s))) n++
-  }
-  return n
-}
-
-// Une sourate compte comme faite si le manifeste la declare OU si le marquage
-// local est complet (le CDN a ~12h de cache, le local est plus frais).
-function isSurahDone(n) {
-  if (state.doneSurahs.has(n)) return true
-  try {
-    const raw = localStorage.getItem(lsKey(n))
-    if (raw) return JSON.parse(raw).complete === true
-  } catch {}
-  return false
-}
-
-function hizbQueue(h) { return surahsOfHizb(h).filter(n => !isSurahDone(n)) }
-
-function renderHizbOptions() {
-  const sel = $('hizbSelect')
-  sel.innerHTML = ''
-  for (let h = 1; h <= 60; h++) {
-    const todo = hizbQueue(h).length
-    const play = playableInHizb(h)
-    const opt = document.createElement('option')
-    opt.value = String(h)
-    // Libelle court : replie, le <select> n'affiche qu'environ 130px. Le detail
-    // complet (sourates restantes) part dans la ligne de statut a la selection.
-    opt.textContent = todo === 0 ? `الحزب ${h} ✓` : `الحزب ${h} — ${play}/8`
-    sel.appendChild(opt)
-  }
-}
-
-// Liste des sourates du hizb choisi, celles qui restent d'abord
-function renderSurahOptions(h) {
-  const sel = $('surahSelect')
-  sel.innerHTML = ''
-  for (const n of surahsOfHizb(h)) {
-    const meta = state.surahs.find(s => s.number === n)
-    const inner = state.eighths.filter(t => t.hizb != null && t.start.sura === n && t.start.aya > 1).length
-    const opt = document.createElement('option')
-    opt.value = String(n)
-    opt.textContent = isSurahDone(n)
-      ? `✓ ${n}. ${meta?.name_ar ?? ''}`
-      : `${n}. ${meta?.name_ar ?? ''} — ${inner} حد`
-    sel.appendChild(opt)
-  }
-  const first = hizbQueue(h)[0]
-  if (first != null) sel.value = String(first)
-}
-
-function onHizbChange() {
-  const h = parseInt($('hizbSelect').value, 10)
-  state.hizbNo = h
-  renderSurahOptions(h)
-  const q = hizbQueue(h)
-  setStatus(q.length === 0
-    ? `الحزب ${h} مكتمل ✓`
-    : `الحزب ${h} — ${playableInHizb(h)}/8 ثمن · يتبقى ${q.length} سورة : ${q.join('، ')}`)
-}
-
-// Sourate suivante de la file du hizb courant, une fois celle-ci terminee
-function nextInQueue() {
-  if (state.hizbNo == null) return null
-  return hizbQueue(state.hizbNo).find(n => n !== state.surahNo) ?? null
-}
-
-// ── Boot ─────────────────────────────────────────────────────────────────────
-async function boot() {
-  try {
-    const [rs, re] = await Promise.all([
-      fetch(`${DATA_BASE}surahs.json`),
-      fetch(`${DATA_BASE}eighths.json`),
-    ])
-    if (!rs.ok || !re.ok) throw new Error()
-    state.surahs = await rs.json()
-    const ej = await re.json()
-    state.eighths = Array.isArray(ej) ? ej : (ej.eighths || [])
-  } catch {
-    setStatus('échec chargement surahs.json / eighths.json', true)
-    return
-  }
-
-  // Etat de couverture — lu sur @main : le manifeste bouge a chaque push, il ne
-  // peut pas vivre sur le tag epingle. Absent = on part de zero, sans bloquer.
-  try {
-    const rst = await fetch(`${STATUS_URL}?t=${Date.now()}`, { cache: 'no-store' })
-    if (rst.ok) {
-      const st = await rst.json()
-      state.doneSurahs = new Set(st?.reciters?.kouchi?.done ?? [])
-    }
-  } catch {}
-
-  renderHizbOptions()
-  updateTaskUI()   // etat coherent des le depart : consigne + boutons inactifs
-  // Lance le texte du Coran en tache de fond : il est le plus souvent pret
-  // avant le premier « تحميل », sans retarder l'affichage du menu.
-  getQuranAll().catch(() => {})
-  if (navigator.share) $('btnShare').hidden = false
-
-  const params = new URLSearchParams(location.search)
-  const n = parseInt(params.get('surah') || '', 10)
-  if (n >= 1 && n <= 114) {
-    // Acces direct a une sourate : on cale le hizb sur celui qui la contient
-    const h = state.eighths.find(t => t.verses_covered.some(v => v.sura === n))?.hizb
-    if (h) { $('hizbSelect').value = String(h); onHizbChange() }
-    $('surahSelect').value = String(n)
-    await loadSurah(n)
-  } else {
-    // Ouvre sur le premier hizb incomplet
-    const firstOpen = Array.from({ length: 60 }, (_, i) => i + 1).find(h => hizbQueue(h).length > 0) ?? 1
-    $('hizbSelect').value = String(firstOpen)
-    onHizbChange()
-  }
-}
-
-// ── Texte du Coran : un seul telechargement par session ──────────────────────
-// quran_muhammadi.json pese 3,7 Mo. Il etait refetch a CHAQUE chargement de
-// sourate : insupportable au telephone, et la file du hizb enchaine les
-// sourates, donc le cout se payait en boucle. On le garde en memoire.
-// Timeout explicite : sans lui un reseau qui traine laisse l'UI figee sans
-// message, ce qui est indiscernable d'un plantage.
+// ── Texte du Coran : un seul telechargement par session (3,7 Mo) ─────────────
 let _quranAll = null
 async function getQuranAll() {
   if (_quranAll) return _quranAll
@@ -391,647 +163,449 @@ async function getQuranAll() {
     if (!r.ok) throw new Error(`HTTP ${r.status}`)
     _quranAll = await r.json()
     return _quranAll
-  } finally {
-    clearTimeout(timer)
-  }
+  } finally { clearTimeout(timer) }
 }
 
-// ── Load surah ───────────────────────────────────────────────────────────────
-async function loadSurah(n) {
-  state.surahNo = n
+// ── Hizb : la file des sourates qui lui manquent ─────────────────────────────
+// L'audio est stocke par sourate et un fichier n'est publiable que complet :
+// ouvrir un hizb ouvre donc la file des sourates ENTIERES qui lui manquent.
+function surahsOfHizb(h) {
+  const set = new Set()
+  for (const t of state.eighths) if (t.hizb === h) for (const v of t.verses_covered) set.add(v.sura)
+  return [...set].sort((a, b) => a - b)
+}
+function isSurahDone(n) {
+  if (state.doneSurahs.has(n)) return true
+  try { const raw = localStorage.getItem(lsKey(n)); if (raw) return JSON.parse(raw).complete === true } catch {}
+  return false
+}
+function playableInHizb(h) {
+  let n = 0
+  for (const t of state.eighths) {
+    if (t.hizb !== h) continue
+    if ([...new Set(t.verses_covered.map(v => v.sura))].every(s => state.doneSurahs.has(s))) n++
+  }
+  return n
+}
+const hizbQueue = (h) => surahsOfHizb(h).filter(n => !isSurahDone(n))
+const innerOfSurah = (n) => state.eighths.filter(t => t.start.sura === n && t.start.aya > 1).length
 
+function renderHizbOptions() {
+  const sel = $('hizbSelect')
+  sel.innerHTML = ''
+  for (let h = 1; h <= 60; h++) {
+    const opt = document.createElement('option')
+    opt.value = String(h)
+    opt.textContent = hizbQueue(h).length === 0 ? `الحزب ${h} ✓ مكتمل` : `الحزب ${h} — ${playableInHizb(h)} من 8 أثمان جاهزة`
+    sel.appendChild(opt)
+  }
+}
+function renderSurahOptions(h) {
+  const sel = $('surahSelect')
+  sel.innerHTML = ''
+  for (const n of surahsOfHizb(h)) {
+    const meta = state.surahs.find(s => s.number === n)
+    const opt = document.createElement('option')
+    opt.value = String(n)
+    const inner = innerOfSurah(n)
+    opt.textContent = isSurahDone(n) ? `✓ ${n}. ${meta?.name_ar ?? ''} (منشورة)`
+      : `${n}. ${meta?.name_ar ?? ''} — ${inner === 0 ? 'لا حدود' : inner + ' حد'}`
+    sel.appendChild(opt)
+  }
+  const first = hizbQueue(h)[0]
+  if (first != null) sel.value = String(first)
+  updatePickInfo()
+}
+function updatePickInfo() {
+  const h = parseInt($('hizbSelect').value, 10), n = parseInt($('surahSelect').value, 10)
+  const q = hizbQueue(h)
+  const inner = innerOfSurah(n)
+  let txt = q.length === 0 ? `الحزب ${h} مكتمل.` : `يتبقّى في هذا الحزب ${q.length} سورة : ${q.join('، ')}.`
+  if (isSurahDone(n)) txt += ' السورة المختارة منشورة بالفعل.'
+  else txt += inner === 0 ? ' السورة المختارة لا تحتوي أي حد : تُنشر مباشرة.' : ` السورة المختارة : ${inner} حد للتعليم.`
+  $('pickInfo').textContent = txt
+}
+function onHizbChange() { state.hizbNo = parseInt($('hizbSelect').value, 10); renderSurahOptions(state.hizbNo) }
+const nextInQueue = () => state.hizbNo == null ? null : (hizbQueue(state.hizbNo).find(n => n !== state.surahNo) ?? null)
+
+// ── Ecrans ───────────────────────────────────────────────────────────────────
+function showScreen(name) {
+  $('picker').hidden = name !== 'pick'
+  $('sFind').hidden = name !== 'find'
+  $('sCheck').hidden = name !== 'check'
+  $('sDone').hidden = name !== 'done'
+  state.screen = name
+  updateHeader()
+}
+function updateHeader() {
+  const meta = state.surahs.find(s => s.number === state.surahNo)
+  $('btnWhere').textContent = state.surahNo == null
+    ? 'اختر الحزب والسورة ▾'
+    : `الحزب ${state.hizbNo ?? '—'} · ${meta?.name_ar ?? state.surahNo} ▾`
+  const n = innerCount()
+  const done = state.marks.slice(0, n).filter(x => x != null).length
+  $('count').textContent = state.surahNo == null || n === 0 ? '' : `الحد ${Math.min(state.cursor + 1, n)} من ${n}`
+  $('prog').style.width = n === 0 ? (state.surahNo == null ? '0%' : '100%') : `${Math.round(done / n * 100)}%`
+}
+
+// Fin du verset qui clot le ثمن / debut du verset qui ouvre le suivant.
+const tailWords = (t, k) => { const w = (t || '').trim().split(/\s+/); return (w.length > k ? '… ' : '') + w.slice(-k).join(' ') }
+const headWords = (t, k) => { const w = (t || '').trim().split(/\s+/); return w.slice(0, k).join(' ') + (w.length > k ? ' …' : '') }
+
+function playFrom(t, stopAt) {
+  audio.currentTime = Math.max(0, t)
+  state.stopAt = stopAt ?? null
+  audio.play().catch(() => {})
+}
+
+// Etape 1 : trouver la fin du ثمن
+function openFind(i) {
+  state.cursor = i
+  const sg = state.segments[i], nx = state.segments[i + 1]
+  $('findTitle').textContent = `أين ينتهي ${sg.name_ar}؟`
+  $('lastV').textContent = tailWords(state.versesByAya.get(sg.last_verse), 12)
+  $('nextV').textContent = headWords(state.versesByAya.get(nx?.first_verse), 8)
+  showScreen('find')
+  const est = estimate(i)
+  if (est == null) { $('findNote').textContent = 'جارٍ تحميل الصوت…'; return }
+  const lower = i === 0 ? 0 : (state.marks[i - 1] ?? 0)
+  playFrom(Math.max(lower, est - FIND_LEAD), null)
+  $('findNote').textContent = `بدأ السماع ${FIND_LEAD} ث قبل الموضع المقدَّر`
+  setStatus('')
+}
+
+// Etape 2 : verifier la coupure
+function openCheck(i) {
+  state.cursor = i
+  const sg = state.segments[i], nx = state.segments[i + 1]
+  $('joinTxt').innerHTML = esc(tailWords(state.versesByAya.get(sg.last_verse), 3))
+    + '<b>|</b>' + esc(headWords(state.versesByAya.get(nx?.first_verse), 3))
+  showScreen('check')
+  replayCut()
+}
+function replayCut() {
+  const t = state.marks[state.cursor]
+  if (t == null) return
+  $('clockCut').textContent = fmtMs(t)
+  const lower = state.cursor === 0 ? 0 : (state.marks[state.cursor - 1] ?? 0)
+  playFrom(Math.max(lower, t - CHECK_WIN), Math.min(state.duration, t + CHECK_WIN))
+}
+
+// Etape 3 : recapitulatif
+function openDone() {
+  audio.pause()
+  const n = innerCount()
+  const published = state.doneSurahs.has(state.surahNo)
+  $('doneMsg').hidden = n > 0
+  if (n === 0) {
+    $('doneTitle').textContent = published ? 'السورة منشورة بالفعل ✓' : 'لا حدود في هذه السورة'
+    $('doneMsg').textContent = published
+      ? 'ثمن واحد يغطّي السورة كاملة، وهي منشورة. اختر سورة أخرى من الأعلى.'
+      : 'ثمن واحد يغطّي السورة كاملة : لا شيء تعلّمه. انشرها مباشرة.'
+  } else {
+    $('doneTitle').textContent = 'اكتملت السورة ✓'
+  }
+  $('doneSub').hidden = n === 0
+  $('doneList').hidden = n === 0
+  $('doneList').innerHTML = state.segments.slice(0, n).map((sg, k) =>
+    `<div data-k="${k}"><span class="ok">✓ ${esc(sg.name_ar)} ﴿${sg.last_verse}﴾</span><span>${fmtMs(state.marks[k])}</span></div>`).join('')
+  $('btnPublish').textContent = published ? 'إعادة النشر' : 'نشر'
+  const next = nextInQueue()
+  $('nextHint').textContent = next != null ? `السورة التالية في الحزب : ${next}` : (state.hizbNo != null ? `لا سور متبقية في الحزب ${state.hizbNo} بعد هذه.` : '')
+  state.cursor = n
+  showScreen('done')
+}
+
+// Premiere frontiere non marquee, ou l'ecran « termine »
+function firstUnmarked(from = 0) {
+  const n = innerCount()
+  for (let k = from; k < n; k++) if (state.marks[k] == null) return k
+  for (let k = 0; k < Math.min(from, n); k++) if (state.marks[k] == null) return k
+  return -1
+}
+function resume() {
+  const k = firstUnmarked(0)
+  if (k === -1) openDone(); else openFind(k)
+}
+
+// ── Chargement d'une sourate ─────────────────────────────────────────────────
+async function loadSurah(n) {
+  audio.pause()
+  state.surahNo = n
+  state.reviewing = false
   try {
-    if (!_quranAll) setStatus('جارٍ تنزيل نص القرآن (3.7 Mo) — مرة واحدة فقط…')
-    else setStatus(`جارٍ تحميل السورة ${n}…`)
+    setStatus(_quranAll ? `جارٍ تحميل السورة ${n}…` : 'جارٍ تنزيل نص القرآن (3.7 Mo) — مرة واحدة فقط…')
     const all = await getQuranAll()
     state.versesByAya = new Map(all.filter(v => v.sura === n).map(v => [v.aya, v.text]))
   } catch (e) {
-    setStatus(e?.name === 'AbortError'
-      ? 'انتهت مهلة تنزيل نص القرآن (60 ث) — تحقق من الاتصال وأعد المحاولة'
-      : `فشل تنزيل نص القرآن : ${e?.message ?? e}`, true)
+    setStatus(e?.name === 'AbortError' ? 'انتهت مهلة تنزيل نص القرآن — تحقق من الاتصال وأعد المحاولة' : `فشل تنزيل نص القرآن : ${e?.message ?? e}`, true)
     return
   }
-
   state.segments = computeSegments(state.eighths, n)
   for (const sg of state.segments) sg.words = segmentWords(sg)
+  state.marks = []; state.starts = []; state.duration = 0
+  // Reprise d'un marquage deja commence. Les frontieres sont relues depuis
+  // segments[].end : c'est la que l'ancienne interface les ecrivait (elle ne
+  // relisait qu'un champ `marks` qu'elle n'enregistrait jamais).
+  try {
+    const raw = localStorage.getItem(lsKey(n))
+    const obj = raw ? JSON.parse(raw) : null
+    if (obj && Array.isArray(obj.segments) && obj.segments.length === state.segments.length) {
+      state.marks = obj.segments.map(s => (typeof s.end === 'number' ? s.end : null))
+    }
+  } catch {}
   state.audioUrl = `${RECITER.server}${pad3(n)}.mp3`
   audio.src = state.audioUrl
-
-  state.marks = []
-  state.starts = []
-  const saved = localStorage.getItem(lsKey(n))
-  if (saved) {
-    try {
-      const obj = JSON.parse(saved)
-      if (Array.isArray(obj.marks))  state.marks  = obj.marks.slice(0, state.segments.length)
-      if (Array.isArray(obj.starts)) state.starts = obj.starts.slice(0, state.segments.length)
-    } catch {}
-  }
-  syncStarts()
-  state.cursor = Math.min(countInnerMarked(), Math.max(0, innerCount() - 1))
-  state.adjustMode = 'end'
-
-  $('metaPanel').hidden = false
-  $('metaUrl').textContent = state.audioUrl
-  $('metaSegCount').textContent = String(state.segments.length)
-  if (state.hizbNo != null) {
-    const q = hizbQueue(state.hizbNo)
-    const pos = q.indexOf(n)
-    $('metaHizb').textContent = `${state.hizbNo} · ${playableInHizb(state.hizbNo)}/8 ثمن`
-      + (pos >= 0 && q.length > 1 ? ` · سورة ${pos + 1}/${q.length}` : '')
-  }
-  $('actionBar').hidden = false
-  $('exportBar').hidden = false
-
-  renderSegments()
-  updateCursor()
-
-  if (innerCount() === 0) {
-    setStatus(state.doneSurahs.has(n)
-      ? `السورة ${n} منشورة بالفعل ✓ — لا شيء تعلّمه هنا`
-      : `السورة ${n} — ثمن واحد، لا حدود داخلية. جاهز للرفع ✓`)
-  } else {
-    setStatus(`السورة ${n} — ${state.segments.length} ثمن، ${innerCount()} حد للتعليم.`)
-  }
+  setStatus('جارٍ تحميل الصوت…')
+  // la suite se fait a loadedmetadata, quand la duree est connue
 }
 
-// Nombre de frontières internes déjà posées
-function countInnerMarked() {
-  let c = 0
-  for (let i = 0; i < innerCount(); i++) if (state.marks[i] != null) c++
-  return c
-}
-
-// starts[0] = 0 ; par défaut le segment suivant démarre où le précédent finit
-function syncStarts() {
-  state.starts[0] = 0
-  for (let i = 1; i < state.segments.length; i++) {
-    if (state.starts[i] == null && state.marks[i-1] != null) state.starts[i] = state.marks[i-1]
-  }
-}
-
-// La fin du dernier segment est toujours la durée de l'audio
-function sealLastMark() {
+audio.addEventListener('loadedmetadata', () => {
+  state.duration = audio.duration
   const last = state.segments.length - 1
-  if (last >= 0 && state.duration) state.marks[last] = state.duration
-}
+  if (last >= 0) state.marks[last] = state.duration  // fin de sourate = fin de l'audio
+  persist()
+  setStatus('')
+  resume()
+})
+audio.addEventListener('error', () => setStatus('تعذّر تحميل الصوت — تحقق من الاتصال', true))
+audio.addEventListener('timeupdate', () => {
+  if (state.screen === 'find') $('clockFind').textContent = fmt(audio.currentTime)
+  if (state.stopAt != null && audio.currentTime >= state.stopAt) { audio.pause(); state.stopAt = null }
+})
+function syncPlay() { $('btnPlay').textContent = (!audio.paused && !audio.ended) ? '⏸' : '▶' }
+audio.addEventListener('play', syncPlay)
+audio.addEventListener('pause', syncPlay)
+audio.addEventListener('ended', syncPlay)
 
-// ── Render ───────────────────────────────────────────────────────────────────
-// Consigne + etat des boutons. MARK et 🎯 restaient actifs meme quand il n'y
-// avait rien a marquer : on cliquait et on recevait une erreur au lieu de
-// comprendre qu'il fallait changer de sourate.
-function updateTaskUI() {
-  const hint = $('taskHint')
-  const mark = $('btnMark')
-  const seek = $('btnSeek')
-  if (!hint) return
-
-  const setBtns = (on, why) => {
-    for (const b of [mark, seek]) {
-      if (!b) continue
-      b.disabled = !on
-      b.style.opacity = on ? '' : '.35'
-      b.title = on ? '' : why
-    }
-  }
-
-  if (state.surahNo == null) {
-    hint.className = 'task-hint idle'
-    hint.innerHTML = 'اختر حزباً ثم سورة، واضغط <strong>تحميل</strong>.'
-    setBtns(false, 'حمّل سورة أولاً')
-    return
-  }
-  if (innerCount() === 0) {
-    const published = state.doneSurahs.has(state.surahNo)
-    hint.className = 'task-hint done'
-    hint.innerHTML = published
-      ? `هذه السورة <strong>منشورة بالفعل ✓</strong> ولا تحتوي أيّ حدّ داخلي — اختر سورة أخرى من القائمة.`
-      : `ثمن واحد يغطّي السورة كاملة : <strong>لا شيء تعلّمه هنا</strong>. اضغط <strong>⬆ GitHub</strong> للنشر مباشرة.`
-    setBtns(false, 'لا حدود داخلية في هذه السورة')
-    return
-  }
-  if (countInnerMarked() >= innerCount()) {
-    hint.className = 'task-hint done'
-    hint.innerHTML = 'اكتملت كل الحدود ✓ — <strong>اضغط على أيّ ثمن لسماعه كاملاً</strong> '
-      + 'والتأكّد من عدم التداخل، ثم <strong>⬆ GitHub</strong> للنشر.'
-    setBtns(false, 'اكتملت كل الحدود')
-    return
-  }
-  // Deja publiee mais des frontieres a marquer : le marquage local est vide
-  // (publie depuis un autre appareil). Sans cet avertissement on refait un
-  // travail deja fait, et un push l'ecraserait.
-  if (state.doneSurahs.has(state.surahNo) && countInnerMarked() === 0) {
-    hint.className = 'task-hint done'
-    hint.innerHTML = `هذه السورة <strong>منشورة بالفعل ✓</strong>. يمكنك إعادة تعليمها، لكن النشر سيستبدل الموجود — `
-      + `إن لم يكن ذلك مقصوداً، اختر سورة أخرى.`
-    setBtns(true, '')
-    return
-  }
-
-  hint.className = 'task-hint'
-  hint.innerHTML = 'اضغط <strong>🎯</strong> للقفز إلى الموضع المقدَّر، استمع، ثم <strong>MARK</strong> عند نهاية الثمن. '
-    + 'النصّ المعروض هو <strong>آخر آية</strong> في الثمن — هي التي يجب أن تسمع نهايتها.'
-  setBtns(true, '')
-}
-
-function updateCursor() {
-  const done = countInnerMarked()
-  $('metaCursor').textContent = innerCount() === 0
-    ? 'لا حدود ✓'
-    : (done >= innerCount() ? 'اكتمل ✓' : `${done + 1} / ${innerCount()}`)
-  updateTaskUI()  // point de passage unique : loadSurah, MARK et undo passent tous ici
-}
-
-function renderSegments() {
-  const list = $('segList')
-  list.innerHTML = ''
-  state.segments.forEach((sg, i) => {
-    const isLast = i === state.segments.length - 1
-    const end    = state.marks[i] ?? null
-    const start  = i === 0 ? 0 : (state.starts[i] ?? state.marks[i-1] ?? null)
-    const done   = end != null
-    const active = !isLast && i === state.cursor
-
-    const range = sg.first_verse === sg.last_verse
-      ? `﴿${sg.first_verse}﴾`
-      : `﴿${sg.first_verse}–${sg.last_verse}﴾`
-
-    const badges = []
-    if (sg.continues_before) badges.push('<span class="muted">⇠ تتمة</span>')
-    if (sg.continues_after)  badges.push('<span class="muted">تتمة ⇢</span>')
-    if (sg.shared_boundary)  badges.push('<span class="muted" title="حد داخل آية">۞</span>')
-    if (isLast)              badges.push('<span class="muted">نهاية السورة</span>')
-
-    // On marque la FIN du segment : c'est le dernier verset qu'on écoute.
-    const cue = state.versesByAya.get(sg.last_verse) || ''
-    // Estimation affichee sur TOUTE ligne non marquee, pas seulement la
-    // courante : sinon on ne sait pas ou taper pour aller ecouter plus loin.
-    const estVal = (!isLast && end == null) ? estimateLoose(i) : null
-    const estText = estVal != null ? fmt(estVal) : ''
-
-    const li = document.createElement('li')
-    if (done) li.classList.add('done')
-    if (active) li.classList.add('active')
-    li.dataset.idx = String(i)
-    li.innerHTML = `
-      <span class="num">${escapeHtml(sg.name_ar)}<br><small class="muted">${range}</small></span>
-      <span class="text">${escapeHtml(cue)} ${badges.join(' ')}</span>
-      <span class="range">
-        <span class="t-start">${start != null ? fmt(start) : '—'}</span>
-        <span class="t-end">${end != null ? fmt(end) : (estText ? '🎯 ' + estText : '—')}</span>
-      </span>
-    `
-    // Taper une ligne = ecouter le ثمن ENTIER (verification du debordement).
-    // L'ajustement fin de la frontiere se fait via le panneau ±, qui rejoue
-    // deja les 2s autour a chaque tap. Le dernier segment est ecoutable comme
-    // les autres : sa fin est la duree audio, pas une raison de l'exclure.
-    // Taper une ligne amene a la FIN de ce ثمن, pas a son debut : c'est la
-    // coupure qu'on veut entendre, et relire un ثمن de 3 min depuis le debut
-    // n'a aucun interet. Marche aussi sur les ثمن non marques (estimation) et
-    // sur le dernier. Pour le ثمن entier, il y a « ▶ الثمن كاملاً ».
-    li.addEventListener('click', () => {
-      if (!isLast) state.cursor = i
-      previewEnd(i)
-      updateCursor()
-      renderSegments()
-    })
-    list.appendChild(li)
-  })
-  list.querySelector('li.active')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  updateAdjustPanel()
-}
-
-// Frontiere sur laquelle porte le panneau d'ajustement.
-// Une fois la derniere marque posee, state.cursor vaut innerCount() — c'est
-// sa facon de dire « termine ». Le panneau se refermait donc PILE au moment
-// ou l'on veut reecouter et corriger son travail. On le rabat sur la derniere
-// frontiere marquee au lieu de le cacher. On ne clampe pas state.cursor
-// lui-meme : markCurrent s'en sert pour refuser de marquer au-dela.
-function focusIndex() {
-  const last = innerCount() - 1
-  return last < 0 ? -1 : Math.min(state.cursor, last)
-}
-
-function updateAdjustPanel() {
-  const panel = $('verseAdjust')
-  if (!panel) return
-  const i = focusIndex()
-  const isMarked = i >= 0 && state.marks[i] != null
-  if (!isMarked) { panel.hidden = true; return }
-  panel.hidden = false
-
-  const startTab = $('vaTabStart')
-  if (startTab) {
-    startTab.disabled = (i === 0)
-    if (i === 0 && state.adjustMode === 'start') state.adjustMode = 'end'
-  }
-  $('vaTabEnd')?.classList.toggle('active', state.adjustMode === 'end')
-  $('vaTabStart')?.classList.toggle('active', state.adjustMode === 'start')
-
-  $('vaVerseNum').textContent = state.segments[i]?.name_ar ?? String(i + 1)
-  const display = state.adjustMode === 'start'
-    ? (state.starts[i] ?? state.marks[i-1] ?? 0)
-    : state.marks[i]
-  $('vaEndDisplay').textContent = fmt(display)
-  $('vaModeLabel').textContent = state.adjustMode === 'start' ? 'ضبط بداية الثمن' : 'ضبط نهاية الثمن'
-}
-
-function setAdjustMode(mode) {
-  if (mode === 'start' && focusIndex() === 0) return
-  state.adjustMode = mode
-  updateAdjustPanel()
-  const i = focusIndex()
-  if (i >= 0 && state.marks[i] != null) {
-    const end = state.marks[i]
-    const start = state.starts[i] ?? (i === 0 ? 0 : state.marks[i-1])
-    if (mode === 'start' && i > 0) previewStartBoundary(state.marks[i-1] ?? 0, start, end)
-    else previewBoundary(start, end)
-  }
-}
-
-// ── Marking ──────────────────────────────────────────────────────────────────
-function markCurrent() {
-  if (innerCount() === 0) { setStatus('لا حدود داخلية في هذه السورة ✓'); return }
-  if (state.cursor >= innerCount()) { setStatus('اكتمل ✓'); return }
+// ── Actions ──────────────────────────────────────────────────────────────────
+function markHere() {
+  const i = state.cursor
   const t = audio.currentTime
-  const prev = state.cursor === 0 ? 0 : (state.marks[state.cursor - 1] ?? 0)
-  if (t <= prev) { setStatus(`${fmt(t)} ≤ الحد السابق ${fmt(prev)}`, true); return }
-  state.marks[state.cursor] = t
-  if (state.cursor + 1 < state.segments.length && state.starts[state.cursor + 1] == null) {
-    state.starts[state.cursor + 1] = t
-  }
-  if (state.starts[0] == null) state.starts[0] = 0
-  const sg = state.segments[state.cursor]
-  state.cursor = Math.min(state.cursor + 1, innerCount())
-  sealLastMark()
+  const prev = i === 0 ? 0 : (state.marks[i - 1] ?? 0)
+  if (t <= prev + 0.05) { setStatus(`هذا الموضع قبل نهاية الثمن السابق (${fmt(prev)}) — تقدّم قليلاً`, true); return }
+  if (t >= state.duration - 0.05) { setStatus('هذا الموضع في نهاية السورة — ارجع قليلاً', true); return }
+  state.marks[i] = t
+  // les frontieres suivantes deja posees mais desormais AVANT celle-ci sont fausses
+  for (let k = i + 1; k < innerCount(); k++) if (state.marks[k] != null && state.marks[k] <= t) state.marks[k] = null
   persist()
-  updateCursor()
-  renderSegments()
   if (navigator.vibrate) navigator.vibrate(15)
-
-  // Enchaine directement sur la frontiere suivante : l'ecoute lineaire d'une
-  // sourate de 2h pour 38 frontieres n'est pas tenable.
-  if (state.cursor < innerCount() && seekToEstimate(state.cursor, false)) {
-    const est = estimateFor(state.cursor)
-    setStatus(`✓ ${sg?.name_ar ?? ''} ${fmt(t)} → 🎯 suivante vers ${fmt(est)}`)
-  } else {
-    // Sourate terminee : on annonce la suite sans charger quoi que ce soit.
-    // Enchainer tout seul ferait perdre un marquage non pousse.
-    const next = nextInQueue()
-    setStatus(next != null
-      ? `✓ اكتملت السورة ${state.surahNo} — ادفع إلى GitHub، ثم السورة ${next}`
-      : `✓ اكتملت السورة ${state.surahNo} — ادفع إلى GitHub`)
-  }
+  openCheck(i)
 }
 
-// Ecoute d'un ثمن ENTIER, du debut a la fin. C'est le seul moyen d'entendre
-// s'il deborde : la preview de frontiere (2s) sert a ajuster au millieme, pas
-// a verifier le contenu. C'est aussi exactement ce que l'app fera jouer.
-function playSegment(i) {
-  const sg = state.segments[i]
-  if (!sg) return false
-  const start = i === 0 ? 0 : (state.starts[i] ?? state.marks[i-1] ?? null)
-  const end = state.marks[i] ?? null
-  if (start == null || end == null) { setStatus('هذا الثمن غير مُعلَّم بعد', true); return false }
-  audio.currentTime = start
-  state.stopAt = end
-  audio.play().catch(() => {})
-  const dur = end - start
-  setStatus(`▶ ${sg.name_ar} ﴿${sg.first_verse}–${sg.last_verse}﴾ — ${fmt(start)} → ${fmt(end)} (${dur.toFixed(1)} ث)`)
-  return true
-}
-
-// 0.5s apres la coupure ne suffisait pas pour juger d'un debordement : on
-// n'entendait pas si le verset suivant avait commence. 3s de chaque cote.
-function previewBoundary(lo, end) {
-  const PRE = 3, POST = 3
-  audio.currentTime = Math.max(lo, end - PRE)
-  state.stopAt = Math.min((state.duration || end + POST), end + POST)
-  audio.play().catch(() => {})
-}
-
-function previewStartBoundary(prevEnd, start, end) {
-  const PRE = 0.5, POST = 1.5
-  audio.currentTime = Math.max(prevEnd, start - PRE)
-  state.stopAt = Math.min(end, start + POST)
-  audio.play().catch(() => {})
-}
-
-function adjustMark(i, deltaMs) {
-  if (i < 0 || i >= innerCount()) return
-  if (state.adjustMode === 'start') return adjustStart(i, deltaMs)
-
-  if (state.marks[i] == null) return
-  const newVal = state.marks[i] + deltaMs / 1000
-  const lower = state.starts[i] ?? (i === 0 ? 0 : state.marks[i-1] ?? 0)
-  const nextStart = state.starts[i+1]
-  const upper = nextStart != null ? nextStart : (state.duration || Infinity)
-  if (newVal <= lower + 0.001) { setStatus(`الحد الأدنى ${fmt(lower)}`, true); return }
-  if (newVal >= upper - 0.001) { setStatus(`الحد الأقصى ${fmt(upper)}`, true); return }
-  state.marks[i] = newVal
+function nudgeCut(d) {
+  const i = state.cursor
+  const cur = state.marks[i]
+  if (cur == null) return
+  const lower = (i === 0 ? 0 : (state.marks[i - 1] ?? 0)) + 0.05
+  const upper = (state.marks[i + 1] ?? state.duration) - 0.05
+  const v = Math.min(upper, Math.max(lower, cur + d))
+  if (v === cur) { setStatus('لا يمكن التحريك أكثر في هذا الاتجاه', true); return }
+  state.marks[i] = v
   persist()
-  renderSegments()
-  state.cursor = i
-  previewBoundary(lower, newVal)
-  setStatus(`✎ ${state.segments[i]?.name_ar ?? ''} → نهاية ${fmt(newVal)} (${deltaMs > 0 ? '+' : ''}${deltaMs}ms)`)
+  setStatus('')
   if (navigator.vibrate) navigator.vibrate(8)
+  replayCut()
 }
 
-function adjustStart(i, deltaMs) {
-  if (i === 0) { setStatus('بداية الثمن الأول ثابتة عند الصفر', true); return }
-  if (state.starts[i] == null || state.marks[i-1] == null) return
-  const newVal = state.starts[i] + deltaMs / 1000
-  const lower = state.marks[i-1]
-  const end = state.marks[i] ?? state.duration ?? Infinity
-  if (newVal < lower - 0.001) { setStatus(`الحد الأدنى ${fmt(lower)}`, true); return }
-  if (newVal >= end - 0.001) { setStatus(`الحد الأقصى ${fmt(end)}`, true); return }
-  state.starts[i] = newVal
-  persist()
-  renderSegments()
-  state.cursor = i
-  previewStartBoundary(lower, newVal, end)
-  setStatus(`✎ ${state.segments[i]?.name_ar ?? ''} → بداية ${fmt(newVal)} (${deltaMs > 0 ? '+' : ''}${deltaMs}ms)`)
-  if (navigator.vibrate) navigator.vibrate(8)
+function confirmCut() {
+  if (state.reviewing) { state.reviewing = false; return openDone() }
+  const k = firstUnmarked(state.cursor + 1)
+  if (k === -1) openDone(); else openFind(k)
 }
 
-function undoLast() {
-  const idx = countInnerMarked() - 1
-  if (idx < 0) return
-  state.marks[idx] = null
-  state.starts[idx + 1] = null
-  state.cursor = idx
-  persist()
-  updateCursor()
-  renderSegments()
-  setStatus(`↶ تراجع — ${state.segments[idx]?.name_ar ?? ''}`)
-  if (navigator.vibrate) navigator.vibrate([10, 30, 10])
-}
+function redo() { state.marks[state.cursor] = null; persist(); openFind(state.cursor) }
 
-// ── Persist ──────────────────────────────────────────────────────────────────
+// ── Sauvegarde ───────────────────────────────────────────────────────────────
 function persist() {
-  localStorage.setItem(lsKey(state.surahNo), JSON.stringify(buildPayload()))
-  $('autosave').textContent = `حُفظ ${new Date().toLocaleTimeString('en-GB')}`
+  if (state.surahNo == null) return
+  try { localStorage.setItem(lsKey(state.surahNo), JSON.stringify(buildPayload())) } catch {}
+  updateHeader()
 }
 
 function buildPayload() {
   const surahMeta = state.surahs.find(s => s.number === state.surahNo) || {}
-  const startOf = (i) => (i === 0 ? 0 : (state.starts[i] ?? state.marks[i-1] ?? null))
+  // pas de blanc entre deux ثمن : chacun commence ou finit le precedent
+  const startOf = (i) => (i === 0 ? 0 : (state.marks[i - 1] ?? null))
   const segments = state.segments.map((sg, i) => ({
-    eighth_id:   sg.eighth_id,
-    name_ar:     sg.name_ar,
-    hizb:        sg.hizb,
-    first_verse: sg.first_verse,
-    last_verse:  sg.last_verse,
-    start:       startOf(i),
-    end:         state.marks[i] ?? null,
+    eighth_id: sg.eighth_id, name_ar: sg.name_ar, hizb: sg.hizb,
+    first_verse: sg.first_verse, last_verse: sg.last_verse,
+    start: startOf(i), end: state.marks[i] ?? null,
     ...(sg.continues_before ? { continues_before: true } : {}),
-    ...(sg.continues_after  ? { continues_after:  true } : {}),
-    ...(sg.shared_boundary  ? { shared_boundary:  true } : {}),
+    ...(sg.continues_after ? { continues_after: true } : {}),
+    ...(sg.shared_boundary ? { shared_boundary: true } : {}),
   }))
   return {
-    schema_version: SCHEMA_VERSION,
-    granularity:    'thumn',
-    surah:          state.surahNo,
-    surah_name_ar:  surahMeta.name_ar || null,
-    segment_count:  state.segments.length,
-    inner_boundaries: innerCount(),
-    reciter:        RECITER.id,
-    reciter_name:   RECITER.name,
-    audio_url:      state.audioUrl,
-    audio_duration: state.duration || null,
-    marked_at:      new Date().toISOString(),
+    schema_version: SCHEMA_VERSION, granularity: 'thumn',
+    surah: state.surahNo, surah_name_ar: surahMeta.name_ar || null,
+    segment_count: state.segments.length, inner_boundaries: innerCount(),
+    reciter: RECITER.id, reciter_name: RECITER.name,
+    audio_url: state.audioUrl, audio_duration: state.duration || null,
+    marked_at: new Date().toISOString(),
     segments,
-    complete: state.segments.length > 0
-              && segments.every(s => typeof s.start === 'number' && typeof s.end === 'number'),
+    complete: state.segments.length > 0 && segments.every(s => typeof s.start === 'number' && typeof s.end === 'number'),
   }
 }
 
-// ── Export ───────────────────────────────────────────────────────────────────
-const jsonText = () => JSON.stringify(buildPayload(), null, 2)
-const fileName = () => `${pad3(state.surahNo)}.json`
-
-async function copyJson() {
-  try {
-    await navigator.clipboard.writeText(jsonText())
-    setStatus(`📋 نُسخ JSON (${fileName()})`)
-  } catch {
-    const ta = document.createElement('textarea')
-    ta.value = jsonText()
-    document.body.appendChild(ta)
-    ta.select()
-    try { document.execCommand('copy'); setStatus('📋 نُسخ (fallback)') }
-    catch { setStatus('échec copie — utilise download', true) }
-    ta.remove()
-  }
-}
-
-async function shareJson() {
-  try {
-    const file = new File([jsonText()], fileName(), { type: 'application/json' })
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: fileName(), text: `Thumn markers — ${fileName()}` })
-    } else {
-      await navigator.share({ title: fileName(), text: jsonText() })
-    }
-    setStatus('📤 تمت المشاركة')
-  } catch (e) {
-    if (e.name !== 'AbortError') setStatus('échec share — utilise copy', true)
-  }
-}
-
-function downloadJson() {
-  const blob = new Blob([jsonText()], { type: 'application/json' })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = fileName()
-  a.click()
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000)
-  setStatus(`⬇ ${a.download} — ضعه في ${OUT_DIR}/`)
-}
-
-// Validation stricte avant push.
 function validatePayload(p) {
   if (p.schema_version !== 3) return 'schema_version doit être 3'
   if (!Number.isInteger(p.surah) || p.surah < 1 || p.surah > 114) return `surah invalide (${p.surah})`
   if (!Array.isArray(p.segments) || p.segments.length !== p.segment_count) return 'segments.length ≠ segment_count'
-  if (p.complete !== true) return 'سورة non terminée (complete=false) — ne pas pousser'
+  if (p.complete !== true) return 'لم تكتمل كل الحدود بعد'
   if (p.segments[0]?.start !== 0) return 'start du premier thumn doit être 0'
-  if (!p.audio_duration) return 'audio_duration inconnue — recharge l’audio'
-
-  for (let i = 0; i < p.segments.length; i++) {
-    const s = p.segments[i]
-    if (typeof s.start !== 'number' || typeof s.end !== 'number') return `thumn ${s.eighth_id} : borne manquante`
-    if (s.start >= s.end) return `thumn ${s.eighth_id} : start ≥ end (segment vide)`
-    if (s.first_verse > s.last_verse) return `thumn ${s.eighth_id} : plage de versets vide`
+  if (!p.audio_duration) return 'مدة الصوت غير معروفة — أعد تحميل السورة'
+  for (const s of p.segments) {
+    if (typeof s.start !== 'number' || typeof s.end !== 'number') return `ثمن ${s.eighth_id} : حد ناقص`
+    if (s.start >= s.end) return `ثمن ${s.eighth_id} : البداية بعد النهاية`
+    if (s.first_verse > s.last_verse) return `ثمن ${s.eighth_id} : plage de versets vide`
   }
-  // Contiguïté : pas de recouvrement, pas de trou > 2s
   for (let i = 0; i < p.segments.length - 1; i++) {
-    const gap = p.segments[i+1].start - p.segments[i].end
-    if (gap < -0.0001) return `recouvrement entre thumn ${p.segments[i].eighth_id} et ${p.segments[i+1].eighth_id}`
-    if (gap > 2.0) return `trou trop large (${gap.toFixed(2)}s) entre thumn ${p.segments[i].eighth_id} et ${p.segments[i+1].eighth_id}`
-  }
-  // Couverture : les versets doivent se suivre sans trou ni chevauchement
-  for (let i = 0; i < p.segments.length - 1; i++) {
-    if (p.segments[i+1].first_verse !== p.segments[i].last_verse + 1) {
-      return `versets non contigus entre thumn ${p.segments[i].eighth_id} et ${p.segments[i+1].eighth_id}`
-    }
+    const gap = p.segments[i + 1].start - p.segments[i].end
+    if (gap < -0.0001) return `تداخل بين ثمن ${p.segments[i].eighth_id} و${p.segments[i + 1].eighth_id}`
+    if (gap > 2.0) return `فراغ كبير (${gap.toFixed(2)} ث) بين ثمن ${p.segments[i].eighth_id} و${p.segments[i + 1].eighth_id}`
+    if (p.segments[i + 1].first_verse !== p.segments[i].last_verse + 1) return `versets non contigus entre thumn ${p.segments[i].eighth_id} et ${p.segments[i + 1].eighth_id}`
   }
   const last = p.segments[p.segments.length - 1]
-  if (Math.abs(last.end - p.audio_duration) > 0.5) {
-    return `fin du dernier thumn (${last.end.toFixed(3)}s) ≠ durée audio (${p.audio_duration.toFixed(3)}s)`
-  }
+  if (Math.abs(last.end - p.audio_duration) > 0.5) return 'نهاية آخر ثمن لا تطابق مدة الصوت'
   return null
 }
 
-async function pushToGitHub() {
+// ── Publication ──────────────────────────────────────────────────────────────
+const jsonText = () => JSON.stringify(buildPayload(), null, 2)
+const fileName = () => `${pad3(state.surahNo)}.json`
+
+async function publish() {
   const payload = buildPayload()
   const err = validatePayload(payload)
   if (err) { setStatus(`✗ ${err}`, true); return }
-
   if (!GH.getPat()) { state.pendingPush = true; openPatDialog(); return }
-
-  const fn = fileName()
-  const path = `${OUT_DIR}/${fn}`
-  const ok = confirm(`📤 Pousser ${fn} sur GitHub ?\n\nSourate ${payload.surah} (${payload.surah_name_ar})\n${payload.segment_count} thumn · ${payload.inner_boundaries} frontière(s) marquée(s)\nDurée: ${fmt(payload.audio_duration)}\nChemin: ${path}`)
-  if (!ok) return
-
-  setStatus(`⏳ envoi de ${fn} à GitHub…`)
+  const fn = fileName(), path = `${OUT_DIR}/${fn}`
+  setStatus(`⏳ نشر ${fn}…`)
   try {
-    const message = `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.segment_count} thumn via thumn-marker`
-    const res = await GH.putFile(path, jsonText() + '\n', message)
+    const msg = `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.segment_count} thumn via thumn-marker`
+    const res = await GH.putFile(path, jsonText() + '\n', msg)
     const sha = res.commit?.sha?.slice(0, 7) || ''
     if (navigator.vibrate) navigator.vibrate([15, 50, 15])
-
-    // La sourate est publiee : elle compte desormais comme faite. On rafraichit
-    // l'avancement des hizbs et on enchaine sur la suivante de la file.
     state.doneSurahs.add(payload.surah)
-    const next = nextInQueue()
     renderHizbOptions()
     if (state.hizbNo != null) $('hizbSelect').value = String(state.hizbNo)
     renderSurahOptions(state.hizbNo ?? 1)
+    const next = nextInQueue()
     if (next != null) {
+      setStatus(`✅ نُشرت ${fn} (${sha}) — السورة التالية ${next}`)
       $('surahSelect').value = String(next)
-      setStatus(`✅ ${fn} poussé (${sha}) — chargement de la سورة ${next}…`)
       await loadSurah(next)
     } else {
-      const h = state.hizbNo
-      setStatus(h != null && hizbQueue(h).length === 0
-        ? `✅ ${fn} poussé (${sha}) — الحزب ${h} مكتمل ✓`
-        : `✅ ${fn} poussé sur GitHub (${sha})`)
+      setStatus(`✅ نُشرت ${fn} (${sha})` + (state.hizbNo != null && hizbQueue(state.hizbNo).length === 0 ? ` — الحزب ${state.hizbNo} مكتمل ✓` : ''))
+      openDone()
     }
   } catch (e) {
-    if (/^401/.test(e.message)) {
-      setStatus('✗ token invalide ou expiré — re-saisir', true)
-      GH.setPat('')
-      state.pendingPush = true
-      openPatDialog()
-    } else {
-      setStatus(`✗ GitHub: ${e.message}`, true)
-    }
+    if (/^401/.test(e.message)) { GH.setPat(''); state.pendingPush = true; setStatus('✗ الـ token غير صالح أو منتهٍ — أدخله من جديد', true); openPatDialog() }
+    else setStatus(`✗ GitHub : ${e.message}`, true)
   }
 }
+function openPatDialog() { $('patInput').value = GH.getPat(); $('patDialog').showModal(); setTimeout(() => $('patInput').focus(), 50) }
 
-function openPatDialog() {
-  $('patInput').value = GH.getPat()
-  $('patDialog').showModal()
-  setTimeout(() => $('patInput').focus(), 50)
+async function copyJson() {
+  try { await navigator.clipboard.writeText(jsonText()); setStatus(`📋 نُسخ ${fileName()}`) }
+  catch { setStatus('تعذّر النسخ — استعمل التنزيل', true) }
+}
+function downloadJson() {
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([jsonText()], { type: 'application/json' }))
+  a.download = fileName(); a.click()
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+  setStatus(`⬇ ${fileName()} — ضعه في ${OUT_DIR}/`)
 }
 
-// ── Audio events ─────────────────────────────────────────────────────────────
-audio.addEventListener('loadedmetadata', () => {
-  state.duration = audio.duration
-  $('totTime').textContent = fmt(audio.duration)
-  sealLastMark()
-  persist()
-  updateCursor()
-  renderSegments()
-})
-audio.addEventListener('timeupdate', () => {
-  $('curTime').textContent = fmt(audio.currentTime)
-  if (state.stopAt != null && audio.currentTime >= state.stopAt) {
-    audio.pause()
-    state.stopAt = null
+// ── Boutons ──────────────────────────────────────────────────────────────────
+// L'en-tete ouvre et referme le choix hizb/sourate sans perdre l'etape en cours.
+$('btnWhere').addEventListener('click', () => {
+  audio.pause()
+  if (state.screen === 'pick') {
+    if (state.surahNo != null && state.prevScreen) showScreen(state.prevScreen)
+    return
   }
+  state.prevScreen = state.screen
+  if (state.hizbNo != null) { $('hizbSelect').value = String(state.hizbNo); renderSurahOptions(state.hizbNo) }
+  if (state.surahNo != null) $('surahSelect').value = String(state.surahNo)
+  updatePickInfo()
+  showScreen('pick')
 })
-// Le bouton ne changeait que de COULEUR : impossible de savoir d'un coup d'oeil
-// si on est en lecture. Le glyphe suit maintenant l'etat reel de l'audio.
-function syncPlayButton() {
-  const b = $('btnPlayPause')
-  if (!b) return
-  const playing = !audio.paused && !audio.ended
-  b.classList.toggle('playing', playing)
-  b.textContent = playing ? '⏸' : '▶'
-  b.setAttribute('aria-label', playing ? 'إيقاف مؤقت' : 'تشغيل')
-}
-audio.addEventListener('play',  syncPlayButton)
-audio.addEventListener('pause', syncPlayButton)
-audio.addEventListener('ended', syncPlayButton)
-
-// ── Buttons ──────────────────────────────────────────────────────────────────
 $('hizbSelect').addEventListener('change', onHizbChange)
+$('surahSelect').addEventListener('change', updatePickInfo)
 $('btnLoad').addEventListener('click', () => {
   const n = parseInt($('surahSelect').value, 10)
+  state.hizbNo = parseInt($('hizbSelect').value, 10)
   if (n) loadSurah(n)
 })
-$('btnMark').addEventListener('click', markCurrent)
-$('btnUndo').addEventListener('click', undoLast)
-$('btnSeek').addEventListener('click', () => seekToEstimate(state.cursor, true))
-$('btnPlayPause').addEventListener('click', () => {
-  state.stopAt = null
-  audio.paused ? audio.play() : audio.pause()
+$('btnBack5').addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - JUMP); if (audio.paused) audio.play().catch(() => {}) })
+$('btnFwd5').addEventListener('click', () => { audio.currentTime = Math.min(state.duration || 0, audio.currentTime + JUMP); if (audio.paused) audio.play().catch(() => {}) })
+$('btnPlay').addEventListener('click', () => { state.stopAt = null; audio.paused ? audio.play().catch(() => {}) : audio.pause() })
+$('btnHere').addEventListener('click', markHere)
+$('btnEarlier').addEventListener('click', () => nudgeCut(-NUDGE))
+$('btnLater').addEventListener('click', () => nudgeCut(NUDGE))
+$('btnReplay').addEventListener('click', replayCut)
+$('btnOk').addEventListener('click', confirmCut)
+$('btnRedo').addEventListener('click', redo)
+$('doneList').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-k]')
+  if (!row) return
+  state.reviewing = true
+  openCheck(parseInt(row.dataset.k, 10))
 })
-$('btnPushGh').addEventListener('click', pushToGitHub)
+$('btnPublish').addEventListener('click', publish)
+$('btnCopy').addEventListener('click', copyJson)
+$('btnDownload').addEventListener('click', downloadJson)
 $('patSave').addEventListener('click', () => {
-  const val = $('patInput').value.trim()
-  if (!val) { setStatus('token vide', true); return }
-  GH.setPat(val)
-  $('patDialog').close()
-  setStatus('🔑 token enregistré localement')
-  if (state.pendingPush) { state.pendingPush = false; pushToGitHub() }
+  const v = $('patInput').value.trim()
+  if (!v) return
+  GH.setPat(v); $('patDialog').close()
+  if (state.pendingPush) { state.pendingPush = false; publish() }
 })
 $('patCancel').addEventListener('click', () => { $('patDialog').close(); state.pendingPush = false })
-$('btnCopy').addEventListener('click', copyJson)
-$('btnShare').addEventListener('click', shareJson)
-$('btnDownload').addEventListener('click', downloadJson)
-document.querySelectorAll('.rates button').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.rates button').forEach(x => x.classList.remove('active'))
-    b.classList.add('active')
-    audio.playbackRate = parseFloat(b.dataset.rate)
-  })
-})
-$('verseAdjust').addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-act="va"]')
-  if (!btn) return
-  adjustMark(focusIndex(), parseInt(btn.dataset.d, 10))
-})
-$('btnPlaySegment').addEventListener('click', () => playSegment(focusIndex()))
-$('btnPlayBoundary').addEventListener('click', () => {
-  const i = focusIndex()
-  const end = state.marks[i]
-  if (end == null) { setStatus('هذا الحدّ غير مُعلَّم بعد', true); return }
-  const start = i === 0 ? 0 : (state.starts[i] ?? state.marks[i-1] ?? 0)
-  if (state.adjustMode === 'start' && i > 0) previewStartBoundary(state.marks[i-1] ?? 0, start, end)
-  else previewBoundary(start, end)
-})
-$('vaTabEnd').addEventListener('click', () => setAdjustMode('end'))
-$('vaTabStart').addEventListener('click', () => setAdjustMode('start'))
-document.querySelectorAll('.nudges button').forEach(b => {
-  b.addEventListener('click', () => {
-    const ms = parseInt(b.dataset.nudge, 10)
-    audio.currentTime = Math.max(0, Math.min(state.duration || 0, audio.currentTime + ms/1000))
-  })
-})
 
-// ── Keyboard (desktop bonus) ─────────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
-  if (e.target.matches('input, select, textarea')) return
-  const k = e.key
-  if (k === ' ') { e.preventDefault(); audio.paused ? audio.play() : audio.pause() }
-  else if (k === 'm' || k === 'M' || k === 'ArrowRight') { e.preventDefault(); markCurrent() }
-  else if (k === 'z' || k === 'Z' || k === 'ArrowLeft')  { e.preventDefault(); undoLast() }
-  else if (k === 'ArrowUp')   { e.preventDefault(); audio.currentTime = Math.max(0, audio.currentTime - 1) }
-  else if (k === 'ArrowDown') { e.preventDefault(); audio.currentTime = Math.min(state.duration || 0, audio.currentTime + 1) }
+  if (e.target.matches('input, select, textarea') || $('patDialog').open) return
+  if (e.key === ' ') { e.preventDefault(); $('btnPlay').click() }
+  else if (e.key === 'Enter') {
+    e.preventDefault()
+    if (state.screen === 'find') markHere()
+    else if (state.screen === 'check') confirmCut()
+  }
+  else if (e.key === 'ArrowRight' && state.screen === 'find') $('btnBack5').click()
+  else if (e.key === 'ArrowLeft' && state.screen === 'find') $('btnFwd5').click()
 })
 
+// ── Demarrage ────────────────────────────────────────────────────────────────
+async function boot() {
+  showScreen('pick')
+  try {
+    const [rs, re] = await Promise.all([fetch(`${DATA_BASE}surahs.json`), fetch(`${DATA_BASE}eighths.json`)])
+    if (!rs.ok || !re.ok) throw new Error()
+    state.surahs = await rs.json()
+    const ej = await re.json()
+    state.eighths = Array.isArray(ej) ? ej : (ej.eighths || [])
+  } catch {
+    setStatus('تعذّر تحميل بيانات المصحف — تحقق من الاتصال وأعد تحميل الصفحة', true)
+    return
+  }
+  try {
+    const rst = await fetch(`${STATUS_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    if (rst.ok) state.doneSurahs = new Set((await rst.json())?.reciters?.kouchi?.done ?? [])
+  } catch {}
+  renderHizbOptions()
+  getQuranAll().catch(() => {})   // en tache de fond, pret avant le premier clic
+
+  const n = parseInt(new URLSearchParams(location.search).get('surah') || '', 10)
+  if (n >= 1 && n <= 114) {
+    const h = state.eighths.find(t => t.verses_covered.some(v => v.sura === n))?.hizb ?? 1
+    $('hizbSelect').value = String(h); onHizbChange()
+    $('surahSelect').value = String(n); updatePickInfo()
+    loadSurah(n)
+  } else {
+    const firstOpen = Array.from({ length: 60 }, (_, i) => i + 1).find(h => hizbQueue(h).length > 0) ?? 1
+    $('hizbSelect').value = String(firstOpen); onHizbChange()
+  }
+}
 boot()
