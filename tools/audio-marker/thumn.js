@@ -228,6 +228,50 @@ function updatePickInfo() {
 function onHizbChange() { state.hizbNo = parseInt($('hizbSelect').value, 10); renderSurahOptions(state.hizbNo) }
 const nextInQueue = () => state.hizbNo == null ? null : (hizbQueue(state.hizbNo).find(n => n !== state.surahNo) ?? null)
 
+// ── Publication par hizb (sourates longues) ──────────────────────────────────
+// Al-Baqara couvre 5 hizbs et 2h08 d'audio : attendre ses 38 frontieres pour
+// publier quoi que ce soit n'avait pas de sens pour quelqu'un qui raisonne en
+// hizb. Un fichier peut donc partir PARTIEL (complete:false) : un segment est
+// disponible des que son debut ET sa fin sont connus, les autres restent null.
+const isTimed = (i) => i >= 0 && i < state.segments.length
+  && (i === 0 || state.marks[i - 1] != null) && state.marks[i] != null
+const countTimed = () => state.segments.reduce((n, _, i) => n + (isTimed(i) ? 1 : 0), 0)
+const pubKey = (n) => `${lsKey(n)}:pub`
+function publishedCount() { try { return parseInt(localStorage.getItem(pubKey(state.surahNo)) || '0', 10) || 0 } catch { return 0 } }
+
+// Un hizb est ecoutable si chacun de ses ثمن est chronometre dans TOUTES les
+// sourates qu'il traverse : ici via les segments de la sourate en cours,
+// ailleurs via les sourates deja publiees.
+function hizbReady(h) {
+  const timedE = new Set(state.segments.filter((_, i) => isTimed(i)).map(s => s.eighth_id))
+  let any = false
+  for (const t of state.eighths) {
+    if (t.hizb !== h) continue
+    any = true
+    for (const s of new Set(t.verses_covered.map(v => v.sura))) {
+      if (s === state.surahNo) { if (!timedE.has(t.eighth_id)) return false }
+      else if (!state.doneSurahs.has(s)) return false
+    }
+  }
+  return any
+}
+
+function updatePubBar() {
+  const bar = $('pubBar')
+  const n = innerCount()
+  const show = state.surahNo != null && n > 0 && (state.screen === 'find' || state.screen === 'check')
+  const timed = show ? countTimed() : 0
+  if (!show || timed === 0) { bar.hidden = true; return }
+  const total = state.segments.length, pub = publishedCount()
+  const ready = [...new Set(state.segments.map(s => s.hizb))].filter(h => hizbReady(h))
+  bar.hidden = false
+  bar.classList.toggle('ready', timed > pub && ready.length > 0)
+  $('btnPubPartial').hidden = timed <= pub
+  if (timed <= pub) $('pubInfo').textContent = `✓ منشور : ${pub} من ${total} ثمن`
+  else if (ready.length) $('pubInfo').textContent = `✓ اكتمل الحزب ${ready.join(' و')} — انشره ليُسمع في التطبيق`
+  else $('pubInfo').textContent = `أُنجز ${timed} من ${total} ثمن — غير منشور بعد`
+}
+
 // ── Ecrans ───────────────────────────────────────────────────────────────────
 function showScreen(name) {
   $('picker').hidden = name !== 'pick'
@@ -246,6 +290,7 @@ function updateHeader() {
   const done = state.marks.slice(0, n).filter(x => x != null).length
   $('count').textContent = state.surahNo == null || n === 0 ? '' : `الحد ${Math.min(state.cursor + 1, n)} من ${n}`
   $('prog').style.width = n === 0 ? (state.surahNo == null ? '0%' : '100%') : `${Math.round(done / n * 100)}%`
+  updatePubBar()
 }
 
 // Fin du verset qui clot le ثمن / debut du verset qui ouvre le suivant.
@@ -447,26 +492,32 @@ function buildPayload() {
   }
 }
 
-function validatePayload(p) {
+// allowPartial : fichier publie en cours de sourate. Seuls les segments dont
+// debut ET fin sont connus sont verifies ; les autres restent a null.
+function validatePayload(p, allowPartial = false) {
   if (p.schema_version !== 3) return 'schema_version doit être 3'
   if (!Number.isInteger(p.surah) || p.surah < 1 || p.surah > 114) return `surah invalide (${p.surah})`
   if (!Array.isArray(p.segments) || p.segments.length !== p.segment_count) return 'segments.length ≠ segment_count'
-  if (p.complete !== true) return 'لم تكتمل كل الحدود بعد'
+  if (p.complete !== true && !allowPartial) return 'لم تكتمل كل الحدود بعد'
   if (p.segments[0]?.start !== 0) return 'start du premier thumn doit être 0'
   if (!p.audio_duration) return 'مدة الصوت غير معروفة — أعد تحميل السورة'
+  const timed = (s) => typeof s.start === 'number' && typeof s.end === 'number'
+  if (!p.segments.some(timed)) return 'لا يوجد أي ثمن مكتمل للنشر'
   for (const s of p.segments) {
-    if (typeof s.start !== 'number' || typeof s.end !== 'number') return `ثمن ${s.eighth_id} : حد ناقص`
+    if (!timed(s)) { if (p.complete === true) return `ثمن ${s.eighth_id} : حد ناقص`; continue }
     if (s.start >= s.end) return `ثمن ${s.eighth_id} : البداية بعد النهاية`
     if (s.first_verse > s.last_verse) return `ثمن ${s.eighth_id} : plage de versets vide`
   }
   for (let i = 0; i < p.segments.length - 1; i++) {
-    const gap = p.segments[i + 1].start - p.segments[i].end
-    if (gap < -0.0001) return `تداخل بين ثمن ${p.segments[i].eighth_id} و${p.segments[i + 1].eighth_id}`
-    if (gap > 2.0) return `فراغ كبير (${gap.toFixed(2)} ث) بين ثمن ${p.segments[i].eighth_id} و${p.segments[i + 1].eighth_id}`
-    if (p.segments[i + 1].first_verse !== p.segments[i].last_verse + 1) return `versets non contigus entre thumn ${p.segments[i].eighth_id} et ${p.segments[i + 1].eighth_id}`
+    const a = p.segments[i], b = p.segments[i + 1]
+    if (b.first_verse !== a.last_verse + 1) return `versets non contigus entre thumn ${a.eighth_id} et ${b.eighth_id}`
+    if (!timed(a) || !timed(b)) continue
+    const gap = b.start - a.end
+    if (gap < -0.0001) return `تداخل بين ثمن ${a.eighth_id} و${b.eighth_id}`
+    if (gap > 2.0) return `فراغ كبير (${gap.toFixed(2)} ث) بين ثمن ${a.eighth_id} و${b.eighth_id}`
   }
   const last = p.segments[p.segments.length - 1]
-  if (Math.abs(last.end - p.audio_duration) > 0.5) return 'نهاية آخر ثمن لا تطابق مدة الصوت'
+  if (timed(last) && Math.abs(last.end - p.audio_duration) > 0.5) return 'نهاية آخر ثمن لا تطابق مدة الصوت'
   return null
 }
 
@@ -474,18 +525,28 @@ function validatePayload(p) {
 const jsonText = () => JSON.stringify(buildPayload(), null, 2)
 const fileName = () => `${pad3(state.surahNo)}.json`
 
-async function publish() {
+async function publish(partial = false) {
   const payload = buildPayload()
-  const err = validatePayload(payload)
+  if (payload.complete) partial = false
+  const err = validatePayload(payload, partial)
   if (err) { setStatus(`✗ ${err}`, true); return }
-  if (!GH.getPat()) { state.pendingPush = true; openPatDialog(); return }
+  if (!GH.getPat()) { state.pendingPush = partial ? 'partial' : 'full'; openPatDialog(); return }
   const fn = fileName(), path = `${OUT_DIR}/${fn}`
+  const timed = countTimed()
   setStatus(`⏳ نشر ${fn}…`)
   try {
-    const msg = `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.segment_count} thumn via thumn-marker`
+    const msg = partial
+      ? `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — PARTIEL ${timed}/${payload.segment_count} thumn via thumn-marker`
+      : `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.segment_count} thumn via thumn-marker`
     const res = await GH.putFile(path, jsonText() + '\n', msg)
     const sha = res.commit?.sha?.slice(0, 7) || ''
     if (navigator.vibrate) navigator.vibrate([15, 50, 15])
+    try { localStorage.setItem(pubKey(state.surahNo), String(timed)) } catch {}
+    if (partial) {
+      setStatus(`✅ نُشر ${timed} من ${payload.segment_count} ثمن (${sha}) — تابع التعليم`)
+      updateHeader()
+      return
+    }
     state.doneSurahs.add(payload.surah)
     renderHizbOptions()
     if (state.hizbNo != null) $('hizbSelect').value = String(state.hizbNo)
@@ -500,7 +561,7 @@ async function publish() {
       openDone()
     }
   } catch (e) {
-    if (/^401/.test(e.message)) { GH.setPat(''); state.pendingPush = true; setStatus('✗ الـ token غير صالح أو منتهٍ — أدخله من جديد', true); openPatDialog() }
+    if (/^401/.test(e.message)) { GH.setPat(''); state.pendingPush = partial ? 'partial' : 'full'; setStatus('✗ الـ token غير صالح أو منتهٍ — أدخله من جديد', true); openPatDialog() }
     else setStatus(`✗ GitHub : ${e.message}`, true)
   }
 }
@@ -554,14 +615,16 @@ $('doneList').addEventListener('click', (e) => {
   state.reviewing = true
   openCheck(parseInt(row.dataset.k, 10))
 })
-$('btnPublish').addEventListener('click', publish)
+// addEventListener passerait l'evenement comme 1er argument (= partial « vrai »)
+$('btnPublish').addEventListener('click', () => publish(false))
+$('btnPubPartial').addEventListener('click', () => publish(true))
 $('btnCopy').addEventListener('click', copyJson)
 $('btnDownload').addEventListener('click', downloadJson)
 $('patSave').addEventListener('click', () => {
   const v = $('patInput').value.trim()
   if (!v) return
   GH.setPat(v); $('patDialog').close()
-  if (state.pendingPush) { state.pendingPush = false; publish() }
+  if (state.pendingPush) { const partial = state.pendingPush === 'partial'; state.pendingPush = false; publish(partial) }
 })
 $('patCancel').addEventListener('click', () => { $('patDialog').close(); state.pendingPush = false })
 
