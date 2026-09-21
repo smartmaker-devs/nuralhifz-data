@@ -17,7 +17,9 @@
 const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/' }
 const SCHEMA_VERSION = 3
 const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1.0.0/data/'
-const STATUS_URL = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@main/data/audio_status.json'
+// Etat de couverture, via l'API GitHub : jsDelivr @main peut le servir avec
+// 12 h de retard, et un ?t= ne le contourne pas.
+const STATUS_URL = 'https://api.github.com/repos/smartmaker-devs/nuralhifz-data/contents/data/audio_status.json?ref=main'
 // Fichiers publies, lus via l'API GitHub : c'est la seule source a jour
 // immediatement. jsDelivr garde 12 h de cache, raw.githubusercontent ~5 min
 // en ignorant tout parametre anti-cache — mesure : juste apres une correction,
@@ -642,6 +644,9 @@ async function publish(partial = false) {
       : `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.segment_count} thumn via thumn-marker`
     const res = await GH.putFile(path, jsonText() + '\n', msg)
     const sha = res.commit?.sha?.slice(0, 7) || ''
+    // jsDelivr garde @main jusqu'a 12 h : sans purge, l'app recevrait l'ancien
+    // fichier. L'API de purge accepte les appels du navigateur (CORS *).
+    fetch(`https://purge.jsdelivr.net/gh/${GH.owner}/${GH.repo}@main/${path}`).catch(() => {})
     if (navigator.vibrate) navigator.vibrate([15, 50, 15])
     try { localStorage.setItem(pubKey(state.surahNo), String(timed)) } catch {}
     if (partial) {
@@ -763,7 +768,9 @@ async function boot() {
     return
   }
   try {
-    const rst = await fetch(`${STATUS_URL}?t=${Date.now()}`, { cache: 'no-store' })
+    const hdr = { Accept: 'application/vnd.github.raw+json' }
+    if (GH.getPat()) hdr.Authorization = `Bearer ${GH.getPat()}`
+    const rst = await fetch(STATUS_URL, { headers: hdr, cache: 'no-store' })
     if (rst.ok) state.doneSurahs = new Set((await rst.json())?.reciters?.kouchi?.done ?? [])
   } catch {}
   renderHizbOptions()

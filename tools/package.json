@@ -5,7 +5,8 @@
   "description": "Scripts de maintenance du depot data (Node >= 18). Hors de tools/audio-marker, qui est la racine du deploiement Vercel.",
   "scripts": {
     "status": "node gen-audio-status.mjs --write",
-    "check-pauses": "node check-thumn-pauses.mjs"
+    "check-pauses": "node check-thumn-pauses.mjs",
+    "purge": "node purge-cdn.mjs"
   },
   "dependencies": {
     "mpg123-decoder": "1.0.3"
