@@ -6,7 +6,8 @@
  *   cd tools && npm install          (une fois : mpg123-decoder)
  *   node check-thumn-pauses.mjs              → tous les fichiers publies
  *   node check-thumn-pauses.mjs 2 100        → sourates choisies
- *   node check-thumn-pauses.mjs --file x.json → un fichier local (avant publication)
+ *   node check-thumn-pauses.mjs a.json b.json → fichiers explicites, tout recitant
+ *                                              (un fichier local avant publication)
  *
  * Code de sortie 1 si une frontiere est hors pause : bloquant avant publication.
  *
@@ -153,11 +154,12 @@ async function checkFile(p, label) {
 const fmtT = (s) => `${Math.floor(s / 60)}:${(s % 60).toFixed(2).padStart(5, '0')}`
 
 async function main() {
-  const args = process.argv.slice(2)
+  const args = process.argv.slice(2).filter(a => a !== '--file')
   const targets = []
-  const fi = args.indexOf('--file')
-  if (fi >= 0) {
-    targets.push({ label: args[fi + 1], p: JSON.parse(readFileSync(args[fi + 1], 'utf8')) })
+  const files = args.filter(a => a.endsWith('.json'))
+  if (files.length) {
+    // chemins explicites, tout recitant confondu (utilise par l'Action GitHub)
+    for (const f of files) targets.push({ label: f, p: JSON.parse(readFileSync(f, 'utf8')) })
   } else {
     const wanted = args.map(Number).filter(Boolean)
     for (const f of readdirSync(DIR).filter(f => f.endsWith('.json')).sort()) {

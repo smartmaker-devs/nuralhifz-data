@@ -1,0 +1,88 @@
+# A chaque publication de timings (script local, outil web, edition manuelle) :
+#   1. controle acoustique des fichiers modifies (une frontiere doit tomber
+#      dans un silence) — non bloquant, la publication est deja faite, mais le
+#      job echoue a la fin pour prevenir ;
+#   2. regeneration de data/audio_status.json et publication si il change ;
+#   3. purge jsDelivr (sinon l'app recoit l'ancien fichier jusqu'a 12 h).
+#
+# Pas de boucle : le commit du bot ne touche que data/audio_status.json, hors
+# du filtre `paths`, et un push fait avec GITHUB_TOKEN ne declenche aucun
+# workflow de toute facon.
+name: timings — couverture et controle
+
+on:
+  push:
+    branches: [main]
+    paths: ['data/timings_thumn/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: timings-status
+  cancel-in-progress: false
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Installer les outils
+        working-directory: tools
+        run: npm ci --no-audit --no-fund
+
+      - name: Fichiers de timings modifies
+        id: changed
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            FILES=$(ls data/timings_thumn/*/*.json)                 # lancement manuel : tout
+          else
+            FILES=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- 'data/timings_thumn/' | while read f; do [ -f "$f" ] && echo "$f"; done)
+          fi
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"; echo "$FILES" >> "$GITHUB_OUTPUT"; echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "$FILES"
+
+      - name: Controle acoustique des frontieres
+        id: pauses
+        if: steps.changed.outputs.files != ''
+        continue-on-error: true
+        working-directory: tools
+        env:
+          FILES: ${{ steps.changed.outputs.files }}
+        run: |
+          ARGS=()
+          while IFS= read -r f; do [ -n "$f" ] && ARGS+=("../$f"); done <<< "$FILES"
+          node check-thumn-pauses.mjs "${ARGS[@]}"
+
+      - name: Regenerer audio_status.json
+        run: node tools/gen-audio-status.mjs --write
+
+      - name: Publier audio_status.json s'il a change
+        run: |
+          if git diff --quiet -- data/audio_status.json; then echo "audio_status.json inchange"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898732+github-actions[bot]@users.noreply.github.com"
+          git add data/audio_status.json
+          git commit -m "data(audio-status): regenere apres ${GITHUB_SHA::7}"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Purger jsDelivr
+        working-directory: tools
+        run: node purge-cdn.mjs --since "${{ github.event.before || 'HEAD~1' }}"
+
+      - name: Signaler une frontiere hors pause
+        if: steps.pauses.outcome == 'failure'
+        run: |
+          echo "::error::Au moins une frontiere publiee tombe en pleine voix. Detail dans l'etape « Controle acoustique ». Corriger avec l'outil (📝 puis revision) et republier."
+          exit 1
