@@ -89,12 +89,24 @@ curl -L "https://github.com/ELAHMADI/ma-mushaf-muhammadi-data/releases/download/
 | Reciter | Country | URL pattern |
 |---|---|---|
 | عمر القزابري — Omar Al-Kazabri | 🇲🇦 Morocco | `server9.mp3quran.net/omar_warsh/{001..114}.mp3` |
-| هشام الهراز — Hisham El-Harraz | 🇲🇦 Morocco | `server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/…` |
+| ياسين الجزائري — Yassine Al-Jazairi | 🇩🇿 Algeria | `server11.mp3quran.net/qari/{001..114}.mp3` |
 | رشيد بلعالية — Rachid Belaalya | 🇲🇦 Morocco | `server6.mp3quran.net/bl3/Rewayat-Warsh-A-n-Nafi/…` |
 | عبد المجيب بنكيران — Benkirane | 🇲🇦 Morocco | `server16.mp3quran.net/A-Benkirane/…` |
 | …and 12 more | | see `audio_sources.json` |
 
 All endpoints verified **2026-04-21**. Per-surah Warsh audio is fully aligned with the Moroccan numbering used by this dataset.
+
+### Reciters used by the Nur al-Hifz app
+
+Three reciters carry ثمن-level timings in `data/timings_thumn/<key>/{NNN}.json`. Their MP3s are mirrored on this repository's GitHub Releases, so timings always point to a stable, byte-identical file:
+
+| Reciter | Key | Mirror (GitHub Releases) | Format |
+|---|---|---|---|
+| العيون الكوشي — El-Ayoun El-Kouchi | `kouchi` | `audio-kouchi-v1/{NNN}.mp3` | 128 kbps CBR |
+| عبد المجيب بنكيران — Abdul-Majeed Benkirane | `benkirane` | not yet mirrored | — |
+| ياسين الجزائري — Yassine Al-Jazairi | `jazairi` | `audio-jazairi-v1/{NNN}.mp3` | CBR, mixed: MPEG-1 96 kbps mono (62), MPEG-2 96 kbps mono 22–24 kHz (49), MPEG-1 128/192 kbps stereo (3) |
+
+Coverage (surahs done, playable ثمن) is generated in `data/audio_status.json` on every push by `.github/workflows/timings.yml`.
 
 ---
 
