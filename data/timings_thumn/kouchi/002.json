@@ -9,7 +9,7 @@
   "reciter_name": "El-Ayoun El-Kouchi",
   "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/002.mp3",
   "audio_duration": 7725.348567,
-  "marked_at": "2026-09-18T21:01:10.885Z",
+  "marked_at": "2026-09-21T11:14:09.011Z",
   "segments": [
     {
       "eighth_id": 1,
@@ -18,7 +18,7 @@
       "first_verse": 1,
       "last_verse": 15,
       "start": 0,
-      "end": 234.0135120000002,
+      "end": 237.195,
       "continues_before": true
     },
     {
@@ -27,8 +27,8 @@
       "hizb": 1,
       "first_verse": 16,
       "last_verse": 24,
-      "start": 234.0135120000002,
-      "end": 437.2029660000002
+      "start": 237.195,
+      "end": 440.67
     },
     {
       "eighth_id": 3,
@@ -36,8 +36,8 @@
       "hizb": 1,
       "first_verse": 25,
       "last_verse": 32,
-      "start": 437.2029660000002,
-      "end": 662.1835729999992
+      "start": 440.67,
+      "end": 665.465
     },
     {
       "eighth_id": 4,
@@ -45,8 +45,8 @@
       "hizb": 1,
       "first_verse": 33,
       "last_verse": 40,
-      "start": 662.1835729999992,
-      "end": 810.3767269999994
+      "start": 665.465,
+      "end": 813.33
     },
     {
       "eighth_id": 5,
@@ -54,8 +54,8 @@
       "hizb": 1,
       "first_verse": 41,
       "last_verse": 52,
-      "start": 810.3767269999994,
-      "end": 975.6205709999992
+      "start": 813.33,
+      "end": 978.88
     },
     {
       "eighth_id": 6,
@@ -63,8 +63,8 @@
       "hizb": 1,
       "first_verse": 53,
       "last_verse": 58,
-      "start": 975.6205709999992,
-      "end": 1090.0983459999993
+      "start": 978.88,
+      "end": 1093.2
     },
     {
       "eighth_id": 7,
@@ -72,8 +72,8 @@
       "hizb": 1,
       "first_verse": 59,
       "last_verse": 65,
-      "start": 1090.0983459999993,
-      "end": 1264.7216939999994
+      "start": 1093.2,
+      "end": 1267.63
     },
     {
       "eighth_id": 8,
@@ -81,8 +81,8 @@
       "hizb": 1,
       "first_verse": 66,
       "last_verse": 74,
-      "start": 1264.7216939999994,
-      "end": 1439.5304119999992
+      "start": 1267.63,
+      "end": 1442.69
     },
     {
       "eighth_id": 9,
@@ -90,7 +90,7 @@
       "hizb": 2,
       "first_verse": 75,
       "last_verse": 84,
-      "start": 1439.5304119999992,
+      "start": 1442.69,
       "end": null,
       "shared_boundary": true
     },
