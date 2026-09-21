@@ -18,8 +18,12 @@ const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 
 const SCHEMA_VERSION = 3
 const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1.0.0/data/'
 const STATUS_URL = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@main/data/audio_status.json'
-// Fichiers publies, lus sans le cache de 12 h de jsDelivr (raw sert l'en-tete CORS)
-const PUBLISHED_BASE = 'https://raw.githubusercontent.com/smartmaker-devs/nuralhifz-data/main/data/timings_thumn/kouchi/'
+// Fichiers publies, lus via l'API GitHub : c'est la seule source a jour
+// immediatement. jsDelivr garde 12 h de cache, raw.githubusercontent ~5 min
+// en ignorant tout parametre anti-cache — mesure : juste apres une correction,
+// le navigateur y lisait encore l'ancienne version.
+const PUBLISHED_API = 'https://api.github.com/repos/smartmaker-devs/nuralhifz-data/contents/data/timings_thumn/kouchi/'
+const PUBLISHED_RAW = 'https://raw.githubusercontent.com/smartmaker-devs/nuralhifz-data/main/data/timings_thumn/kouchi/'
 const OUT_DIR = 'data/timings_thumn/kouchi'
 
 const FIND_LEAD = 6      // l'ecoute demarre 6s avant la position estimee
@@ -433,11 +437,21 @@ function resume() {
 // — et la publication suivante depuis l'outil re-casserait le fichier.
 // Les marques locales au-dela de ce qui est publie (travail en cours) sont
 // conservees. Retourne le nombre de frontieres remplacees.
+async function fetchPublished(n) {
+  const headers = { Accept: 'application/vnd.github.raw+json' }
+  if (GH.getPat()) headers.Authorization = `Bearer ${GH.getPat()}`   // 5000 req/h au lieu de 60
+  const r = await fetch(`${PUBLISHED_API}${pad3(n)}.json?ref=main`, { headers, cache: 'no-store' })
+  if (r.status === 404) return null
+  if (r.ok) return r.json()
+  // quota API depasse (403/429) : repli sur raw, eventuellement en retard de quelques minutes
+  const r2 = await fetch(`${PUBLISHED_RAW}${pad3(n)}.json`, { cache: 'no-store' })
+  return r2.ok ? r2.json() : null
+}
+
 async function mergePublished(n) {
   try {
-    const r = await fetch(`${PUBLISHED_BASE}${pad3(n)}.json?t=${Date.now()}`, { cache: 'no-store' })
-    if (!r.ok) return 0
-    const pub = await r.json()
+    const pub = await fetchPublished(n)
+    if (!pub) return 0
     if (!Array.isArray(pub.segments) || pub.segments.length !== state.segments.length) return 0
     let changed = 0, timed = 0
     const last = state.segments.length - 1
