@@ -17,7 +17,9 @@ import { fileURLToPath } from 'url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'data', 'audio_status.json')
-const RECITERS = ['kouchi', 'benkirane', 'elharraz']
+// 3e recitant : Yassine Al-Jazairi (ياسين الجزائري) remplace Hicham El-Harraz
+// (decision 2026-09-21). Ses fichiers iront dans data/timings_thumn/jazairi/.
+const RECITERS = ['kouchi', 'benkirane', 'jazairi']
 const WRITE = process.argv.includes('--write')
 
 const er = JSON.parse(readFileSync(join(ROOT, 'data', 'eighths.json'), 'utf8'))
