@@ -20,6 +20,7 @@
   <div class="pubbar" id="pubBar" hidden>
     <span id="pubInfo"></span>
     <span class="pubacts">
+      <button id="btnReview" title="مراجعة ما أُنجز">📝</button>
       <button id="btnCopyPartial" title="نسخ الملف لإرساله بدون token">📋</button>
       <button id="btnPubPartial">⬆ نشر</button>
     </span>
@@ -36,9 +37,9 @@
   <!-- Etape 1 : trouver la fin du ثمن -->
   <section class="screen" id="sFind" hidden>
     <h1 id="findTitle"></h1>
-    <div class="sub">اضغط « هنا ينتهي » حين تسمع نهاية الآية المؤطَّرة</div>
-    <div class="verse end"><small>آخر آية في هذا الثمن ← استمع لنهايتها</small><span id="lastV"></span></div>
-    <div class="verse"><small>أول آية في الثمن التالي ← يجب ألّا تبدأ</small><span id="nextV"></span></div>
+    <div class="sub">اضغط « هنا ينتهي » في لحظة <b>الصمت</b> بعد آخر كلمة من الآية المؤطَّرة</div>
+    <div class="verse end"><small>آخر آية في هذا الثمن ← استمع لآخر كلمة فيها</small><span id="lastV"></span></div>
+    <div class="verse"><small>بها يبدأ الثمن التالي ← القطع يكون في الصمت الذي قبلها</small><span id="nextV"></span></div>
     <div class="clock"><span id="clockFind">00:00.0</span><small id="findNote"></small></div>
     <div class="row">
       <button id="btnBack5">→ قبل 5 ث</button>
@@ -51,7 +52,11 @@
   <!-- Etape 2 : verifier la coupure -->
   <section class="screen" id="sCheck" hidden>
     <h1>هل القطع في مكانه؟</h1>
-    <div class="sub">يُعاد السماع تلقائياً : 3 ث قبل القطع و3 ث بعده</div>
+    <div class="sub">تسمع كما سيسمعها التطبيق : نهاية الثمن، ثم صمت ثانية، ثم بداية الثمن التالي.<br>
+      يجب أن ينتهي الأول بكلمة كاملة، وأن يبدأ الثاني بأول كلمة من آيته.</div>
+    <div class="phases">
+      <span id="phA">◀ نهاية الثمن</span><span id="phGap">صمت</span><span id="phB">بداية التالي ▶</span>
+    </div>
     <div class="join" id="joinTxt"></div>
     <div class="clock"><span id="clockCut">00:00.0</span><small>موضع القطع</small></div>
     <div class="row">

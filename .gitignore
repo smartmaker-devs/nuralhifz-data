@@ -30,3 +30,6 @@ desktop.ini
 # Build / temp output
 /tmp/
 *.tmp
+
+# Node (tools/)
+node_modules/

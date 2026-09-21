@@ -18,12 +18,21 @@ const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 
 const SCHEMA_VERSION = 3
 const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1.0.0/data/'
 const STATUS_URL = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@main/data/audio_status.json'
+// Fichiers publies, lus sans le cache de 12 h de jsDelivr (raw sert l'en-tete CORS)
+const PUBLISHED_BASE = 'https://raw.githubusercontent.com/smartmaker-devs/nuralhifz-data/main/data/timings_thumn/kouchi/'
 const OUT_DIR = 'data/timings_thumn/kouchi'
 
 const FIND_LEAD = 6      // l'ecoute demarre 6s avant la position estimee
 const JUMP = 5           // boutons قبل / بعد
 const NUDGE = 0.2        // boutons أبكر / أبعد
-const CHECK_WIN = 3      // verification : 3s avant et 3s apres la coupure
+// Verification : on joue la FIN du ثمن (t-4 → t), on s'arrete net, 1 s de
+// silence, puis le DEBUT du suivant (t → t+4) — exactement ce que l'app fera.
+// L'ancienne verification rejouait t-3 → t+3 d'un seul tenant : on entendait
+// forcement le verset suivant apres la coupure, ce qui poussait a reculer la
+// marque jusqu'a ne plus l'entendre. Resultat mesure : les 8 frontieres du
+// hizb 1 d'Al-Baqara etaient toutes ~3 s trop tot, en pleine voix.
+const CHECK_WIN = 4
+const CHECK_GAP = 1000
 
 const GH = {
   owner: 'smartmaker-devs', repo: 'nuralhifz-data', branch: 'main',
@@ -274,6 +283,7 @@ function updatePubBar() {
 
 // ── Ecrans ───────────────────────────────────────────────────────────────────
 function showScreen(name) {
+  if (name !== 'check') cancelSequence()   // sinon la 2e moitie de l'ecoute repartirait apres coup
   $('picker').hidden = name !== 'pick'
   $('sFind').hidden = name !== 'find'
   $('sCheck').hidden = name !== 'check'
@@ -297,10 +307,43 @@ function updateHeader() {
 const tailWords = (t, k) => { const w = (t || '').trim().split(/\s+/); return (w.length > k ? '… ' : '') + w.slice(-k).join(' ') }
 const headWords = (t, k) => { const w = (t || '').trim().split(/\s+/); return w.slice(0, k).join(' ') + (w.length > k ? ' …' : '') }
 
-function playFrom(t, stopAt) {
+// Arret precis : timeupdate ne tombe que toutes les ~250 ms, assez pour laisser
+// passer le debut du mot suivant. requestAnimationFrame ne suffit pas non plus
+// (suspendu si la page n'est pas affichee : 185 ms de depassement mesures). On
+// sonde donc toutes les 10 ms pendant une lecture bornee.
+let seqTimer = null, stopPoll = null
+function handleStop() {
+  if (state.stopAt == null || audio.currentTime < state.stopAt) return false
+  audio.pause()
+  state.stopAt = null
+  const next = state.afterStop
+  state.afterStop = null
+  if (next) next()
+  return true
+}
+function watchStop() {
+  clearInterval(stopPoll)
+  const id = setInterval(() => {
+    if (state.stopAt == null) { clearInterval(id); return }
+    handleStop()
+  }, 10)
+  stopPoll = id
+}
+function cancelSequence() {
+  clearTimeout(seqTimer); seqTimer = null
+  state.afterStop = null
+  setPhase(null)
+}
+function playFrom(t, stopAt, afterStop) {
+  clearTimeout(seqTimer); seqTimer = null
   audio.currentTime = Math.max(0, t)
   state.stopAt = stopAt ?? null
+  state.afterStop = afterStop ?? null
   audio.play().catch(() => {})
+  if (state.stopAt != null) watchStop()
+}
+function setPhase(p) {
+  for (const [id, k] of [['phA', 'a'], ['phGap', 'gap'], ['phB', 'b']]) $(id)?.classList.toggle('on', p === k)
 }
 
 // Etape 1 : trouver la fin du ثمن
@@ -329,17 +372,28 @@ function openCheck(i) {
   replayCut()
 }
 function replayCut() {
-  const t = state.marks[state.cursor]
+  const i = state.cursor, t = state.marks[i]
   if (t == null) return
   $('clockCut').textContent = fmtMs(t)
-  const lower = state.cursor === 0 ? 0 : (state.marks[state.cursor - 1] ?? 0)
-  playFrom(Math.max(lower, t - CHECK_WIN), Math.min(state.duration, t + CHECK_WIN))
+  const lower = i === 0 ? 0 : (state.marks[i - 1] ?? 0)
+  const upper = state.marks[i + 1] ?? state.duration
+  setPhase('a')
+  playFrom(Math.max(lower, t - CHECK_WIN), t, () => {
+    setPhase('gap')
+    seqTimer = setTimeout(() => {
+      setPhase('b')
+      playFrom(t, Math.min(upper, t + CHECK_WIN), () => setPhase(null))
+    }, CHECK_GAP)
+  })
 }
 
-// Etape 3 : recapitulatif
+// Etape 3 : recapitulatif. Accessible aussi EN COURS de sourate (bouton 📝) :
+// sur une sourate longue, on doit pouvoir reecouter un hizb deja fait sans
+// attendre la fin.
 function openDone() {
   audio.pause()
   const n = innerCount()
+  const complete = firstUnmarked(0) === -1
   const published = state.doneSurahs.has(state.surahNo)
   $('doneMsg').hidden = n > 0
   if (n === 0) {
@@ -348,15 +402,15 @@ function openDone() {
       ? 'ثمن واحد يغطّي السورة كاملة، وهي منشورة. اختر سورة أخرى من الأعلى.'
       : 'ثمن واحد يغطّي السورة كاملة : لا شيء تعلّمه. انشرها مباشرة.'
   } else {
-    $('doneTitle').textContent = 'اكتملت السورة ✓'
+    $('doneTitle').textContent = complete ? 'اكتملت السورة ✓' : 'ما أُنجز حتى الآن'
   }
   $('doneSub').hidden = n === 0
   $('doneList').hidden = n === 0
-  $('doneList').innerHTML = state.segments.slice(0, n).map((sg, k) =>
-    `<div data-k="${k}"><span class="ok">✓ ${esc(sg.name_ar)} ﴿${sg.last_verse}﴾</span><span>${fmtMs(state.marks[k])}</span></div>`).join('')
-  $('btnPublish').textContent = published ? 'إعادة النشر' : 'نشر'
+  $('doneList').innerHTML = state.segments.slice(0, n).map((sg, k) => state.marks[k] == null ? '' :
+    `<div data-k="${k}"><span class="ok">✓ ${esc(sg.name_ar)} ﴿${sg.last_verse}﴾ · ح${sg.hizb}</span><span>${fmtMs(state.marks[k])}</span></div>`).join('')
+  $('btnPublish').textContent = !complete ? 'متابعة التعليم' : (published ? 'إعادة النشر' : 'نشر')
   const next = nextInQueue()
-  $('nextHint').textContent = next != null ? `السورة التالية في الحزب : ${next}` : (state.hizbNo != null ? `لا سور متبقية في الحزب ${state.hizbNo} بعد هذه.` : '')
+  $('nextHint').textContent = !complete ? '' : (next != null ? `السورة التالية في الحزب : ${next}` : (state.hizbNo != null ? `لا سور متبقية في الحزب ${state.hizbNo} بعد هذه.` : ''))
   state.cursor = n
   showScreen('done')
 }
@@ -371,6 +425,33 @@ function firstUnmarked(from = 0) {
 function resume() {
   const k = firstUnmarked(0)
   if (k === -1) openDone(); else openFind(k)
+}
+
+// Ce qui est PUBLIE fait foi sur les segments publies. Sans cela, une correction
+// faite en dehors de l'outil (ex. 002.json recale de ~3 s apres controle
+// acoustique) serait ignoree par le navigateur, qui garde ses anciennes marques
+// — et la publication suivante depuis l'outil re-casserait le fichier.
+// Les marques locales au-dela de ce qui est publie (travail en cours) sont
+// conservees. Retourne le nombre de frontieres remplacees.
+async function mergePublished(n) {
+  try {
+    const r = await fetch(`${PUBLISHED_BASE}${pad3(n)}.json?t=${Date.now()}`, { cache: 'no-store' })
+    if (!r.ok) return 0
+    const pub = await r.json()
+    if (!Array.isArray(pub.segments) || pub.segments.length !== state.segments.length) return 0
+    let changed = 0, timed = 0
+    const last = state.segments.length - 1
+    pub.segments.forEach((s, i) => {
+      if (typeof s.end !== 'number') return
+      if (typeof s.start === 'number') timed++
+      if (i === last) return
+      if (state.marks[i] == null || Math.abs(state.marks[i] - s.end) > 0.01) { state.marks[i] = s.end; changed++ }
+    })
+    // une marque locale plus loin mais desormais anterieure a une marque publiee est fausse
+    for (let k = 1; k < last; k++) if (state.marks[k] != null && state.marks[k - 1] != null && state.marks[k] <= state.marks[k - 1]) state.marks[k] = null
+    try { localStorage.setItem(pubKey(n), String(timed)) } catch {}
+    return changed
+  } catch { return 0 }
 }
 
 // ── Chargement d'une sourate ─────────────────────────────────────────────────
@@ -399,8 +480,11 @@ async function loadSurah(n) {
       state.marks = obj.segments.map(s => (typeof s.end === 'number' ? s.end : null))
     }
   } catch {}
+  const synced = await mergePublished(n)
+
   state.audioUrl = `${RECITER.server}${pad3(n)}.mp3`
   audio.src = state.audioUrl
+  state.pendingNote = synced > 0 ? `↻ حُدِّث ${synced} حدّ من النسخة المنشورة (مصحَّحة) — راجِعها بالسماع` : ''
   setStatus('جارٍ تحميل الصوت…')
   // la suite se fait a loadedmetadata, quand la duree est connue
 }
@@ -412,11 +496,12 @@ audio.addEventListener('loadedmetadata', () => {
   persist()
   setStatus('')
   resume()
+  if (state.pendingNote) { setStatus(state.pendingNote); state.pendingNote = '' }
 })
 audio.addEventListener('error', () => setStatus('تعذّر تحميل الصوت — تحقق من الاتصال', true))
 audio.addEventListener('timeupdate', () => {
   if (state.screen === 'find') $('clockFind').textContent = fmt(audio.currentTime)
-  if (state.stopAt != null && audio.currentTime >= state.stopAt) { audio.pause(); state.stopAt = null }
+  handleStop()   // filet si les images sont ralenties (onglet en arriere-plan)
 })
 function syncPlay() { $('btnPlay').textContent = (!audio.paused && !audio.ended) ? '⏸' : '▶' }
 audio.addEventListener('play', syncPlay)
@@ -605,7 +690,7 @@ $('btnLoad').addEventListener('click', () => {
 })
 $('btnBack5').addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - JUMP); if (audio.paused) audio.play().catch(() => {}) })
 $('btnFwd5').addEventListener('click', () => { audio.currentTime = Math.min(state.duration || 0, audio.currentTime + JUMP); if (audio.paused) audio.play().catch(() => {}) })
-$('btnPlay').addEventListener('click', () => { state.stopAt = null; audio.paused ? audio.play().catch(() => {}) : audio.pause() })
+$('btnPlay').addEventListener('click', () => { state.stopAt = null; cancelSequence(); audio.paused ? audio.play().catch(() => {}) : audio.pause() })
 $('btnHere').addEventListener('click', markHere)
 $('btnEarlier').addEventListener('click', () => nudgeCut(-NUDGE))
 $('btnLater').addEventListener('click', () => nudgeCut(NUDGE))
@@ -619,7 +704,8 @@ $('doneList').addEventListener('click', (e) => {
   openCheck(parseInt(row.dataset.k, 10))
 })
 // addEventListener passerait l'evenement comme 1er argument (= partial « vrai »)
-$('btnPublish').addEventListener('click', () => publish(false))
+$('btnPublish').addEventListener('click', () => (firstUnmarked(0) === -1 ? publish(false) : resume()))
+$('btnReview').addEventListener('click', openDone)
 $('btnPubPartial').addEventListener('click', () => publish(true))
 // Sortie sans jeton, disponible a tout moment : copier le fichier (ou le
 // telecharger si le presse-papiers est refuse) pour le faire publier ailleurs.
