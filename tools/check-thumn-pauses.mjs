@@ -36,17 +36,26 @@ const SPAN = 5            // on analyse ±5 s autour de chaque frontiere
 const TOL = 0.05          // tolerance au bord d'une pause (s)
 
 // ── MP3 : en-tete ID3, debit, trame Info/Xing ─────────────────────────────────
-const BITRATES = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320]
-const RATES = [44100, 48000, 32000]
+// Layer III, MPEG-1 ET MPEG-2/2.5. Les MP3 de Yassine Al-Jazairi melangent les
+// deux : 49 sourates sont en MPEG-2 (22,05/24 kHz). Un analyseur MPEG-1 seul
+// prend alors des octets d'audio pour des debuts de trame et « voit » un faux
+// debit variable — erreur commise puis corrigee le 2026-09-21.
+const BITRATES = {
+  3: [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320],   // MPEG-1
+  2: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160],       // MPEG-2
+  0: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160],       // MPEG-2.5
+}
+const RATES = { 3: [44100, 48000, 32000], 2: [22050, 24000, 16000], 0: [11025, 12000, 8000] }
 
 function parseHeader(b, i) {
   if (b[i] !== 0xff || (b[i + 1] & 0xe0) !== 0xe0) return null
   const version = (b[i + 1] >> 3) & 3, layer = (b[i + 1] >> 1) & 3
-  if (version !== 3 || layer !== 1) return null            // MPEG-1 Layer III uniquement
-  const br = BITRATES[(b[i + 2] >> 4) & 15], sr = RATES[(b[i + 2] >> 2) & 3]
+  if (version === 1 || layer !== 1) return null            // Layer III uniquement
+  const br = BITRATES[version][(b[i + 2] >> 4) & 15], sr = RATES[version][(b[i + 2] >> 2) & 3]
   if (!br || !sr) return null
   const pad = (b[i + 2] >> 1) & 1
-  return { bitrate: br, sampleRate: sr, length: Math.floor(144000 * br / sr) + pad }
+  const coef = version === 3 ? 144000 : 72000                // 1152 vs 576 echantillons/trame
+  return { version, bitrate: br, sampleRate: sr, length: Math.floor(coef * br / sr) + pad }
 }
 
 async function fetchRange(url, from, to) {
@@ -92,7 +101,7 @@ async function levelProfile(url, t) {
   let sync = -1
   for (let i = 0; i < buf.length - 8; i++) {
     const h = parseHeader(buf, i)
-    if (h && h.bitrate === L.bitrate && parseHeader(buf, i + h.length)) { sync = i; break }
+    if (h && h.bitrate === L.bitrate && h.sampleRate === L.sampleRate && parseHeader(buf, i + h.length)) { sync = i; break }
   }
   if (sync < 0) throw new Error(`pas de trame decodable autour de ${t}s`)
   const tStart = (from + sync - L.audioStart) / L.bytesPerSec
