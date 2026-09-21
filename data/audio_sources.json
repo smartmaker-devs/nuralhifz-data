@@ -6,11 +6,11 @@
       {"id": "omar_al_kazabri", "name_ar": "عمر القزابري", "name_en": "Omar Al-Kazabri", "country": "MA", "role": "Imam — Hassan II Mosque, Casablanca", "server": "https://server9.mp3quran.net/omar_warsh/", "tariq": "Warsh 'an Nafi'", "recommended": true},
       {"id": "hisham_el_harraz", "name_ar": "هشام الهراز", "name_en": "Hisham El-Harraz", "country": "MA", "server": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'", "recommended": true},
       {"id": "rachid_belaalya", "name_ar": "رشيد بلعالية", "name_en": "Rachid Belaalya", "country": "MA", "server": "https://server6.mp3quran.net/bl3/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'"},
-      {"id": "abdul_majeed_benkirane", "name_ar": "عبد المجيب بنكيران", "name_en": "Abdul-Majeed Benkirane", "country": "MA", "server": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'"},
+      {"id": "abdul_majeed_benkirane", "name_ar": "عبد المجيب بنكيران", "name_en": "Abdul-Majeed Benkirane", "country": "MA", "server": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'", "timings_key": "benkirane"},
       {"id": "younes_essouilass", "name_ar": "يونس اسويلص", "name_en": "Younes Essouilass", "country": "MA", "server": "https://server16.mp3quran.net/souilass/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'"},
-      {"id": "el_ayoun_el_kouchi", "name_ar": "العيون الكوشي", "name_en": "El-Ayoun El-Kouchi", "country": "MA", "server": "https://server11.mp3quran.net/koshi/", "tariq": "Warsh 'an Nafi'"},
+      {"id": "el_ayoun_el_kouchi", "name_ar": "العيون الكوشي", "name_en": "El-Ayoun El-Kouchi", "country": "MA", "server": "https://server11.mp3quran.net/koshi/", "tariq": "Warsh 'an Nafi'", "timings_key": "kouchi"},
       {"id": "rachid_ifrad", "name_ar": "رشيد إفراد", "name_en": "Rachid Ifrad", "country": "MA", "server": "https://server12.mp3quran.net/ifrad/", "tariq": "Warsh 'an Nafi'"},
-      {"id": "al_qari_yassin", "name_ar": "القارئ ياسين", "name_en": "Al-Qari Yassin", "country": null, "server": "https://server11.mp3quran.net/qari/", "tariq": "Warsh 'an Nafi'"},
+      {"id": "al_qari_yassin", "name_ar": "ياسين الجزائري", "name_en": "Yassine Al-Jazairi", "country": "DZ", "server": "https://server11.mp3quran.net/qari/", "tariq": "Warsh 'an Nafi'", "mp3quran_label": "القارئ ياسين", "timings_key": "jazairi", "audio": {"bitrate_kbps": 96, "cbr": true, "channels": 1, "sample_rate": 44100, "id3_bytes": 6824, "cors": true}, "verified": "2026-09-21"},
       {"id": "ibrahim_al_dosari", "name_ar": "إبراهيم الدوسري", "name_en": "Ibrahim Al-Dosari", "country": "SA", "server": "https://server10.mp3quran.net/ibrahim_dosri/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'"},
       {"id": "husary_warsh", "name_ar": "محمود خليل الحصري", "name_en": "Mahmoud Khalil Al-Husary", "country": "EG", "server": "https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'"},
       {"id": "abdul_basit_warsh", "name_ar": "عبدالباسط عبدالصمد", "name_en": "Abdul-Basit Abdul-Samad", "country": "EG", "server": "https://server7.mp3quran.net/basit/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'"},
@@ -25,6 +25,8 @@
     "All audio is Warsh 'an Nafi' — the riwaya followed across the Maghreb (Maroc, Algerie, Tunisie).",
     "Maghreb reciters are listed first. Omar Al-Kazabri is the Imam of the Hassan II Mosque in Casablanca.",
     "Per-surah numbering (001..114) is universal and matches this dataset directly.",
-    "Verified 2026-04-21 with HTTP range requests (HTTP 206 = OK)."
+    "Verified 2026-04-21 with HTTP range requests (HTTP 206 = OK).",
+    "timings_key = dossier data/timings_thumn/<cle>/ des recitants utilises par l'app (kouchi, benkirane, jazairi).",
+    "Yassine Al-Jazairi : affiche « القارئ ياسين » sur mp3quran (recitant 14, moshaf Warsh mourattal). Identite confirmee par l'utilisateur le 2026-09-21. Son serveur renvoie Access-Control-Allow-Origin: *, contrairement a GitHub Releases."
   ]
 }
