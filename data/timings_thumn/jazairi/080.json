@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 80,
+  "surah_name_ar": "عبس",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "al_qari_yassin",
+  "reciter_name": "Yassine Al-Jazairi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-jazairi-v1/080.mp3",
+  "audio_duration": 193.332,
+  "marked_at": "2026-09-23T09:52:41.696Z",
+  "derived_from": "mono-thumn (aucune frontiere interne)",
+  "segments": [
+    {
+      "eighth_id": 467,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 59,
+      "first_verse": 1,
+      "last_verse": 42,
+      "start": 0,
+      "end": 193.332,
+      "continues_before": true,
+      "continues_after": false
+    }
+  ],
+  "complete": true
+}

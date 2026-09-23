@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 97,
+  "surah_name_ar": "القدر",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "al_qari_yassin",
+  "reciter_name": "Yassine Al-Jazairi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-jazairi-v1/097.mp3",
+  "audio_duration": 42.684,
+  "marked_at": "2026-09-23T09:52:41.704Z",
+  "derived_from": "mono-thumn (aucune frontiere interne)",
+  "segments": [
+    {
+      "eighth_id": 477,
+      "name_ar": "خمسة أثمان",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 5,
+      "start": 0,
+      "end": 42.684,
+      "continues_before": true,
+      "continues_after": false
+    }
+  ],
+  "complete": true
+}

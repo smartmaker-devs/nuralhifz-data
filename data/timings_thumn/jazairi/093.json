@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 93,
+  "surah_name_ar": "الضحى",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "al_qari_yassin",
+  "reciter_name": "Yassine Al-Jazairi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-jazairi-v1/093.mp3",
+  "audio_duration": 60.291,
+  "marked_at": "2026-09-23T09:52:41.702Z",
+  "derived_from": "mono-thumn (aucune frontiere interne)",
+  "segments": [
+    {
+      "eighth_id": 476,
+      "name_ar": "النصف",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 11,
+      "start": 0,
+      "end": 60.291,
+      "continues_before": true,
+      "continues_after": false
+    }
+  ],
+  "complete": true
+}

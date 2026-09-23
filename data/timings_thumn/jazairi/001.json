@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 1,
+  "surah_name_ar": "الفاتحة",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "al_qari_yassin",
+  "reciter_name": "Yassine Al-Jazairi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-jazairi-v1/001.mp3",
+  "audio_duration": 46.289,
+  "marked_at": "2026-09-23T09:52:41.687Z",
+  "derived_from": "mono-thumn (aucune frontiere interne)",
+  "segments": [
+    {
+      "eighth_id": 1,
+      "name_ar": "الثمن الأول",
+      "hizb": 1,
+      "first_verse": 1,
+      "last_verse": 7,
+      "start": 0,
+      "end": 46.289,
+      "continues_before": false,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}

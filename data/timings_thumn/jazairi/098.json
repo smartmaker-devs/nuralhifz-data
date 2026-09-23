@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 98,
+  "surah_name_ar": "البينة",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "al_qari_yassin",
+  "reciter_name": "Yassine Al-Jazairi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-jazairi-v1/098.mp3",
+  "audio_duration": 135.915,
+  "marked_at": "2026-09-23T09:52:41.705Z",
+  "derived_from": "mono-thumn (aucune frontiere interne)",
+  "segments": [
+    {
+      "eighth_id": 478,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 8,
+      "start": 0,
+      "end": 135.915,
+      "continues_before": false,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
