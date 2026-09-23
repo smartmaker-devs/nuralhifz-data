@@ -54,3 +54,27 @@ L'autosave localStorage tourne en continu — fermer/reprendre OK.
 ## Raccourcis (bonus desktop)
 
 `Space` play/pause · `M` / `→` mark · `Z` / `←` undo · `↑/↓` ±1s
+
+## Publier depuis le téléphone (connexion GitHub par code)
+
+L'outil écrit directement dans `data/timings_thumn/…` sur GitHub. Plutôt que de
+coller un jeton sur chaque appareil, il utilise le *device flow* : l'écran
+affiche un code court, on l'approuve sur `github.com/login/device` depuis un
+navigateur déjà connecté, et le jeton arrive tout seul. Il reste sur l'appareil
+(`localStorage`), jamais sur le serveur.
+
+Réglage, une seule fois :
+
+1. GitHub → *Settings* → *Developer settings* → *OAuth Apps* → **New OAuth App**
+   (compte **ELAHMADI**, propriétaire du dépôt).
+   - *Application name* : `nuralhifz thumn marker`
+   - *Homepage URL* : `https://audio-marker-nine.vercel.app`
+   - *Authorization callback URL* : la même (inutilisée en device flow, mais exigée)
+   - après création, cocher **Enable Device Flow**.
+2. Copier le **Client ID** (public, pas le secret : il n'en faut aucun).
+3. Vercel → projet `audio-marker` → *Settings* → *Environment Variables* →
+   `GITHUB_CLIENT_ID` = ce Client ID, pour tous les environnements, puis
+   redéployer.
+
+Le jeton demandé porte la portée `public_repo` : écriture sur les dépôts publics
+uniquement — le dépôt de données est public, rien de plus n'est nécessaire.

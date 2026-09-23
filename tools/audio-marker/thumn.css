@@ -81,3 +81,8 @@ dialog p{font-size:13px;color:var(--mut);line-height:1.5;margin:6px 0}
 dialog a{color:var(--blue)}
 dialog input{width:100%;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;margin:8px 0;direction:ltr}
 dialog .acts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Connexion GitHub par code : le code doit se lire d'un coup d'oeil sur un
+   telephone, et rester selectionnable pour une copie manuelle. */
+#patCode{font:700 30px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 8px;margin:10px 0;user-select:all}
+#patDialog .acts{grid-template-columns:repeat(3,1fr)}

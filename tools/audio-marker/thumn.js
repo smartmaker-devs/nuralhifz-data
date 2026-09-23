@@ -43,8 +43,14 @@ const CHECK_GAP = 1000
 const GH = {
   owner: 'smartmaker-devs', repo: 'nuralhifz-data', branch: 'main',
   patKey: 'marker:gh:pat',
-  getPat() { return localStorage.getItem(this.patKey) || '' },
-  setPat(v) { v ? localStorage.setItem(this.patKey, v) : localStorage.removeItem(this.patKey) },
+  // Le jeton vient de la connexion par code (/api/device). L'ancienne cle
+  // « pat » reste lue pour les appareils deja configures a la main.
+  tokenKey: 'marker:gh:token',
+  getPat() { return localStorage.getItem(this.tokenKey) || localStorage.getItem(this.patKey) || '' },
+  setPat(v) {
+    if (v) localStorage.setItem(this.tokenKey, v)
+    else { localStorage.removeItem(this.tokenKey); localStorage.removeItem(this.patKey) }
+  },
   _hdr() {
     return { 'Authorization': `Bearer ${this.getPat()}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
   },
@@ -672,7 +678,66 @@ async function publish(partial = false) {
     else setStatus(`✗ GitHub : ${e.message}`, true)
   }
 }
-function openPatDialog() { $('patInput').value = GH.getPat(); $('patDialog').showModal(); setTimeout(() => $('patInput').focus(), 50) }
+// ── Connexion GitHub par code ────────────────────────────────────────────────
+// Rien a taper : l'appareil affiche un code court, on l'approuve sur
+// github.com/login/device depuis n'importe quel navigateur deja connecte.
+// C'est ce qui rend le marquage possible depuis le telephone.
+const auth = { timer: null, deviceCode: null }
+
+function openPatDialog() {
+  $('patCode').textContent = '…'
+  $('patLink').href = 'https://github.com/login/device'
+  $('patHint').textContent = 'جارٍ طلب رمز من GitHub…'
+  $('patDialog').showModal()
+  startDeviceFlow()
+}
+
+function stopDeviceFlow() { clearTimeout(auth.timer); auth.timer = null; auth.deviceCode = null }
+
+async function startDeviceFlow() {
+  stopDeviceFlow()
+  try {
+    const r = await fetch('/api/device?step=start', { method: 'POST' })
+    const d = await r.json()
+    if (!d.device_code) throw new Error(d.hint || d.error || 'start failed')
+    auth.deviceCode = d.device_code
+    $('patCode').textContent = d.user_code
+    $('patLink').href = d.verification_uri || 'https://github.com/login/device'
+    $('patHint').textContent = 'افتح الرابط وأدخل الرمز، ثم انتظر هنا.'
+    pollDeviceFlow((d.interval || 5) * 1000, Date.now() + (d.expires_in || 900) * 1000)
+  } catch (e) {
+    $('patCode').textContent = '—'
+    $('patHint').textContent = `تعذّر الاتصال بـ GitHub : ${e.message}`
+  }
+}
+
+function pollDeviceFlow(intervalMs, deadline) {
+  auth.timer = setTimeout(async () => {
+    if (!auth.deviceCode) return
+    if (Date.now() > deadline) { $('patHint').textContent = 'انتهت صلاحية الرمز — اضغط « رمز جديد ».'; return }
+    try {
+      const r = await fetch('/api/device?step=poll', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_code: auth.deviceCode }),
+      })
+      const d = await r.json()
+      if (d.access_token) {
+        GH.setPat(d.access_token)
+        stopDeviceFlow()
+        $('patDialog').close()
+        setStatus('✅ تم الربط بحساب GitHub على هذا الجهاز')
+        if (state.pendingPush) { const partial = state.pendingPush === 'partial'; state.pendingPush = false; publish(partial) }
+        return
+      }
+      if (d.error === 'authorization_pending') return pollDeviceFlow(intervalMs, deadline)
+      if (d.error === 'slow_down') return pollDeviceFlow(intervalMs + 5000, deadline)   // GitHub impose de ralentir
+      $('patHint').textContent = `GitHub : ${d.error_description || d.error || 'خطأ'}`
+    } catch (e) {
+      $('patHint').textContent = `خطأ في الشبكة : ${e.message}`
+      pollDeviceFlow(intervalMs, deadline)
+    }
+  }, intervalMs)
+}
 
 async function copyJson() {
   try { await navigator.clipboard.writeText(jsonText()); setStatus(`📋 نُسخ ${fileName()}`) }
@@ -734,13 +799,11 @@ $('btnCopyPartial').addEventListener('click', async () => {
 })
 $('btnCopy').addEventListener('click', copyJson)
 $('btnDownload').addEventListener('click', downloadJson)
-$('patSave').addEventListener('click', () => {
-  const v = $('patInput').value.trim()
-  if (!v) return
-  GH.setPat(v); $('patDialog').close()
-  if (state.pendingPush) { const partial = state.pendingPush === 'partial'; state.pendingPush = false; publish(partial) }
+$('patRenew').addEventListener('click', startDeviceFlow)
+$('patCopyCode').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('patCode').textContent.trim()); $('patHint').textContent = 'نُسخ الرمز 📋' } catch {}
 })
-$('patCancel').addEventListener('click', () => { $('patDialog').close(); state.pendingPush = false })
+$('patCancel').addEventListener('click', () => { stopDeviceFlow(); $('patDialog').close(); state.pendingPush = false })
 
 document.addEventListener('keydown', (e) => {
   if (e.target.matches('input, select, textarea') || $('patDialog').open) return

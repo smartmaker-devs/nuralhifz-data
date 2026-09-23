@@ -88,15 +88,16 @@
 </div>
 
 <dialog id="patDialog">
-  <h3>GitHub Token</h3>
-  <p>Personal Access Token avec <code>Contents: write</code> sur <code>smartmaker-devs/nuralhifz-data</code>, créé depuis le compte <b>ELAHMADI</b>.</p>
-  <p><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">إنشاء token جديد ↗</a></p>
-  <input id="patInput" type="password" placeholder="github_pat_..." autocomplete="off" spellcheck="false" />
+  <h3>الربط بحساب GitHub</h3>
+  <p>افتح <a id="patLink" href="https://github.com/login/device" target="_blank" rel="noopener">github.com/login/device ↗</a> وأدخل هذا الرمز بحساب <b>ELAHMADI</b> :</p>
+  <div id="patCode" dir="ltr">…</div>
+  <p id="patHint">جارٍ طلب رمز من GitHub…</p>
   <div class="acts">
     <button id="patCancel">إلغاء</button>
-    <button class="blue" id="patSave">حفظ ومتابعة</button>
+    <button id="patCopyCode">📋 نسخ الرمز</button>
+    <button class="blue" id="patRenew">رمز جديد</button>
   </div>
-  <p>Stocké localement sur cet appareil.</p>
+  <p>النشر يتم مباشرة بعد الموافقة. الربط محفوظ على هذا الجهاز فقط.</p>
 </dialog>
 
 <script src="thumn.js"></script>
