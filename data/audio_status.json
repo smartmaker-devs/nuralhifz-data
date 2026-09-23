@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "granularity": "thumn",
-  "updated_at": "2026-09-21",
+  "updated_at": "2026-09-23",
   "note": "Etat de couverture audio par ثمن. Genere automatiquement par tools/gen-audio-status.mjs depuis les fichiers data/timings_thumn/{reciter}/{NNN}.json — ne pas editer a la main. 'done' = sourates completes. 'in_progress' = sourates publiees PARTIELLEMENT (complete:false) : seuls leurs segments ayant start ET end numeriques sont disponibles. Un ثمن est JOUABLE s'il est chronometre dans toutes les sourates qu'il traverse : eighths_playable_ids fait foi. Toute sourate non listee = todo.",
   "totals": {
     "surahs": 114,
@@ -82,11 +82,57 @@
       "eighths_playable_ids": []
     },
     "jazairi": {
-      "done": [],
+      "done": [
+        1,
+        61,
+        62,
+        75,
+        78,
+        80,
+        81,
+        82,
+        86,
+        87,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114
+      ],
       "in_progress": [],
-      "surah_count": 0,
-      "eighths_playable": 0,
-      "eighths_playable_ids": []
+      "surah_count": 35,
+      "eighths_playable": 9,
+      "eighths_playable_ids": [
+        440,
+        441,
+        461,
+        465,
+        468,
+        475,
+        476,
+        477,
+        480
+      ]
     }
   }
 }
