@@ -7,11 +7,15 @@
  *   POST /api/device?step=poll   → { access_token } | { error: "authorization_pending" }
  *
  * Aucun secret n'est necessaire : le device flow est prevu pour les clients
- * publics. Le seul reglage est GITHUB_CLIENT_ID (variable d'environnement
- * Vercel), l'identifiant public de l'OAuth App. Le jeton produit appartient a
- * l'utilisateur qui approuve le code, il n'est jamais stocke ici : il repart
- * vers le navigateur, qui le garde sur l'appareil.
+ * publics. L'identifiant de l'OAuth App est public par nature (il apparait
+ * dans l'URL d'autorisation) : il est ecrit ici en clair, ce qui evite tout
+ * reglage a faire sur Vercel. GITHUB_CLIENT_ID reste prioritaire si un jour
+ * l'application est recreee. Le jeton produit appartient a l'utilisateur qui
+ * approuve le code, il n'est jamais stocke ici : il repart vers le
+ * navigateur, qui le garde sur l'appareil.
  */
+// OAuth App « nuralhifz thumn marker », compte ELAHMADI, device flow active.
+const DEFAULT_CLIENT_ID = 'Ov23liGNyuC2l6Hgn1AV'
 const SCOPE = 'public_repo'   // le depot de donnees est public : ecriture sur les depots publics suffit
 
 async function gh(url, body) {
@@ -26,8 +30,7 @@ async function gh(url, body) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' })
 
-  const client_id = process.env.GITHUB_CLIENT_ID
-  if (!client_id) return res.status(500).json({ error: 'missing_client_id', hint: 'Definir GITHUB_CLIENT_ID dans les variables Vercel.' })
+  const client_id = process.env.GITHUB_CLIENT_ID || DEFAULT_CLIENT_ID
 
   const step = req.query.step
   if (step === 'start') {

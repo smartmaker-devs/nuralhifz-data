@@ -72,9 +72,16 @@ Réglage, une seule fois :
    - *Authorization callback URL* : la même (inutilisée en device flow, mais exigée)
    - après création, cocher **Enable Device Flow**.
 2. Copier le **Client ID** (public, pas le secret : il n'en faut aucun).
-3. Vercel → projet `audio-marker` → *Settings* → *Environment Variables* →
-   `GITHUB_CLIENT_ID` = ce Client ID, pour tous les environnements, puis
-   redéployer.
+3. Le Client ID est écrit en clair dans `api/device.js` (`DEFAULT_CLIENT_ID`) :
+   c'est une donnée publique, qui apparaît de toute façon dans toute demande
+   d'autorisation. Rien à régler sur Vercel. Si l'application est un jour
+   recréée, la variable d'environnement `GITHUB_CLIENT_ID` reste prioritaire.
+
+L'OAuth App est créée **sans expiration** des autorisations (case *Expire user
+access tokens* décochée) : leur renouvellement exigerait un *client secret*
+côté serveur. Une autorisation se révoque depuis
+`github.com/settings/applications` → *Authorized OAuth Apps* → *Revoke*, geste
+à faire en cas de perte de l'appareil.
 
 Le jeton demandé porte la portée `public_repo` : écriture sur les dépôts publics
 uniquement — le dépôt de données est public, rien de plus n'est nécessaire.
