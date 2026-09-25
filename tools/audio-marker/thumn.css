@@ -86,3 +86,7 @@ dialog .acts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
    telephone, et rester selectionnable pour une copie manuelle. */
 #patCode{font:700 30px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 8px;margin:10px 0;user-select:all}
 #patDialog .acts{grid-template-columns:repeat(3,1fr)}
+
+/* Les 12 frontieres qui tombent au milieu d'un verset : avertissement discret
+   mais visible, sinon on doute du decoupage en pleine session de marquage. */
+#midVerseHint{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.45);color:var(--txt);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.6}

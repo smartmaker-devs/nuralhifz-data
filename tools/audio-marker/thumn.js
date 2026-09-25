@@ -131,6 +131,7 @@ function computeSegments(eighths, surahNo) {
       segs[i].first_verse = segs[i - 1].last_verse + 1
       segs[i].shared_boundary = true
       segs[i - 1].shared_boundary = true
+      segs[i - 1].ends_mid_verse = true          // sert a prevenir au marquage
     }
   }
   return segs.filter(s => s.first_verse <= s.last_verse)
@@ -365,6 +366,10 @@ function openFind(i) {
   $('findTitle').textContent = `أين ينتهي ${sg.name_ar}؟`
   $('lastV').textContent = tailWords(state.versesByAya.get(sg.last_verse), 12)
   $('nextV').textContent = headWords(state.versesByAya.get(nx?.first_verse), 8)
+  // 12 frontieres tombent au milieu d'un verset : sans un mot d'explication,
+  // on croit a une erreur de decoupage au moment de marquer.
+  $('midVerseHint').hidden = !sg.ends_mid_verse
+  $('midVerseNo').textContent = sg.last_verse
   showScreen('find')
   const est = estimate(i)
   if (est == null) { $('findNote').textContent = 'جارٍ تحميل الصوت…'; return }
