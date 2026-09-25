@@ -1,4 +1,4 @@
-/* Thumn Marker — Kouchi (Warsh Muhammadi)
+/* Thumn Marker — Warsh Muhammadi
  *
  * Interface par etapes : une frontiere de ثمن a la fois, deux questions.
  *   1. Trouver  — ou finit le ثمن ? (on ecoute autour de l'estimation)
@@ -9,12 +9,27 @@
  * sourate). 435 frontieres sur tout le Coran. La fin du dernier segment est la
  * duree de l'audio, remplie automatiquement.
  *
- * Sortie → data/timings_thumn/kouchi/{NNN}.json (schema v3). Le format de
+ * Recitant choisi dans la liste en tete de page : il determine l'audio ecoute,
+ * le dossier de sortie et la couverture affichee.
+ *
+ * Sortie → data/timings_thumn/<recitant>/{NNN}.json (schema v3). Le format de
  * sauvegarde locale (marks/starts) est inchange : un marquage deja commence
  * dans l'ancienne interface se reprend tel quel.
  */
 
-const RECITER = { id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/' }
+// Recitants marquables. `key` = dossier de sortie et cle dans audio_status.json.
+// `server` doit etre un miroir stable (GitHub Releases) : l'URL finit dans les
+// fichiers publies, et l'app la lira telle quelle pendant des annees.
+const RECITERS = [
+  { key: 'kouchi', id: 'el_ayoun_el_kouchi', name: 'El-Ayoun El-Kouchi', name_ar: 'العيون الكوشي',
+    server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/' },
+  { key: 'jazairi', id: 'al_qari_yassin', name: 'Yassine Al-Jazairi', name_ar: 'ياسين الجزائري',
+    server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-jazairi-v1/' },
+  { key: 'benkirane', id: 'abdul_majeed_benkirane', name: 'Abdul-Majeed Benkirane', name_ar: 'عبد المجيب بنكيران',
+    server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-benkirane-v1/', pending: true },
+]
+const RECITER_KEY = 'marker:reciter'
+let RECITER = RECITERS.find(r => r.key === (localStorage.getItem(RECITER_KEY) || 'kouchi')) || RECITERS[0]
 const SCHEMA_VERSION = 3
 const DATA_BASE = 'https://cdn.jsdelivr.net/gh/smartmaker-devs/nuralhifz-data@v1.0.0/data/'
 // Etat de couverture, via l'API GitHub : jsDelivr @main peut le servir avec
@@ -24,9 +39,9 @@ const STATUS_URL = 'https://api.github.com/repos/smartmaker-devs/nuralhifz-data/
 // immediatement. jsDelivr garde 12 h de cache, raw.githubusercontent ~5 min
 // en ignorant tout parametre anti-cache — mesure : juste apres une correction,
 // le navigateur y lisait encore l'ancienne version.
-const PUBLISHED_API = 'https://api.github.com/repos/smartmaker-devs/nuralhifz-data/contents/data/timings_thumn/kouchi/'
-const PUBLISHED_RAW = 'https://raw.githubusercontent.com/smartmaker-devs/nuralhifz-data/main/data/timings_thumn/kouchi/'
-const OUT_DIR = 'data/timings_thumn/kouchi'
+const PUBLISHED_API = () => `https://api.github.com/repos/smartmaker-devs/nuralhifz-data/contents/data/timings_thumn/${RECITER.key}/`
+const PUBLISHED_RAW = () => `https://raw.githubusercontent.com/smartmaker-devs/nuralhifz-data/main/data/timings_thumn/${RECITER.key}/`
+const OUT_DIR = () => `data/timings_thumn/${RECITER.key}`
 
 const FIND_LEAD = 6      // l'ecoute demarre 6s avant la position estimee
 const JUMP = 5           // boutons قبل / بعد
@@ -100,7 +115,7 @@ const fmtMs = (s) => {
   const m = Math.floor(s / 60), r = s - m * 60
   return `${String(m).padStart(2, '0')}:${r.toFixed(3).padStart(6, '0')}`
 }
-const lsKey = (n) => `marker:kouchi:thumn:${pad3(n)}`
+const lsKey = (n) => `marker:${RECITER.key}:thumn:${pad3(n)}`
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 function setStatus(msg, isError) { const e = $('status'); e.textContent = msg || ''; e.classList.toggle('err', !!isError) }
 
@@ -268,6 +283,45 @@ function updatePickInfo() {
   $('pickInfo').textContent = txt
 }
 function onHizbChange() { state.hizbNo = parseInt($('hizbSelect').value, 10); renderSurahOptions(state.hizbNo) }
+
+// ── Choix du recitant ────────────────────────────────────────────────────────
+// Tout est cloisonne par recitant : dossier de sortie, couverture publiee,
+// marquage en cours sur l'appareil. Changer de qari ne melange donc rien.
+function renderReciterOptions() {
+  $('reciterSelect').innerHTML = RECITERS
+    .map(r => `<option value="${r.key}"${r.key === RECITER.key ? ' selected' : ''}>القارئ : ${esc(r.name_ar)}${r.pending ? ' (الصوت غير جاهز)' : ''}</option>`)
+    .join('')
+}
+
+async function onReciterChange() {
+  const next = RECITERS.find(r => r.key === $('reciterSelect').value)
+  if (!next || next.key === RECITER.key) return
+  RECITER = next
+  try { localStorage.setItem(RECITER_KEY, RECITER.key) } catch {}
+  // Le marquage en cours appartient au recitant precedent : on repart de la
+  // selection, sans rien effacer (chaque qari garde ses marques en local).
+  state.surahNo = null; state.segments = []; state.marks = []; state.starts = []
+  state.doneSurahs = new Set()
+  audio.pause(); audio.removeAttribute('src'); audio.load()
+  $('pubBar').hidden = true
+  showScreen('pick')
+  await loadDoneSurahs()
+  renderHizbOptions()
+  if (state.hizbNo != null) { $('hizbSelect').value = String(state.hizbNo); renderSurahOptions(state.hizbNo) }
+  updateHeader()
+  setStatus(next.pending
+    ? `⚠ ${next.name_ar} : الصوت لم يُنشر بعد على المرآة — المراجعة ممكنة، لكن السماع لا`
+    : `القارئ الآن : ${next.name_ar}`, !!next.pending)
+}
+
+async function loadDoneSurahs() {
+  try {
+    const hdr = { Accept: 'application/vnd.github.raw+json' }
+    if (GH.getPat()) hdr.Authorization = `Bearer ${GH.getPat()}`
+    const r = await fetch(STATUS_URL, { headers: hdr, cache: 'no-store' })
+    if (r.ok) state.doneSurahs = new Set((await r.json())?.reciters?.[RECITER.key]?.done ?? [])
+  } catch {}
+}
 const nextInQueue = () => state.hizbNo == null ? null : (hizbQueue(state.hizbNo).find(n => n !== state.surahNo) ?? null)
 
 // ── Publication par hizb (sourates longues) ──────────────────────────────────
@@ -473,11 +527,11 @@ function resume() {
 async function fetchPublished(n) {
   const headers = { Accept: 'application/vnd.github.raw+json' }
   if (GH.getPat()) headers.Authorization = `Bearer ${GH.getPat()}`   // 5000 req/h au lieu de 60
-  const r = await fetch(`${PUBLISHED_API}${pad3(n)}.json?ref=main`, { headers, cache: 'no-store' })
+  const r = await fetch(`${PUBLISHED_API()}${pad3(n)}.json?ref=main`, { headers, cache: 'no-store' })
   if (r.status === 404) return null
   if (r.ok) return r.json()
   // quota API depasse (403/429) : repli sur raw, eventuellement en retard de quelques minutes
-  const r2 = await fetch(`${PUBLISHED_RAW}${pad3(n)}.json`, { cache: 'no-store' })
+  const r2 = await fetch(`${PUBLISHED_RAW()}${pad3(n)}.json`, { cache: 'no-store' })
   return r2.ok ? r2.json() : null
 }
 
@@ -674,13 +728,13 @@ async function publish(partial = false) {
   const err = validatePayload(payload, partial)
   if (err) { setStatus(`✗ ${err}`, true); return }
   if (!GH.getPat()) { state.pendingPush = partial ? 'partial' : 'full'; openPatDialog(); return }
-  const fn = fileName(), path = `${OUT_DIR}/${fn}`
+  const fn = fileName(), path = `${OUT_DIR()}/${fn}`
   const timed = countTimed()
   setStatus(`⏳ نشر ${fn}…`)
   try {
     const msg = partial
-      ? `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — PARTIEL ${timed}/${payload.segment_count} thumn via thumn-marker`
-      : `data(timings-thumn): kouchi sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.segment_count} thumn via thumn-marker`
+      ? `data(timings-thumn): ${RECITER.key} sourate ${payload.surah} (${payload.surah_name_ar}) — PARTIEL ${timed}/${payload.segment_count} thumn via thumn-marker`
+      : `data(timings-thumn): ${RECITER.key} sourate ${payload.surah} (${payload.surah_name_ar}) — ${payload.segment_count} thumn via thumn-marker`
     const res = await GH.putFile(path, jsonText() + '\n', msg)
     const sha = res.commit?.sha?.slice(0, 7) || ''
     // jsDelivr garde @main jusqu'a 12 h : sans purge, l'app recevrait l'ancien
@@ -783,7 +837,7 @@ function downloadJson() {
   a.href = URL.createObjectURL(new Blob([jsonText()], { type: 'application/json' }))
   a.download = fileName(); a.click()
   setTimeout(() => URL.revokeObjectURL(a.href), 1000)
-  setStatus(`⬇ ${fileName()} — ضعه في ${OUT_DIR}/`)
+  setStatus(`⬇ ${fileName()} — ضعه في ${OUT_DIR()}/`)
 }
 
 // ── Boutons ──────────────────────────────────────────────────────────────────
@@ -800,6 +854,7 @@ $('btnWhere').addEventListener('click', () => {
   updatePickInfo()
   showScreen('pick')
 })
+$('reciterSelect').addEventListener('change', onReciterChange)
 $('hizbSelect').addEventListener('change', onHizbChange)
 $('surahSelect').addEventListener('change', updatePickInfo)
 $('btnLoad').addEventListener('click', () => {
@@ -865,12 +920,8 @@ async function boot() {
     setStatus('تعذّر تحميل بيانات المصحف — تحقق من الاتصال وأعد تحميل الصفحة', true)
     return
   }
-  try {
-    const hdr = { Accept: 'application/vnd.github.raw+json' }
-    if (GH.getPat()) hdr.Authorization = `Bearer ${GH.getPat()}`
-    const rst = await fetch(STATUS_URL, { headers: hdr, cache: 'no-store' })
-    if (rst.ok) state.doneSurahs = new Set((await rst.json())?.reciters?.kouchi?.done ?? [])
-  } catch {}
+  await loadDoneSurahs()
+  renderReciterOptions()
   renderHizbOptions()
   getQuranAll().catch(() => {})   // en tache de fond, pret avant le premier clic
 
