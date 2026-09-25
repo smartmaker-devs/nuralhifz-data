@@ -117,21 +117,25 @@ function computeSegments(eighths, surahNo) {
       hizb: t.hizb,
       first_verse: mine[0],
       last_verse: mine[mine.length - 1],
+      // 12 frontieres tombent a l'interieur d'un verset, au signe ۞ du mushaf.
+      // eighths.json donne la position exacte du caractere : on la garde pour
+      // decouper le texte affiche, compter les mots et estimer le temps.
+      start_offset: (t.start.sura === surahNo && t.start.partial_verse) ? t.start.char_offset : null,
+      end_offset: (t.end.sura === surahNo && t.end.partial_verse) ? t.end.char_offset : null,
       continues_before: Math.min(...suras) < surahNo,
       continues_after: Math.max(...suras) > surahNo,
       shared_boundary: false,
     })
   }
   segs.sort((a, b) => a.eighth_id - b.eighth_id)
-  // 12 versets portent une frontiere de ثمن en plein milieu (paires ۞). On ne
-  // coupe pas une recitation au milieu d'un verset : le ثمن anterieur court
-  // jusqu'a la FIN du verset, le suivant demarre au verset d'apres.
+  // Le verset coupe appartient aux DEUX ثمن : chacun n'en recite que sa part.
+  // La coupure suit le mushaf au mot pres (decision 2026-09-25), et non plus
+  // la fin du verset : sans cela, l'audio se decalerait de l'apprentissage.
   for (let i = 1; i < segs.length; i++) {
-    if (segs[i].first_verse <= segs[i - 1].last_verse) {
-      segs[i].first_verse = segs[i - 1].last_verse + 1
+    if (segs[i].first_verse === segs[i - 1].last_verse) {
       segs[i].shared_boundary = true
       segs[i - 1].shared_boundary = true
-      segs[i - 1].ends_mid_verse = true          // sert a prevenir au marquage
+      segs[i - 1].ends_mid_verse = true
     }
   }
   return segs.filter(s => s.first_verse <= s.last_verse)
@@ -151,10 +155,26 @@ const wordCount = (t) => (t || '').replace(VERSE_NUM, ' ').replace(WARSH_MARKS, 
 //   التوبة  : aucune basmala recitee
 const BASMALA_WORDS = 4
 
+// Part du verset reellement recitee dans ce ثمن : le verset entier, ou la
+// portion situee avant / apres le ۞ quand la frontiere le traverse.
+const verseText = (a) => state.versesByAya.get(a) || ''
+function headPart(sg) {                      // premiere ligne du ثمن
+  const t = verseText(sg.first_verse)
+  return sg.start_offset != null ? t.slice(sg.start_offset).replace(/^[۞\s]+/, '') : t
+}
+function tailPart(sg) {                      // derniere ligne du ثمن
+  const t = verseText(sg.last_verse)
+  return sg.end_offset != null ? t.slice(0, sg.end_offset + 1) : t
+}
+
 function segmentWords(sg) {
   let w = 0
-  for (let v = sg.first_verse; v <= sg.last_verse; v++) w += wordCount(state.versesByAya.get(v))
-  if (sg.first_verse === 1 && state.surahNo !== 1 && state.surahNo !== 9) w += BASMALA_WORDS
+  for (let v = sg.first_verse; v <= sg.last_verse; v++) {
+    if (v === sg.first_verse && sg.start_offset != null) w += wordCount(headPart(sg))
+    else if (v === sg.last_verse && sg.end_offset != null) w += wordCount(tailPart(sg))
+    else w += wordCount(verseText(v))
+  }
+  if (sg.first_verse === 1 && sg.start_offset == null && state.surahNo !== 1 && state.surahNo !== 9) w += BASMALA_WORDS
   return w
 }
 
@@ -364,10 +384,10 @@ function openFind(i) {
   state.cursor = i
   const sg = state.segments[i], nx = state.segments[i + 1]
   $('findTitle').textContent = `أين ينتهي ${sg.name_ar}؟`
-  $('lastV').textContent = tailWords(state.versesByAya.get(sg.last_verse), 12)
-  $('nextV').textContent = headWords(state.versesByAya.get(nx?.first_verse), 8)
-  // 12 frontieres tombent au milieu d'un verset : sans un mot d'explication,
-  // on croit a une erreur de decoupage au moment de marquer.
+  $('lastV').textContent = tailWords(tailPart(sg), 12)
+  $('nextV').textContent = headWords(nx ? headPart(nx) : '', 8)
+  // Frontiere a l'interieur d'un verset : on le dit, sinon on croit a une
+  // erreur de decoupage en voyant le meme numero de verset des deux cotes.
   $('midVerseHint').hidden = !sg.ends_mid_verse
   $('midVerseNo').textContent = sg.last_verse
   showScreen('find')
@@ -383,8 +403,8 @@ function openFind(i) {
 function openCheck(i) {
   state.cursor = i
   const sg = state.segments[i], nx = state.segments[i + 1]
-  $('joinTxt').innerHTML = esc(tailWords(state.versesByAya.get(sg.last_verse), 3))
-    + '<b>|</b>' + esc(headWords(state.versesByAya.get(nx?.first_verse), 3))
+  $('joinTxt').innerHTML = esc(tailWords(tailPart(sg), 3))
+    + '<b>|</b>' + esc(headWords(nx ? headPart(nx) : '', 3))
   showScreen('check')
   replayCut()
 }
@@ -594,6 +614,11 @@ function buildPayload() {
     ...(sg.continues_before ? { continues_before: true } : {}),
     ...(sg.continues_after ? { continues_after: true } : {}),
     ...(sg.shared_boundary ? { shared_boundary: true } : {}),
+    // Verset traverse par la frontiere ۞ : l'app doit savoir que ce verset
+    // n'est recite qu'en partie ici, et ou se situe la coupure dans son texte.
+    ...(sg.start_offset != null ? { first_verse_partial: true, first_verse_char_offset: sg.start_offset } : {}),
+    ...(sg.end_offset != null ? { last_verse_partial: true, last_verse_char_offset: sg.end_offset } : {}),
+    ...(sg.ends_mid_verse ? { ends_mid_verse: true } : {}),
   }))
   return {
     schema_version: SCHEMA_VERSION, granularity: 'thumn',
@@ -625,7 +650,10 @@ function validatePayload(p, allowPartial = false) {
   }
   for (let i = 0; i < p.segments.length - 1; i++) {
     const a = p.segments[i], b = p.segments[i + 1]
-    if (b.first_verse !== a.last_verse + 1) return `versets non contigus entre thumn ${a.eighth_id} et ${b.eighth_id}`
+    // Contigus, sauf au ۞ : le verset traverse est partage, son numero est
+    // alors le dernier de a et le premier de b.
+    const shared = a.ends_mid_verse === true && b.first_verse === a.last_verse
+    if (!shared && b.first_verse !== a.last_verse + 1) return `versets non contigus entre thumn ${a.eighth_id} et ${b.eighth_id}`
     if (!timed(a) || !timed(b)) continue
     const gap = b.start - a.end
     if (gap < -0.0001) return `تداخل بين ثمن ${a.eighth_id} و${b.eighth_id}`
