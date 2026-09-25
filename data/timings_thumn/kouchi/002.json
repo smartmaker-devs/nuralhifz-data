@@ -9,7 +9,7 @@
   "reciter_name": "El-Ayoun El-Kouchi",
   "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/002.mp3",
   "audio_duration": 7725.348567,
-  "marked_at": "2026-09-21T11:14:09.011Z",
+  "marked_at": "2026-09-25T12:00:59.883Z",
   "segments": [
     {
       "eighth_id": 1,
@@ -91,18 +91,23 @@
       "first_verse": 75,
       "last_verse": 84,
       "start": 1442.69,
-      "end": null,
-      "shared_boundary": true
+      "end": 1693.857394,
+      "shared_boundary": true,
+      "last_verse_partial": true,
+      "last_verse_char_offset": 150,
+      "ends_mid_verse": true
     },
     {
       "eighth_id": 10,
       "name_ar": "الربع",
       "hizb": 2,
-      "first_verse": 85,
+      "first_verse": 84,
       "last_verse": 90,
-      "start": null,
-      "end": null,
-      "shared_boundary": true
+      "start": 1693.857394,
+      "end": 1939.536228,
+      "shared_boundary": true,
+      "first_verse_partial": true,
+      "first_verse_char_offset": 151
     },
     {
       "eighth_id": 11,
@@ -110,8 +115,8 @@
       "hizb": 2,
       "first_verse": 91,
       "last_verse": 99,
-      "start": null,
-      "end": null
+      "start": 1939.536228,
+      "end": 2121.5896839999996
     },
     {
       "eighth_id": 12,
@@ -119,8 +124,8 @@
       "hizb": 2,
       "first_verse": 100,
       "last_verse": 104,
-      "start": null,
-      "end": null
+      "start": 2121.5896839999996,
+      "end": 2286.0025049999995
     },
     {
       "eighth_id": 13,
@@ -128,8 +133,8 @@
       "hizb": 2,
       "first_verse": 105,
       "last_verse": 112,
-      "start": null,
-      "end": null
+      "start": 2286.0025049999995,
+      "end": 2466.3912599999994
     },
     {
       "eighth_id": 14,
@@ -137,7 +142,7 @@
       "hizb": 2,
       "first_verse": 113,
       "last_verse": 122,
-      "start": null,
+      "start": 2466.3912599999994,
       "end": null
     },
     {
@@ -220,17 +225,22 @@
       "last_verse": 195,
       "start": null,
       "end": null,
-      "shared_boundary": true
+      "shared_boundary": true,
+      "last_verse_partial": true,
+      "last_verse_char_offset": 391,
+      "ends_mid_verse": true
     },
     {
       "eighth_id": 24,
       "name_ar": "الثمن الأخير",
       "hizb": 3,
-      "first_verse": 196,
+      "first_verse": 195,
       "last_verse": 200,
       "start": null,
       "end": null,
-      "shared_boundary": true
+      "shared_boundary": true,
+      "first_verse_partial": true,
+      "first_verse_char_offset": 392
     },
     {
       "eighth_id": 25,
@@ -276,17 +286,22 @@
       "last_verse": 233,
       "start": null,
       "end": null,
-      "shared_boundary": true
+      "shared_boundary": true,
+      "last_verse_partial": true,
+      "last_verse_char_offset": 237,
+      "ends_mid_verse": true
     },
     {
       "eighth_id": 30,
       "name_ar": "ثلاثة أرباع",
       "hizb": 4,
-      "first_verse": 234,
+      "first_verse": 233,
       "last_verse": 240,
       "start": null,
       "end": null,
-      "shared_boundary": true
+      "shared_boundary": true,
+      "first_verse_partial": true,
+      "first_verse_char_offset": 238
     },
     {
       "eighth_id": 31,
