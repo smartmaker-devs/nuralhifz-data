@@ -35,8 +35,25 @@ async function gh(url, body) {
 }
 
 module.exports = async function handler(req, res) {
+  try {
+    return await run(req, res)
+  } catch (e) {
+    // Sans ce filet, Vercel renvoie une page « FUNCTION_INVOCATION_FAILED »
+    // sans un mot de plus, et on cherche a l'aveugle (2026-09-25).
+    return res.status(500).json({ error: 'exception', message: String(e && e.message || e), runtime: process.version })
+  }
+}
+
+async function run(req, res) {
   const client_id = process.env.GITHUB_CLIENT_ID || DEFAULT_CLIENT_ID
-  const step = (req.query && req.query.step) || ''
+  // req.query n'existe pas sur toutes les versions du runtime : on lit l'URL.
+  const step = (req.query && req.query.step)
+    || new URL(req.url, 'http://x').searchParams.get('step')
+    || ''
+
+  if (typeof fetch !== 'function') {
+    return res.status(500).json({ error: 'fetch_absent', runtime: process.version, hint: 'Passer le projet Vercel en Node 18 ou plus.' })
+  }
 
   if (step === 'ping') return res.status(200).json({ ok: true, client_id, runtime: process.version })
 
