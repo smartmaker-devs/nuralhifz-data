@@ -731,8 +731,10 @@ async function startDeviceFlow() {
   stopDeviceFlow()
   try {
     const r = await fetch('/api/device?step=start', { method: 'POST' })
-    const d = await r.json()
-    if (!d.device_code) throw new Error(d.hint || d.error || 'start failed')
+    const raw = await r.text()
+    let d = {}
+    try { d = JSON.parse(raw) } catch { throw new Error(`HTTP ${r.status} — ${raw.slice(0, 80) || 'réponse vide'}`) }
+    if (!d.device_code) throw new Error(d.error_description || d.hint || d.error || `HTTP ${r.status}`)
     auth.deviceCode = d.device_code
     $('patCode').textContent = d.user_code
     $('patLink').href = d.verification_uri || 'https://github.com/login/device'
