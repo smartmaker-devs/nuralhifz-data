@@ -76,13 +76,28 @@ const GH = {
     if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(`${r.status}: ${e.message || 'GET failed'}`) }
     return (await r.json()).sha
   },
+  // GitHub repond parfois « fichier inconnu » juste apres un commit (le temps
+  // que ses serveurs se synchronisent), puis refuse l'envoi parce que le
+  // fichier existe : 422 « sha wasn't supplied ». Idem en sens inverse quand
+  // deux ecritures se croisent : 409 conflict. Dans les deux cas l'identifiant
+  // de version a change entre la lecture et l'ecriture : on le relit et on
+  // recommence, au lieu de faire perdre son travail a l'utilisateur.
   async putFile(path, content, message) {
-    const sha = await this.getFileSha(path)
-    const body = { message, content: btoa(unescape(encodeURIComponent(content))), branch: this.branch }
-    if (sha) body.sha = sha
-    const r = await fetch(this._url(path), { method: 'PUT', headers: { ...this._hdr(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(`${r.status}: ${e.message || 'PUT failed'}`) }
-    return r.json()
+    const encoded = btoa(unescape(encodeURIComponent(content)))
+    let lastErr = null
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      const sha = await this.getFileSha(path)
+      const body = { message, content: encoded, branch: this.branch }
+      if (sha) body.sha = sha
+      const r = await fetch(this._url(path), { method: 'PUT', headers: { ...this._hdr(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      if (r.ok) return r.json()
+      const e = await r.json().catch(() => ({}))
+      lastErr = new Error(`${r.status}: ${e.message || 'PUT failed'}`)
+      const retryable = r.status === 409 || r.status === 422 || r.status >= 500
+      if (!retryable) throw lastErr
+      await new Promise(res => setTimeout(res, 800 * attempt))
+    }
+    throw lastErr
   },
 }
 
