@@ -9,7 +9,7 @@
   "reciter_name": "El-Ayoun El-Kouchi",
   "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/004.mp3",
   "audio_duration": 4518.687313,
-  "marked_at": "2026-09-26T15:34:08.939Z",
+  "marked_at": "2026-09-28T10:41:38.395Z",
   "segments": [
     {
       "eighth_id": 60,
@@ -213,7 +213,7 @@
       "first_verse": 139,
       "last_verse": 146,
       "start": 3678.4961519999997,
-      "end": null
+      "end": 3867.4833769999996
     },
     {
       "eighth_id": 81,
@@ -221,8 +221,8 @@
       "hizb": 11,
       "first_verse": 147,
       "last_verse": 156,
-      "start": null,
-      "end": null,
+      "start": 3867.4833769999996,
+      "end": 4056.197988,
       "shared_boundary": true,
       "last_verse_partial": true,
       "last_verse_char_offset": 87,
@@ -234,8 +234,8 @@
       "hizb": 11,
       "first_verse": 156,
       "last_verse": 164,
-      "start": null,
-      "end": null,
+      "start": 4056.197988,
+      "end": 4233.791943,
       "shared_boundary": true,
       "first_verse_partial": true,
       "first_verse_char_offset": 88
@@ -246,8 +246,8 @@
       "hizb": 11,
       "first_verse": 165,
       "last_verse": 172,
-      "start": null,
-      "end": null
+      "start": 4233.791943,
+      "end": 4424.107013
     },
     {
       "eighth_id": 84,
@@ -255,10 +255,10 @@
       "hizb": 11,
       "first_verse": 173,
       "last_verse": 175,
-      "start": null,
+      "start": 4424.107013,
       "end": 4518.687313,
       "continues_after": true
     }
   ],
-  "complete": false
+  "complete": true
 }
