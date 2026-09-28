@@ -246,10 +246,32 @@ function surahsOfHizb(h) {
   for (const t of state.eighths) if (t.hizb === h) for (const v of t.verses_covered) set.add(v.sura)
   return [...set].sort((a, b) => a - b)
 }
+// « Terminee » veut dire PUBLIEE, pas « marquee sur cet appareil ». Une
+// sourate entierement marquee dont l'envoi a echoue (GitHub refuse, reseau
+// coupe) doit rester dans la file, sinon l'outil propose la suivante et le
+// travail dort sur le telephone — arrive le 2026-09-28 sur An-Nisa.
 function isSurahDone(n) {
   if (state.doneSurahs.has(n)) return true
-  try { const raw = localStorage.getItem(lsKey(n)); if (raw) return JSON.parse(raw).complete === true } catch {}
+  try {
+    const raw = localStorage.getItem(lsKey(n))
+    if (!raw) return false
+    const p = JSON.parse(raw)
+    if (p.complete !== true) return false
+    const published = parseInt(localStorage.getItem(`${lsKey(n)}:pub`) || '0', 10) || 0
+    return published >= (p.segment_count || 0)
+  } catch {}
   return false
+}
+
+// Marquee en entier sur cet appareil, mais pas encore publiee entierement.
+function isSurahUnsent(n) {
+  try {
+    const raw = localStorage.getItem(lsKey(n))
+    if (!raw) return false
+    const p = JSON.parse(raw)
+    const published = parseInt(localStorage.getItem(`${lsKey(n)}:pub`) || '0', 10) || 0
+    return p.complete === true && published < (p.segment_count || 0) && !state.doneSurahs.has(n)
+  } catch { return false }
 }
 function playableInHizb(h) {
   let n = 0
@@ -281,6 +303,7 @@ function renderSurahOptions(h) {
     opt.value = String(n)
     const inner = innerOfSurah(n)
     opt.textContent = isSurahDone(n) ? `✓ ${n}. ${meta?.name_ar ?? ''} (منشورة)`
+      : isSurahUnsent(n) ? `⬆ ${n}. ${meta?.name_ar ?? ''} — مُعلَّمة كاملةً، تنتظر النشر`
       : `${n}. ${meta?.name_ar ?? ''} — ${inner === 0 ? 'لا حدود' : inner + ' حد'}`
     sel.appendChild(opt)
   }
@@ -294,6 +317,7 @@ function updatePickInfo() {
   const inner = innerOfSurah(n)
   let txt = q.length === 0 ? `الحزب ${h} مكتمل.` : `يتبقّى في هذا الحزب ${q.length} سورة : ${q.join('، ')}.`
   if (isSurahDone(n)) txt += ' السورة المختارة منشورة بالفعل.'
+  else if (isSurahUnsent(n)) txt += ' السورة المختارة مُعلَّمة كاملةً لكنها لم تُنشر بعد : افتحها ثم اضغط « نشر ».'
   else txt += inner === 0 ? ' السورة المختارة لا تحتوي أي حد : تُنشر مباشرة.' : ` السورة المختارة : ${inner} حد للتعليم.`
   $('pickInfo').textContent = txt
 }
