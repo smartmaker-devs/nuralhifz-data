@@ -26,7 +26,7 @@ const RECITERS = [
   { key: 'jazairi', id: 'al_qari_yassin', name: 'Yassine Al-Jazairi', name_ar: 'ياسين الجزائري',
     server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-jazairi-v1/' },
   { key: 'benkirane', id: 'abdul_majeed_benkirane', name: 'Abdul-Majeed Benkirane', name_ar: 'عبد المجيب بنكيران',
-    server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-benkirane-v1/', pending: true },
+    server: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-benkirane-v1/' },
 ]
 const RECITER_KEY = 'marker:reciter'
 let RECITER = RECITERS.find(r => r.key === (localStorage.getItem(RECITER_KEY) || 'kouchi')) || RECITERS[0]

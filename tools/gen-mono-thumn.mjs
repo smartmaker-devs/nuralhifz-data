@@ -25,6 +25,10 @@ const RECITERS = {
     id: 'al_qari_yassin', name: 'Yassine Al-Jazairi',
     base: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-jazairi-v1/',
   },
+  benkirane: {
+    id: 'abdul_majeed_benkirane', name: 'Abdul-Majeed Benkirane',
+    base: 'https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-benkirane-v1/',
+  },
 }
 
 const [key, durFile, ...flags] = process.argv.slice(2)

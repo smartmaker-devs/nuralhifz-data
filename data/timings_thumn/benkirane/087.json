@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 87,
+  "surah_name_ar": "الأعلى",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "abdul_majeed_benkirane",
+  "reciter_name": "Abdul-Majeed Benkirane",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-benkirane-v1/087.mp3",
+  "audio_duration": 85.264,
+  "marked_at": "2026-09-28T09:46:35.313Z",
+  "derived_from": "mono-thumn (aucune frontiere interne)",
+  "segments": [
+    {
+      "eighth_id": 473,
+      "name_ar": "الثمن الأول",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 19,
+      "start": 0,
+      "end": 85.264,
+      "continues_before": false,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}

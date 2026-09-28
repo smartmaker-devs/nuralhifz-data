@@ -6,7 +6,7 @@
       {"id": "omar_al_kazabri", "name_ar": "عمر القزابري", "name_en": "Omar Al-Kazabri", "country": "MA", "role": "Imam — Hassan II Mosque, Casablanca", "server": "https://server9.mp3quran.net/omar_warsh/", "tariq": "Warsh 'an Nafi'", "recommended": true},
       {"id": "hisham_el_harraz", "name_ar": "هشام الهراز", "name_en": "Hisham El-Harraz", "country": "MA", "server": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'", "recommended": true},
       {"id": "rachid_belaalya", "name_ar": "رشيد بلعالية", "name_en": "Rachid Belaalya", "country": "MA", "server": "https://server6.mp3quran.net/bl3/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'"},
-      {"id": "abdul_majeed_benkirane", "name_ar": "عبد المجيب بنكيران", "name_en": "Abdul-Majeed Benkirane", "country": "MA", "server": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'", "timings_key": "benkirane"},
+      {"id": "abdul_majeed_benkirane", "name_ar": "عبد المجيب بنكيران", "name_en": "Abdul-Majeed Benkirane", "country": "MA", "server": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'", "timings_key": "benkirane", "audio": {"source": {"bitrate_kbps": 320, "cbr": true, "channels": 2, "sample_rate": 48000}, "mirror_format": {"bitrate_kbps": 128, "cbr": true, "channels": 1, "sample_rate": 44100, "reencoded": true}}, "mirror": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-benkirane-v1/"},
       {"id": "younes_essouilass", "name_ar": "يونس اسويلص", "name_en": "Younes Essouilass", "country": "MA", "server": "https://server16.mp3quran.net/souilass/Rewayat-Warsh-A-n-Nafi/", "tariq": "Warsh 'an Nafi'"},
       {"id": "el_ayoun_el_kouchi", "name_ar": "العيون الكوشي", "name_en": "El-Ayoun El-Kouchi", "country": "MA", "server": "https://server11.mp3quran.net/koshi/", "tariq": "Warsh 'an Nafi'", "timings_key": "kouchi"},
       {"id": "rachid_ifrad", "name_ar": "رشيد إفراد", "name_en": "Rachid Ifrad", "country": "MA", "server": "https://server12.mp3quran.net/ifrad/", "tariq": "Warsh 'an Nafi'"},
@@ -28,6 +28,7 @@
     "Verified 2026-04-21 with HTTP range requests (HTTP 206 = OK).",
     "timings_key = dossier data/timings_thumn/<cle>/ des recitants utilises par l'app (kouchi, benkirane, jazairi).",
     "Yassine Al-Jazairi : affiche « القارئ ياسين » sur mp3quran (recitant 14, moshaf Warsh mourattal). Identite confirmee par l'utilisateur le 2026-09-21. Son serveur renvoie Access-Control-Allow-Origin: *, contrairement a GitHub Releases.",
+    "Benkirane : source en 320 kbps 48 kHz stereo (3,5 Go, ~300 Mo pour Al-Baqara seule) reencodee en 128 kbps CBR mono 44,1 kHz pour le miroir — 1,4 Go au total, parite avec Kouchi. Chaque fichier verifie par decodage reel : 0 erreur, duree identique a la source. Reencodage fait le 2026-09-28 avec ffmpeg n9.0 (libmp3lame).",
     "Yassine Al-Jazairi : formats MP3 heterogenes (MPEG-1 et MPEG-2, 96 a 192 kbps), tous a debit constant, 0 erreur de decodage sur les 114 (verifie 2026-09-21). Miroir octet-identique : release audio-jazairi-v1."
   ]
 }

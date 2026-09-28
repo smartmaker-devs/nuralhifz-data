@@ -1,0 +1,28 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 89,
+  "surah_name_ar": "الفجر",
+  "segment_count": 1,
+  "inner_boundaries": 0,
+  "reciter": "abdul_majeed_benkirane",
+  "reciter_name": "Abdul-Majeed Benkirane",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-benkirane-v1/089.mp3",
+  "audio_duration": 170.075,
+  "marked_at": "2026-09-28T09:46:35.314Z",
+  "derived_from": "mono-thumn (aucune frontiere interne)",
+  "segments": [
+    {
+      "eighth_id": 474,
+      "name_ar": "الربع",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 32,
+      "start": 0,
+      "end": 170.075,
+      "continues_before": true,
+      "continues_after": false
+    }
+  ],
+  "complete": true
+}
