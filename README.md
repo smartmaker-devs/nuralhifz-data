@@ -103,7 +103,7 @@ Three reciters carry ثمن-level timings in `data/timings_thumn/<key>/{NNN}.jso
 | Reciter | Key | Mirror (GitHub Releases) | Format |
 |---|---|---|---|
 | العيون الكوشي — El-Ayoun El-Kouchi | `kouchi` | `audio-kouchi-v1/{NNN}.mp3` | 128 kbps CBR |
-| عبد المجيب بنكيران — Abdul-Majeed Benkirane | `benkirane` | not yet mirrored | — |
+| عبد المجيب بنكيران — Abdul-Majeed Benkirane | `benkirane` | `audio-benkirane-v1/{NNN}.mp3` | 128 kbps CBR mono, re-encoded from a 320 kbps source |
 | ياسين الجزائري — Yassine Al-Jazairi | `jazairi` | `audio-jazairi-v1/{NNN}.mp3` | CBR, mixed: MPEG-1 96 kbps mono (62), MPEG-2 96 kbps mono 22–24 kHz (49), MPEG-1 128/192 kbps stereo (3) |
 
 Coverage (surahs done, playable ثمن) is generated in `data/audio_status.json` on every push by `.github/workflows/timings.yml`.
