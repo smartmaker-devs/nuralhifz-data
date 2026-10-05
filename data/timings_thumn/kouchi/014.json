@@ -1,0 +1,61 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 14,
+  "surah_name_ar": "إبراهيم",
+  "segment_count": 5,
+  "inner_boundaries": 4,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/014.mp3",
+  "audio_duration": 1057.697938,
+  "marked_at": "2026-10-05T19:39:39.497Z",
+  "segments": [
+    {
+      "eighth_id": 204,
+      "name_ar": "النصف",
+      "hizb": 26,
+      "first_verse": 1,
+      "last_verse": 12,
+      "start": 0,
+      "end": 241.80909
+    },
+    {
+      "eighth_id": 205,
+      "name_ar": "خمسة أثمان",
+      "hizb": 26,
+      "first_verse": 13,
+      "last_verse": 21,
+      "start": 241.80909,
+      "end": 448.758766
+    },
+    {
+      "eighth_id": 206,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 26,
+      "first_verse": 22,
+      "last_verse": 29,
+      "start": 448.758766,
+      "end": 650.639297
+    },
+    {
+      "eighth_id": 207,
+      "name_ar": "سبعة أثمان",
+      "hizb": 26,
+      "first_verse": 30,
+      "last_verse": 40,
+      "start": 650.639297,
+      "end": 848.063369
+    },
+    {
+      "eighth_id": 208,
+      "name_ar": "الثمن الأخير",
+      "hizb": 26,
+      "first_verse": 41,
+      "last_verse": 54,
+      "start": 848.063369,
+      "end": 1057.697938
+    }
+  ],
+  "complete": true
+}
