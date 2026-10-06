@@ -1,0 +1,52 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 15,
+  "surah_name_ar": "الحجر",
+  "segment_count": 4,
+  "inner_boundaries": 3,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/015.mp3",
+  "audio_duration": 877.139567,
+  "marked_at": "2026-10-06T05:55:33.617Z",
+  "segments": [
+    {
+      "eighth_id": 209,
+      "name_ar": "الثمن الأول",
+      "hizb": 27,
+      "first_verse": 1,
+      "last_verse": 21,
+      "start": 0,
+      "end": 202.349953
+    },
+    {
+      "eighth_id": 210,
+      "name_ar": "الربع",
+      "hizb": 27,
+      "first_verse": 22,
+      "last_verse": 48,
+      "start": 202.349953,
+      "end": 452.672354
+    },
+    {
+      "eighth_id": 211,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 27,
+      "first_verse": 49,
+      "last_verse": 77,
+      "start": 452.672354,
+      "end": 698.918555
+    },
+    {
+      "eighth_id": 212,
+      "name_ar": "النصف",
+      "hizb": 27,
+      "first_verse": 78,
+      "last_verse": 99,
+      "start": 698.918555,
+      "end": 877.139567
+    }
+  ],
+  "complete": true
+}
