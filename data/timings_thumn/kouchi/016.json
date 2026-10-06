@@ -1,0 +1,124 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 16,
+  "surah_name_ar": "النحل",
+  "segment_count": 12,
+  "inner_boundaries": 11,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/016.mp3",
+  "audio_duration": 2284.173067,
+  "marked_at": "2026-10-06T05:59:29.159Z",
+  "segments": [
+    {
+      "eighth_id": 213,
+      "name_ar": "خمسة أثمان",
+      "hizb": 27,
+      "first_verse": 1,
+      "last_verse": 14,
+      "start": 0,
+      "end": 228.77031
+    },
+    {
+      "eighth_id": 214,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 27,
+      "first_verse": 15,
+      "last_verse": 29,
+      "start": 228.77031,
+      "end": 445.998966
+    },
+    {
+      "eighth_id": 215,
+      "name_ar": "سبعة أثمان",
+      "hizb": 27,
+      "first_verse": 30,
+      "last_verse": 37,
+      "start": 445.998966,
+      "end": 630.045505
+    },
+    {
+      "eighth_id": 216,
+      "name_ar": "الثمن الأخير",
+      "hizb": 27,
+      "first_verse": 38,
+      "last_verse": 50,
+      "start": 630.045505,
+      "end": 816.713158
+    },
+    {
+      "eighth_id": 217,
+      "name_ar": "الثمن الأول",
+      "hizb": 28,
+      "first_verse": 51,
+      "last_verse": 62,
+      "start": 816.713158,
+      "end": 1006.927303
+    },
+    {
+      "eighth_id": 218,
+      "name_ar": "الربع",
+      "hizb": 28,
+      "first_verse": 63,
+      "last_verse": 70,
+      "start": 1006.927303,
+      "end": 1178.338661
+    },
+    {
+      "eighth_id": 219,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 28,
+      "first_verse": 71,
+      "last_verse": 78,
+      "start": 1178.338661,
+      "end": 1358.489075
+    },
+    {
+      "eighth_id": 220,
+      "name_ar": "النصف",
+      "hizb": 28,
+      "first_verse": 79,
+      "last_verse": 89,
+      "start": 1358.489075,
+      "end": 1578.092137
+    },
+    {
+      "eighth_id": 221,
+      "name_ar": "خمسة أثمان",
+      "hizb": 28,
+      "first_verse": 90,
+      "last_verse": 97,
+      "start": 1578.092137,
+      "end": 1771.047037
+    },
+    {
+      "eighth_id": 222,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 28,
+      "first_verse": 98,
+      "last_verse": 110,
+      "start": 1771.047037,
+      "end": 1980.441073
+    },
+    {
+      "eighth_id": 223,
+      "name_ar": "سبعة أثمان",
+      "hizb": 28,
+      "first_verse": 111,
+      "last_verse": 119,
+      "start": 1980.441073,
+      "end": 2154.323384
+    },
+    {
+      "eighth_id": 224,
+      "name_ar": "الثمن الأخير",
+      "hizb": 28,
+      "first_verse": 120,
+      "last_verse": 128,
+      "start": 2154.323384,
+      "end": 2284.173067
+    }
+  ],
+  "complete": true
+}
