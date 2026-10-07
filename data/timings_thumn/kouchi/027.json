@@ -1,0 +1,89 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 27,
+  "surah_name_ar": "النمل",
+  "segment_count": 8,
+  "inner_boundaries": 7,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/027.mp3",
+  "audio_duration": 1381.041625,
+  "marked_at": "2026-10-07T19:23:38.513Z",
+  "segments": [
+    {
+      "eighth_id": 300,
+      "name_ar": "النصف",
+      "hizb": 38,
+      "first_verse": 1,
+      "last_verse": 5,
+      "start": 0,
+      "end": 57.188737,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 301,
+      "name_ar": "خمسة أثمان",
+      "hizb": 38,
+      "first_verse": 6,
+      "last_verse": 16,
+      "start": 57.188737,
+      "end": 240.081665
+    },
+    {
+      "eighth_id": 302,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 38,
+      "first_verse": 17,
+      "last_verse": 26,
+      "start": 240.081665,
+      "end": 395.994054
+    },
+    {
+      "eighth_id": 303,
+      "name_ar": "سبعة أثمان",
+      "hizb": 38,
+      "first_verse": 27,
+      "last_verse": 41,
+      "start": 395.994054,
+      "end": 609.914717
+    },
+    {
+      "eighth_id": 304,
+      "name_ar": "الثمن الأخير",
+      "hizb": 38,
+      "first_verse": 42,
+      "last_verse": 57,
+      "start": 609.914717,
+      "end": 817.341164
+    },
+    {
+      "eighth_id": 305,
+      "name_ar": "الثمن الأول",
+      "hizb": 39,
+      "first_verse": 58,
+      "last_verse": 67,
+      "start": 817.341164,
+      "end": 1016.752292
+    },
+    {
+      "eighth_id": 306,
+      "name_ar": "الربع",
+      "hizb": 39,
+      "first_verse": 68,
+      "last_verse": 83,
+      "start": 1016.752292,
+      "end": 1189.492709
+    },
+    {
+      "eighth_id": 307,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 39,
+      "first_verse": 84,
+      "last_verse": 95,
+      "start": 1189.492709,
+      "end": 1381.041625
+    }
+  ],
+  "complete": true
+}
