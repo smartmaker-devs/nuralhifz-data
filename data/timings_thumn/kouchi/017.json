@@ -1,0 +1,97 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 17,
+  "surah_name_ar": "الإسراء",
+  "segment_count": 9,
+  "inner_boundaries": 8,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/017.mp3",
+  "audio_duration": 2041.103625,
+  "marked_at": "2026-10-07T18:56:31.564Z",
+  "segments": [
+    {
+      "eighth_id": 225,
+      "name_ar": "الثمن الأول",
+      "hizb": 29,
+      "first_verse": 1,
+      "last_verse": 10,
+      "start": 0,
+      "end": 210.808378
+    },
+    {
+      "eighth_id": 226,
+      "name_ar": "الربع",
+      "hizb": 29,
+      "first_verse": 11,
+      "last_verse": 22,
+      "start": 210.808378,
+      "end": 453.169578
+    },
+    {
+      "eighth_id": 227,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 29,
+      "first_verse": 23,
+      "last_verse": 35,
+      "start": 453.169578,
+      "end": 675.904621
+    },
+    {
+      "eighth_id": 228,
+      "name_ar": "النصف",
+      "hizb": 29,
+      "first_verse": 36,
+      "last_verse": 49,
+      "start": 675.904621,
+      "end": 895.909546
+    },
+    {
+      "eighth_id": 229,
+      "name_ar": "خمسة أثمان",
+      "hizb": 29,
+      "first_verse": 50,
+      "last_verse": 60,
+      "start": 895.909546,
+      "end": 1126.358983
+    },
+    {
+      "eighth_id": 230,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 29,
+      "first_verse": 61,
+      "last_verse": 69,
+      "start": 1126.358983,
+      "end": 1291.007276
+    },
+    {
+      "eighth_id": 231,
+      "name_ar": "سبعة أثمان",
+      "hizb": 29,
+      "first_verse": 70,
+      "last_verse": 84,
+      "start": 1291.007276,
+      "end": 1518.784804
+    },
+    {
+      "eighth_id": 232,
+      "name_ar": "الثمن الأخير",
+      "hizb": 29,
+      "first_verse": 85,
+      "last_verse": 98,
+      "start": 1518.784804,
+      "end": 1786.887135
+    },
+    {
+      "eighth_id": 233,
+      "name_ar": "الثمن الأول",
+      "hizb": 30,
+      "first_verse": 99,
+      "last_verse": 110,
+      "start": 1786.887135,
+      "end": 2041.103625
+    }
+  ],
+  "complete": true
+}
