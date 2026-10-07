@@ -1,0 +1,71 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 19,
+  "surah_name_ar": "مريم",
+  "segment_count": 6,
+  "inner_boundaries": 5,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/019.mp3",
+  "audio_duration": 1188.649756,
+  "marked_at": "2026-10-07T19:02:05.505Z",
+  "segments": [
+    {
+      "eighth_id": 243,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 31,
+      "first_verse": 1,
+      "last_verse": 5,
+      "start": 0,
+      "end": 70.967171,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 244,
+      "name_ar": "النصف",
+      "hizb": 31,
+      "first_verse": 6,
+      "last_verse": 20,
+      "start": 70.967171,
+      "end": 254.752072
+    },
+    {
+      "eighth_id": 245,
+      "name_ar": "خمسة أثمان",
+      "hizb": 31,
+      "first_verse": 21,
+      "last_verse": 39,
+      "start": 254.752072,
+      "end": 482.873149
+    },
+    {
+      "eighth_id": 246,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 31,
+      "first_verse": 40,
+      "last_verse": 58,
+      "start": 482.873149,
+      "end": 754.7593539999999
+    },
+    {
+      "eighth_id": 247,
+      "name_ar": "سبعة أثمان",
+      "hizb": 31,
+      "first_verse": 59,
+      "last_verse": 74,
+      "start": 754.7593539999999,
+      "end": 958.960222
+    },
+    {
+      "eighth_id": 248,
+      "name_ar": "الثمن الأخير",
+      "hizb": 31,
+      "first_verse": 75,
+      "last_verse": 99,
+      "start": 958.960222,
+      "end": 1188.649756
+    }
+  ],
+  "complete": true
+}
