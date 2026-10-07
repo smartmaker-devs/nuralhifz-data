@@ -1,0 +1,89 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 26,
+  "surah_name_ar": "الشعراء",
+  "segment_count": 8,
+  "inner_boundaries": 7,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/026.mp3",
+  "audio_duration": 1700.231813,
+  "marked_at": "2026-10-07T19:20:29.795Z",
+  "segments": [
+    {
+      "eighth_id": 293,
+      "name_ar": "خمسة أثمان",
+      "hizb": 37,
+      "first_verse": 1,
+      "last_verse": 23,
+      "start": 0,
+      "end": 220.794325
+    },
+    {
+      "eighth_id": 294,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 37,
+      "first_verse": 24,
+      "last_verse": 49,
+      "start": 220.794325,
+      "end": 447.920066
+    },
+    {
+      "eighth_id": 295,
+      "name_ar": "سبعة أثمان",
+      "hizb": 37,
+      "first_verse": 50,
+      "last_verse": 81,
+      "start": 447.920066,
+      "end": 703.896804
+    },
+    {
+      "eighth_id": 296,
+      "name_ar": "الثمن الأخير",
+      "hizb": 37,
+      "first_verse": 82,
+      "last_verse": 110,
+      "start": 703.896804,
+      "end": 893.746984
+    },
+    {
+      "eighth_id": 297,
+      "name_ar": "الثمن الأول",
+      "hizb": 38,
+      "first_verse": 111,
+      "last_verse": 145,
+      "start": 893.746984,
+      "end": 1130.018556
+    },
+    {
+      "eighth_id": 298,
+      "name_ar": "الربع",
+      "hizb": 38,
+      "first_verse": 146,
+      "last_verse": 180,
+      "start": 1130.018556,
+      "end": 1369.496065
+    },
+    {
+      "eighth_id": 299,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 38,
+      "first_verse": 181,
+      "last_verse": 209,
+      "start": 1369.496065,
+      "end": 1575.342967
+    },
+    {
+      "eighth_id": 300,
+      "name_ar": "النصف",
+      "hizb": 38,
+      "first_verse": 210,
+      "last_verse": 226,
+      "start": 1575.342967,
+      "end": 1700.231813,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
