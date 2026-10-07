@@ -1,0 +1,99 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 24,
+  "surah_name_ar": "النور",
+  "segment_count": 9,
+  "inner_boundaries": 8,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/024.mp3",
+  "audio_duration": 1713.005689,
+  "marked_at": "2026-10-07T19:16:00.241Z",
+  "segments": [
+    {
+      "eighth_id": 279,
+      "name_ar": "سبعة أثمان",
+      "hizb": 35,
+      "first_verse": 1,
+      "last_verse": 10,
+      "start": 0,
+      "end": 164.886603,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 280,
+      "name_ar": "الثمن الأخير",
+      "hizb": 35,
+      "first_verse": 11,
+      "last_verse": 20,
+      "start": 164.886603,
+      "end": 331.398792
+    },
+    {
+      "eighth_id": 281,
+      "name_ar": "الثمن الأول",
+      "hizb": 36,
+      "first_verse": 21,
+      "last_verse": 29,
+      "start": 331.398792,
+      "end": 534.832848
+    },
+    {
+      "eighth_id": 282,
+      "name_ar": "الربع",
+      "hizb": 36,
+      "first_verse": 30,
+      "last_verse": 34,
+      "start": 534.832848,
+      "end": 783.489003
+    },
+    {
+      "eighth_id": 283,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 36,
+      "first_verse": 35,
+      "last_verse": 41,
+      "start": 783.489003,
+      "end": 1018.128604
+    },
+    {
+      "eighth_id": 284,
+      "name_ar": "النصف",
+      "hizb": 36,
+      "first_verse": 42,
+      "last_verse": 50,
+      "start": 1018.128604,
+      "end": 1251.86891
+    },
+    {
+      "eighth_id": 285,
+      "name_ar": "خمسة أثمان",
+      "hizb": 36,
+      "first_verse": 51,
+      "last_verse": 57,
+      "start": 1251.86891,
+      "end": 1450.931474
+    },
+    {
+      "eighth_id": 286,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 36,
+      "first_verse": 58,
+      "last_verse": 60,
+      "start": 1450.931474,
+      "end": 1653.49739
+    },
+    {
+      "eighth_id": 287,
+      "name_ar": "سبعة أثمان",
+      "hizb": 36,
+      "first_verse": 61,
+      "last_verse": 62,
+      "start": 1653.49739,
+      "end": 1713.005689,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
