@@ -1,0 +1,89 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 40,
+  "surah_name_ar": "غافر",
+  "segment_count": 8,
+  "inner_boundaries": 7,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/040.mp3",
+  "audio_duration": 1537.985256,
+  "marked_at": "2026-10-17T12:09:46.043Z",
+  "segments": [
+    {
+      "eighth_id": 373,
+      "name_ar": "خمسة أثمان",
+      "hizb": 47,
+      "first_verse": 1,
+      "last_verse": 9,
+      "start": 0,
+      "end": 171.869164
+    },
+    {
+      "eighth_id": 374,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 47,
+      "first_verse": 10,
+      "last_verse": 20,
+      "start": 171.869164,
+      "end": 325.596886
+    },
+    {
+      "eighth_id": 375,
+      "name_ar": "سبعة أثمان",
+      "hizb": 47,
+      "first_verse": 21,
+      "last_verse": 29,
+      "start": 325.596886,
+      "end": 547.389832
+    },
+    {
+      "eighth_id": 376,
+      "name_ar": "الثمن الأخير",
+      "hizb": 47,
+      "first_verse": 30,
+      "last_verse": 40,
+      "start": 547.389832,
+      "end": 760.102031
+    },
+    {
+      "eighth_id": 377,
+      "name_ar": "الثمن الأول",
+      "hizb": 48,
+      "first_verse": 41,
+      "last_verse": 52,
+      "start": 760.102031,
+      "end": 975.370065
+    },
+    {
+      "eighth_id": 378,
+      "name_ar": "الربع",
+      "hizb": 48,
+      "first_verse": 53,
+      "last_verse": 65,
+      "start": 975.370065,
+      "end": 1184.335871
+    },
+    {
+      "eighth_id": 379,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 48,
+      "first_verse": 66,
+      "last_verse": 77,
+      "start": 1184.335871,
+      "end": 1417.110402
+    },
+    {
+      "eighth_id": 380,
+      "name_ar": "النصف",
+      "hizb": 48,
+      "first_verse": 78,
+      "last_verse": 84,
+      "start": 1417.110402,
+      "end": 1537.985256,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
