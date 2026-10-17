@@ -1,0 +1,54 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 31,
+  "surah_name_ar": "لقمان",
+  "segment_count": 4,
+  "inner_boundaries": 3,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/031.mp3",
+  "audio_duration": 638.589378,
+  "marked_at": "2026-10-17T11:51:01.057Z",
+  "segments": [
+    {
+      "eighth_id": 327,
+      "name_ar": "سبعة أثمان",
+      "hizb": 41,
+      "first_verse": 1,
+      "last_verse": 9,
+      "start": 0,
+      "end": 136.655553,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 328,
+      "name_ar": "الثمن الأخير",
+      "hizb": 41,
+      "first_verse": 10,
+      "last_verse": 20,
+      "start": 136.655553,
+      "end": 361.777452
+    },
+    {
+      "eighth_id": 329,
+      "name_ar": "الثمن الأول",
+      "hizb": 42,
+      "first_verse": 21,
+      "last_verse": 31,
+      "start": 361.777452,
+      "end": 571.763354
+    },
+    {
+      "eighth_id": 330,
+      "name_ar": "الربع",
+      "hizb": 42,
+      "first_verse": 32,
+      "last_verse": 33,
+      "start": 571.763354,
+      "end": 638.589378,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
