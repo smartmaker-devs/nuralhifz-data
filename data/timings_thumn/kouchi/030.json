@@ -1,0 +1,72 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 30,
+  "surah_name_ar": "الروم",
+  "segment_count": 6,
+  "inner_boundaries": 5,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/030.mp3",
+  "audio_duration": 1071.281625,
+  "marked_at": "2026-10-17T11:49:46.211Z",
+  "segments": [
+    {
+      "eighth_id": 322,
+      "name_ar": "الربع",
+      "hizb": 41,
+      "first_verse": 1,
+      "last_verse": 7,
+      "start": 0,
+      "end": 98.272331,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 323,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 41,
+      "first_verse": 8,
+      "last_verse": 20,
+      "start": 98.272331,
+      "end": 315.297591
+    },
+    {
+      "eighth_id": 324,
+      "name_ar": "النصف",
+      "hizb": 41,
+      "first_verse": 21,
+      "last_verse": 28,
+      "start": 315.297591,
+      "end": 513.856329
+    },
+    {
+      "eighth_id": 325,
+      "name_ar": "خمسة أثمان",
+      "hizb": 41,
+      "first_verse": 29,
+      "last_verse": 39,
+      "start": 513.856329,
+      "end": 724.006308
+    },
+    {
+      "eighth_id": 326,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 41,
+      "first_verse": 40,
+      "last_verse": 52,
+      "start": 724.006308,
+      "end": 957.772311
+    },
+    {
+      "eighth_id": 327,
+      "name_ar": "سبعة أثمان",
+      "hizb": 41,
+      "first_verse": 53,
+      "last_verse": 59,
+      "start": 957.772311,
+      "end": 1071.281625,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
