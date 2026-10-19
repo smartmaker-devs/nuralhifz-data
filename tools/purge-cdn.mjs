@@ -40,17 +40,30 @@ async function main() {
   let bad = 0
   for (const p of paths) {
     const local = readFileSync(join(ROOT, p), 'utf8')
-    const pr = await fetch(PURGE + p)
-    const pj = await pr.json().catch(() => ({}))
-    const purged = pr.ok && (pj.status === 'finished' || pj.status === 'processing' || pj.id)
+    const purge = async () => {
+      const r = await fetch(PURGE + p)
+      const j = await r.json().catch(() => ({}))
+      return r.ok && (j.status === 'finished' || j.status === 'processing' || j.id)
+    }
+    let purged = await purge()
     let ok = false
-    for (let k = 0; k < 12 && !ok; k++) {                 // jusqu'a ~60 s
+    // Jusqu'a 3 min, en redemandant la purge toutes les 30 s : juste apres un
+    // commit, jsDelivr a parfois besoin de plus d'une minute pour servir la
+    // nouvelle version, et une seule demande de purge ne suffit pas toujours.
+    for (let k = 0; k < 36 && !ok; k++) {
       if (k) await sleep(5000)
+      if (k && k % 6 === 0) purged = (await purge()) || purged
       const r = await fetch(`${CDN}${p}`, { cache: 'no-store' })
       ok = r.ok && same(await r.text(), local)
     }
-    if (!ok) bad++
-    console.log(`${ok ? '✓' : '✗'} ${p}  purge ${purged ? 'ok' : `HTTP ${pr.status}`} · CDN ${ok ? 'a jour' : 'TOUJOURS PERIME'}`)
+    // audio_status.json est un fichier de couverture, regenere a chaque
+    // publication : un cache en retard n'empeche personne d'ecouter. On le
+    // signale sans faire echouer la publication, contrairement aux timings
+    // que l'app lit pour decouper l'audio.
+    const blocking = !p.endsWith('audio_status.json')
+    if (!ok && blocking) bad++
+    const verdict = ok ? 'a jour' : (blocking ? 'TOUJOURS PERIME' : 'en retard (sans gravite, il se rafraichira seul)')
+    console.log(`${ok ? '✓' : blocking ? '✗' : '⚠'} ${p}  purge ${purged ? 'ok' : 'refusee'} · CDN ${verdict}`)
   }
   process.exit(bad ? 1 : 0)
 }
