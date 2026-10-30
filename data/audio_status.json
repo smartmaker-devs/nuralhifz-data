@@ -53,6 +53,7 @@
         41,
         42,
         43,
+        44,
         61,
         62,
         75,
@@ -90,8 +91,8 @@
         114
       ],
       "in_progress": [],
-      "surah_count": 78,
-      "eighths_playable": 406,
+      "surah_count": 79,
+      "eighths_playable": 408,
       "eighths_playable_ids": [
         1,
         2,
@@ -488,6 +489,8 @@
         393,
         394,
         395,
+        396,
+        397,
         440,
         441,
         461,
