@@ -1,0 +1,44 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 51,
+  "surah_name_ar": "الذاريات",
+  "segment_count": 3,
+  "inner_boundaries": 2,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/051.mp3",
+  "audio_duration": 431.621189,
+  "marked_at": "2026-10-30T18:38:54.743Z",
+  "segments": [
+    {
+      "eighth_id": 416,
+      "name_ar": "الثمن الأخير",
+      "hizb": 52,
+      "first_verse": 1,
+      "last_verse": 30,
+      "start": 0,
+      "end": 191.95894800000002
+    },
+    {
+      "eighth_id": 417,
+      "name_ar": "الثمن الأول",
+      "hizb": 53,
+      "first_verse": 31,
+      "last_verse": 55,
+      "start": 191.95894800000002,
+      "end": 388.732815
+    },
+    {
+      "eighth_id": 418,
+      "name_ar": "الربع",
+      "hizb": 53,
+      "first_verse": 56,
+      "last_verse": 60,
+      "start": 388.732815,
+      "end": 431.621189,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
