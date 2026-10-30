@@ -1,0 +1,43 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 45,
+  "surah_name_ar": "الجاثية",
+  "segment_count": 3,
+  "inner_boundaries": 2,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/045.mp3",
+  "audio_duration": 557.270189,
+  "marked_at": "2026-10-30T18:31:48.210Z",
+  "segments": [
+    {
+      "eighth_id": 398,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 50,
+      "first_verse": 1,
+      "last_verse": 12,
+      "start": 0,
+      "end": 157.46830400000005
+    },
+    {
+      "eighth_id": 399,
+      "name_ar": "سبعة أثمان",
+      "hizb": 50,
+      "first_verse": 13,
+      "last_verse": 23,
+      "start": 157.46830400000005,
+      "end": 359.610258
+    },
+    {
+      "eighth_id": 400,
+      "name_ar": "الثمن الأخير",
+      "hizb": 50,
+      "first_verse": 24,
+      "last_verse": 36,
+      "start": 359.610258,
+      "end": 557.270189
+    }
+  ],
+  "complete": true
+}
