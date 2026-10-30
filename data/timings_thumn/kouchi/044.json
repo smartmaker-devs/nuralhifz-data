@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 44,
+  "surah_name_ar": "الدخان",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/044.mp3",
+  "audio_duration": 423.993438,
+  "marked_at": "2026-10-30T18:31:04.900Z",
+  "segments": [
+    {
+      "eighth_id": 396,
+      "name_ar": "النصف",
+      "hizb": 50,
+      "first_verse": 1,
+      "last_verse": 23,
+      "start": 0,
+      "end": 190.468081,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 397,
+      "name_ar": "خمسة أثمان",
+      "hizb": 50,
+      "first_verse": 24,
+      "last_verse": 56,
+      "start": 190.468081,
+      "end": 423.993438
+    }
+  ],
+  "complete": true
+}
