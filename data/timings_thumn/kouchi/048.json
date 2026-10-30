@@ -1,0 +1,53 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 48,
+  "surah_name_ar": "الفتح",
+  "segment_count": 4,
+  "inner_boundaries": 3,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/048.mp3",
+  "audio_duration": 636.786938,
+  "marked_at": "2026-10-30T18:35:29.698Z",
+  "segments": [
+    {
+      "eighth_id": 407,
+      "name_ar": "سبعة أثمان",
+      "hizb": 51,
+      "first_verse": 1,
+      "last_verse": 7,
+      "start": 0,
+      "end": 116.76588699999999,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 408,
+      "name_ar": "الثمن الأخير",
+      "hizb": 51,
+      "first_verse": 8,
+      "last_verse": 17,
+      "start": 116.76588699999999,
+      "end": 341.834078
+    },
+    {
+      "eighth_id": 409,
+      "name_ar": "الثمن الأول",
+      "hizb": 52,
+      "first_verse": 18,
+      "last_verse": 25,
+      "start": 341.834078,
+      "end": 493.826271
+    },
+    {
+      "eighth_id": 410,
+      "name_ar": "الربع",
+      "hizb": 52,
+      "first_verse": 26,
+      "last_verse": 29,
+      "start": 493.826271,
+      "end": 636.786938
+    }
+  ],
+  "complete": true
+}
