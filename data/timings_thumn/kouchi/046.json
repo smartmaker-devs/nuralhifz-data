@@ -1,0 +1,53 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 46,
+  "surah_name_ar": "الأحقاف",
+  "segment_count": 4,
+  "inner_boundaries": 3,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/046.mp3",
+  "audio_duration": 729.573878,
+  "marked_at": "2026-10-30T18:33:17.712Z",
+  "segments": [
+    {
+      "eighth_id": 401,
+      "name_ar": "الثمن الأول",
+      "hizb": 51,
+      "first_verse": 1,
+      "last_verse": 13,
+      "start": 0,
+      "end": 257.874199
+    },
+    {
+      "eighth_id": 402,
+      "name_ar": "الربع",
+      "hizb": 51,
+      "first_verse": 14,
+      "last_verse": 19,
+      "start": 257.874199,
+      "end": 418.704389
+    },
+    {
+      "eighth_id": 403,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 51,
+      "first_verse": 20,
+      "last_verse": 31,
+      "start": 418.704389,
+      "end": 664.5051149999999
+    },
+    {
+      "eighth_id": 404,
+      "name_ar": "النصف",
+      "hizb": 51,
+      "first_verse": 32,
+      "last_verse": 34,
+      "start": 664.5051149999999,
+      "end": 729.573878,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
