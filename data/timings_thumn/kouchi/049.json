@@ -1,0 +1,44 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 49,
+  "surah_name_ar": "الحجرات",
+  "segment_count": 3,
+  "inner_boundaries": 2,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/049.mp3",
+  "audio_duration": 458.631813,
+  "marked_at": "2026-10-30T18:36:29.922Z",
+  "segments": [
+    {
+      "eighth_id": 411,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 52,
+      "first_verse": 1,
+      "last_verse": 8,
+      "start": 0,
+      "end": 166.293811
+    },
+    {
+      "eighth_id": 412,
+      "name_ar": "النصف",
+      "hizb": 52,
+      "first_verse": 9,
+      "last_verse": 13,
+      "start": 166.293811,
+      "end": 352.499709
+    },
+    {
+      "eighth_id": 413,
+      "name_ar": "خمسة أثمان",
+      "hizb": 52,
+      "first_verse": 14,
+      "last_verse": 18,
+      "start": 352.499709,
+      "end": 458.631813,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
