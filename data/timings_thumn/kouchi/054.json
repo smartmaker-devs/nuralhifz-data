@@ -1,0 +1,44 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 54,
+  "surah_name_ar": "القمر",
+  "segment_count": 3,
+  "inner_boundaries": 2,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/054.mp3",
+  "audio_duration": 416.783625,
+  "marked_at": "2026-10-30T18:41:30.007Z",
+  "segments": [
+    {
+      "eighth_id": 422,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 53,
+      "first_verse": 1,
+      "last_verse": 9,
+      "start": 0,
+      "end": 79.26003399999999,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 423,
+      "name_ar": "سبعة أثمان",
+      "hizb": 53,
+      "first_verse": 10,
+      "last_verse": 36,
+      "start": 79.26003399999999,
+      "end": 283.00340900000003
+    },
+    {
+      "eighth_id": 424,
+      "name_ar": "الثمن الأخير",
+      "hizb": 53,
+      "first_verse": 37,
+      "last_verse": 55,
+      "start": 283.00340900000003,
+      "end": 416.783625
+    }
+  ],
+  "complete": true
+}
