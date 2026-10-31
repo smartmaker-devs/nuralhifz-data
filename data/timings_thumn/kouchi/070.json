@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 70,
+  "surah_name_ar": "المعارج",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/070.mp3",
+  "audio_duration": 235.807313,
+  "marked_at": "2026-10-31T11:09:35.785Z",
+  "segments": [
+    {
+      "eighth_id": 454,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 57,
+      "first_verse": 1,
+      "last_verse": 39,
+      "start": 0,
+      "end": 192.526114
+    },
+    {
+      "eighth_id": 455,
+      "name_ar": "سبعة أثمان",
+      "hizb": 57,
+      "first_verse": 40,
+      "last_verse": 44,
+      "start": 192.526114,
+      "end": 235.807313,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
