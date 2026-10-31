@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 77,
+  "surah_name_ar": "المرسلات",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/077.mp3",
+  "audio_duration": 211.696313,
+  "marked_at": "2026-10-31T11:12:04.499Z",
+  "segments": [
+    {
+      "eighth_id": 463,
+      "name_ar": "سبعة أثمان",
+      "hizb": 58,
+      "first_verse": 1,
+      "last_verse": 15,
+      "start": 0,
+      "end": 48.124065,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 464,
+      "name_ar": "الثمن الأخير",
+      "hizb": 58,
+      "first_verse": 16,
+      "last_verse": 50,
+      "start": 48.124065,
+      "end": 211.696313
+    }
+  ],
+  "complete": true
+}
