@@ -1,0 +1,44 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 58,
+  "surah_name_ar": "المجادلة",
+  "segment_count": 3,
+  "inner_boundaries": 2,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/058.mp3",
+  "audio_duration": 588.852189,
+  "marked_at": "2026-10-31T11:04:59.648Z",
+  "segments": [
+    {
+      "eighth_id": 433,
+      "name_ar": "الثمن الأول",
+      "hizb": 55,
+      "first_verse": 1,
+      "last_verse": 7,
+      "start": 0,
+      "end": 197.73502000000002
+    },
+    {
+      "eighth_id": 434,
+      "name_ar": "الربع",
+      "hizb": 55,
+      "first_verse": 8,
+      "last_verse": 13,
+      "start": 197.73502000000002,
+      "end": 381.131233
+    },
+    {
+      "eighth_id": 435,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 55,
+      "first_verse": 14,
+      "last_verse": 21,
+      "start": 381.131233,
+      "end": 588.852189,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
