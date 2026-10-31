@@ -1,0 +1,36 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 88,
+  "surah_name_ar": "الغاشية",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/088.mp3",
+  "audio_duration": 102.791813,
+  "marked_at": "2026-10-31T11:13:51.137Z",
+  "segments": [
+    {
+      "eighth_id": 473,
+      "name_ar": "الثمن الأول",
+      "hizb": 60,
+      "first_verse": 1,
+      "last_verse": 16,
+      "start": 0,
+      "end": 57.493302,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 474,
+      "name_ar": "الربع",
+      "hizb": 60,
+      "first_verse": 17,
+      "last_verse": 26,
+      "start": 57.493302,
+      "end": 102.791813,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
