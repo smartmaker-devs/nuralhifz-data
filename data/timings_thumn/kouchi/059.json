@@ -1,0 +1,51 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 59,
+  "surah_name_ar": "الحشر",
+  "segment_count": 3,
+  "inner_boundaries": 2,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/059.mp3",
+  "audio_duration": 584.280813,
+  "marked_at": "2026-10-31T11:05:49.859Z",
+  "segments": [
+    {
+      "eighth_id": 435,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 55,
+      "first_verse": 1,
+      "last_verse": 2,
+      "start": 0,
+      "end": 44.10184699999999,
+      "continues_before": true,
+      "shared_boundary": true,
+      "last_verse_partial": true,
+      "last_verse_char_offset": 260,
+      "ends_mid_verse": true
+    },
+    {
+      "eighth_id": 436,
+      "name_ar": "النصف",
+      "hizb": 55,
+      "first_verse": 2,
+      "last_verse": 10,
+      "start": 44.10184699999999,
+      "end": 303.328402,
+      "shared_boundary": true,
+      "first_verse_partial": true,
+      "first_verse_char_offset": 261
+    },
+    {
+      "eighth_id": 437,
+      "name_ar": "خمسة أثمان",
+      "hizb": 55,
+      "first_verse": 11,
+      "last_verse": 24,
+      "start": 303.328402,
+      "end": 584.280813
+    }
+  ],
+  "complete": true
+}
