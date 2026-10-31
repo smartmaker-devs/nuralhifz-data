@@ -1,0 +1,36 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 83,
+  "surah_name_ar": "المطففين",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/083.mp3",
+  "audio_duration": 209.528125,
+  "marked_at": "2026-10-31T11:12:47.336Z",
+  "segments": [
+    {
+      "eighth_id": 469,
+      "name_ar": "خمسة أثمان",
+      "hizb": 59,
+      "first_verse": 1,
+      "last_verse": 13,
+      "start": 0,
+      "end": 71.469818,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 470,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 59,
+      "first_verse": 14,
+      "last_verse": 36,
+      "start": 71.469818,
+      "end": 209.528125,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
