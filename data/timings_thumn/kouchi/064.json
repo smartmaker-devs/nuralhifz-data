@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 64,
+  "surah_name_ar": "التغابن",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/064.mp3",
+  "audio_duration": 291.944438,
+  "marked_at": "2026-10-31T11:07:10.776Z",
+  "segments": [
+    {
+      "eighth_id": 443,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 56,
+      "first_verse": 1,
+      "last_verse": 6,
+      "start": 0,
+      "end": 85.791665,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 444,
+      "name_ar": "النصف",
+      "hizb": 56,
+      "first_verse": 7,
+      "last_verse": 18,
+      "start": 85.791665,
+      "end": 291.944438
+    }
+  ],
+  "complete": true
+}
