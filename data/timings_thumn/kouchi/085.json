@@ -1,0 +1,36 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 85,
+  "surah_name_ar": "البروج",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/085.mp3",
+  "audio_duration": 121.861189,
+  "marked_at": "2026-10-31T11:13:26.237Z",
+  "segments": [
+    {
+      "eighth_id": 471,
+      "name_ar": "سبعة أثمان",
+      "hizb": 59,
+      "first_verse": 1,
+      "last_verse": 11,
+      "start": 0,
+      "end": 78.82710399999999,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 472,
+      "name_ar": "الثمن الأخير",
+      "hizb": 59,
+      "first_verse": 12,
+      "last_verse": 22,
+      "start": 78.82710399999999,
+      "end": 121.861189,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
