@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 74,
+  "surah_name_ar": "المدثر",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/074.mp3",
+  "audio_duration": 280.842438,
+  "marked_at": "2026-10-31T11:11:28.034Z",
+  "segments": [
+    {
+      "eighth_id": 459,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 58,
+      "first_verse": 1,
+      "last_verse": 30,
+      "start": 0,
+      "end": 97.824541,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 460,
+      "name_ar": "النصف",
+      "hizb": 58,
+      "first_verse": 31,
+      "last_verse": 55,
+      "start": 97.824541,
+      "end": 280.842438
+    }
+  ],
+  "complete": true
+}
