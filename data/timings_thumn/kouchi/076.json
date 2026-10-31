@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 76,
+  "surah_name_ar": "الإنسان",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/076.mp3",
+  "audio_duration": 279.248938,
+  "marked_at": "2026-10-31T11:11:46.218Z",
+  "segments": [
+    {
+      "eighth_id": 462,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 58,
+      "first_verse": 1,
+      "last_verse": 18,
+      "start": 0,
+      "end": 152.83264
+    },
+    {
+      "eighth_id": 463,
+      "name_ar": "سبعة أثمان",
+      "hizb": 58,
+      "first_verse": 19,
+      "last_verse": 31,
+      "start": 152.83264,
+      "end": 279.248938,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
