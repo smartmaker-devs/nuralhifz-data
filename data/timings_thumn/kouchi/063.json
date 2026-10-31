@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 63,
+  "surah_name_ar": "المنافقون",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/063.mp3",
+  "audio_duration": 247.510189,
+  "marked_at": "2026-10-31T11:06:53.037Z",
+  "segments": [
+    {
+      "eighth_id": 442,
+      "name_ar": "الربع",
+      "hizb": 56,
+      "first_verse": 1,
+      "last_verse": 8,
+      "start": 0,
+      "end": 169.521029
+    },
+    {
+      "eighth_id": 443,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 56,
+      "first_verse": 9,
+      "last_verse": 11,
+      "start": 169.521029,
+      "end": 247.510189,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
