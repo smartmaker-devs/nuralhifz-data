@@ -1,0 +1,34 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 55,
+  "surah_name_ar": "الرحمن",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/055.mp3",
+  "audio_duration": 558.680813,
+  "marked_at": "2026-10-31T11:01:58.420Z",
+  "segments": [
+    {
+      "eighth_id": 425,
+      "name_ar": "الثمن الأول",
+      "hizb": 54,
+      "first_verse": 1,
+      "last_verse": 39,
+      "start": 0,
+      "end": 279.837005
+    },
+    {
+      "eighth_id": 426,
+      "name_ar": "الربع",
+      "hizb": 54,
+      "first_verse": 40,
+      "last_verse": 77,
+      "start": 279.837005,
+      "end": 558.680813
+    }
+  ],
+  "complete": true
+}
