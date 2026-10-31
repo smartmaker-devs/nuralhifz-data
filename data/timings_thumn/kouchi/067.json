@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 67,
+  "surah_name_ar": "الملك",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/067.mp3",
+  "audio_duration": 343.04,
+  "marked_at": "2026-10-31T11:08:19.916Z",
+  "segments": [
+    {
+      "eighth_id": 449,
+      "name_ar": "الثمن الأول",
+      "hizb": 57,
+      "first_verse": 1,
+      "last_verse": 19,
+      "start": 0,
+      "end": 196.38404899999998
+    },
+    {
+      "eighth_id": 450,
+      "name_ar": "الربع",
+      "hizb": 57,
+      "first_verse": 20,
+      "last_verse": 31,
+      "start": 196.38404899999998,
+      "end": 343.04,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
