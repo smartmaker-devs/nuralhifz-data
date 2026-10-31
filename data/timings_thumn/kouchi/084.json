@@ -1,0 +1,36 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 84,
+  "surah_name_ar": "الانشقاق",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/084.mp3",
+  "audio_duration": 120.999125,
+  "marked_at": "2026-10-31T11:13:09.608Z",
+  "segments": [
+    {
+      "eighth_id": 470,
+      "name_ar": "ثلاثة أرباع",
+      "hizb": 59,
+      "first_verse": 1,
+      "last_verse": 15,
+      "start": 0,
+      "end": 77.641925,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 471,
+      "name_ar": "سبعة أثمان",
+      "hizb": 59,
+      "first_verse": 16,
+      "last_verse": 25,
+      "start": 77.641925,
+      "end": 120.999125,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
