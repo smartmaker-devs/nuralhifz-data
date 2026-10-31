@@ -1,0 +1,42 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 72,
+  "surah_name_ar": "الجن",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/072.mp3",
+  "audio_duration": 276.950189,
+  "marked_at": "2026-10-31T11:10:41.424Z",
+  "segments": [
+    {
+      "eighth_id": 457,
+      "name_ar": "الثمن الأول",
+      "hizb": 58,
+      "first_verse": 1,
+      "last_verse": 23,
+      "start": 0,
+      "end": 221.582545,
+      "shared_boundary": true,
+      "last_verse_partial": true,
+      "last_verse_char_offset": 48,
+      "ends_mid_verse": true
+    },
+    {
+      "eighth_id": 458,
+      "name_ar": "الربع",
+      "hizb": 58,
+      "first_verse": 23,
+      "last_verse": 28,
+      "start": 221.582545,
+      "end": 276.950189,
+      "continues_after": true,
+      "shared_boundary": true,
+      "first_verse_partial": true,
+      "first_verse_char_offset": 49
+    }
+  ],
+  "complete": true
+}
