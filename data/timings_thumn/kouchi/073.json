@@ -1,0 +1,36 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 73,
+  "surah_name_ar": "المزمل",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/073.mp3",
+  "audio_duration": 204.146938,
+  "marked_at": "2026-10-31T11:11:04.228Z",
+  "segments": [
+    {
+      "eighth_id": 458,
+      "name_ar": "الربع",
+      "hizb": 58,
+      "first_verse": 1,
+      "last_verse": 17,
+      "start": 0,
+      "end": 129.91879600000001,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 459,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 58,
+      "first_verse": 18,
+      "last_verse": 18,
+      "start": 129.91879600000001,
+      "end": 204.146938,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
