@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 69,
+  "surah_name_ar": "الحاقة",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/069.mp3",
+  "audio_duration": 299.232625,
+  "marked_at": "2026-10-31T11:09:17.233Z",
+  "segments": [
+    {
+      "eighth_id": 452,
+      "name_ar": "النصف",
+      "hizb": 57,
+      "first_verse": 1,
+      "last_verse": 17,
+      "start": 0,
+      "end": 124.34998,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 453,
+      "name_ar": "خمسة أثمان",
+      "hizb": 57,
+      "first_verse": 18,
+      "last_verse": 52,
+      "start": 124.34998,
+      "end": 299.232625
+    }
+  ],
+  "complete": true
+}
