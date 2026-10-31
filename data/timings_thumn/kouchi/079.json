@@ -1,0 +1,35 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 79,
+  "surah_name_ar": "النازعات",
+  "segment_count": 2,
+  "inner_boundaries": 1,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/079.mp3",
+  "audio_duration": 204.512625,
+  "marked_at": "2026-10-31T11:12:32.364Z",
+  "segments": [
+    {
+      "eighth_id": 466,
+      "name_ar": "الربع",
+      "hizb": 59,
+      "first_verse": 1,
+      "last_verse": 40,
+      "start": 0,
+      "end": 172.920636
+    },
+    {
+      "eighth_id": 467,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 59,
+      "first_verse": 41,
+      "last_verse": 45,
+      "start": 172.920636,
+      "end": 204.512625,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
