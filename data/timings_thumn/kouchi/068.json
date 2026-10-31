@@ -1,0 +1,45 @@
+{
+  "schema_version": 3,
+  "granularity": "thumn",
+  "surah": 68,
+  "surah_name_ar": "القلم",
+  "segment_count": 3,
+  "inner_boundaries": 2,
+  "reciter": "el_ayoun_el_kouchi",
+  "reciter_name": "El-Ayoun El-Kouchi",
+  "audio_url": "https://github.com/smartmaker-devs/nuralhifz-data/releases/download/audio-kouchi-v1/068.mp3",
+  "audio_duration": 335.151,
+  "marked_at": "2026-10-31T11:08:55.656Z",
+  "segments": [
+    {
+      "eighth_id": 450,
+      "name_ar": "الربع",
+      "hizb": 57,
+      "first_verse": 1,
+      "last_verse": 18,
+      "start": 0,
+      "end": 95.18633,
+      "continues_before": true
+    },
+    {
+      "eighth_id": 451,
+      "name_ar": "ثلاثة أثمان",
+      "hizb": 57,
+      "first_verse": 19,
+      "last_verse": 47,
+      "start": 95.18633,
+      "end": 292.84922700000004
+    },
+    {
+      "eighth_id": 452,
+      "name_ar": "النصف",
+      "hizb": 57,
+      "first_verse": 48,
+      "last_verse": 52,
+      "start": 292.84922700000004,
+      "end": 335.151,
+      "continues_after": true
+    }
+  ],
+  "complete": true
+}
